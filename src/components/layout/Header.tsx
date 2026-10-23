@@ -78,20 +78,28 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
   return (
     <header className="h-16 sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-[#E5E8DF] px-4 sm:px-8 flex items-center justify-between">
       {/* Left: Mobile hamburger & Page Breadcrumb Title */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3">
         <button
           onClick={() => setMobileNavOpen(true)}
-          className="md:hidden p-2 rounded-xl text-[#737B72] hover:bg-[#FAF9F4] hover:text-[#202820] transition-colors"
+          className="md:hidden p-1.5 rounded-xl text-[#737B72] hover:bg-[#FAF9F4] hover:text-[#202820] transition-colors"
           aria-label="Open mobile menu"
         >
           <Menu className="w-5 h-5" />
         </button>
 
+        <div className="md:hidden w-8 h-8 rounded-full bg-white border border-[#E5E8DF] shadow-2xs flex items-center justify-center shrink-0 p-0.5 overflow-hidden">
+          <img
+            src="/logo.png"
+            alt="Godavari Organics"
+            className="w-full h-full object-contain"
+          />
+        </div>
+
         <div className="flex flex-col">
           <span className="hidden sm:inline-block text-[11px] font-medium text-[#737B72]">
             Godavari Organics / {pageInfo.category}
           </span>
-          <h1 className="text-lg sm:text-xl font-bold text-[#173D2A] leading-tight font-heading">
+          <h1 className="text-base sm:text-xl font-bold text-[#173D2A] leading-tight font-heading">
             {pageInfo.title}
           </h1>
         </div>

@@ -196,10 +196,14 @@ export const LiveStorefrontModal: React.FC = () => {
               <Menu className="w-5 h-5 stroke-[2.2]" />
             </button>
 
-            {/* Logo: Circular emblem + Text Wordmark */}
+            {/* Logo: Circular emblem */}
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#245C3A] text-white flex items-center justify-center font-bold text-sm shadow-xs border-2 border-[#FAF9F4]">
-                🌾
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-white border border-[#E5E8DF] shadow-xs flex items-center justify-center p-0.5 shrink-0">
+                <img
+                  src="/logo.png"
+                  alt="Godavari Organics Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <span className="font-heading font-black text-sm tracking-tight text-[#173D2A] uppercase">
                 Godavari Organics

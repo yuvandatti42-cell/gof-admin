@@ -8,7 +8,6 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Sprout,
   RotateCcw,
 } from 'lucide-react';
 
@@ -70,8 +69,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
       <div>
         <div className="h-16 flex items-center px-4 border-b border-[#E5E8DF] justify-between">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-10 h-10 rounded-xl bg-[#245C3A] text-white flex items-center justify-center shrink-0 shadow-xs">
-              <Sprout className="w-5 h-5 text-[#E8F0EB]" />
+            <div className="w-10 h-10 rounded-full bg-white border border-[#E5E8DF] shadow-xs flex items-center justify-center shrink-0 p-0.5 overflow-hidden">
+              <img
+                src="/logo.png"
+                alt="Godavari Organics Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             {!isSidebarCollapsed && (
               <div className="min-w-0">
