@@ -329,7 +329,7 @@ export const SettingsPage: React.FC = () => {
             <div className="pt-3 border-t border-[#E5E8DF]">
               <span className="block font-semibold text-[#173D2A] mb-2">Store Brandmark Preview</span>
               <div className="p-4 rounded-xl border border-[#E5E8DF] bg-[#FAF9F4] inline-flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-white border border-[#E5E8DF] shadow-xs flex items-center justify-center p-0.5 shrink-0">
+                <div className="w-14 h-14 rounded-full overflow-hidden bg-white border border-[#DDD6C5] shadow-xs flex items-center justify-center p-0.5 shrink-0">
                   <img
                     src="/logo.png"
                     alt="Godavari Organics Logo"

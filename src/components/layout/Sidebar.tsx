@@ -69,7 +69,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
       <div>
         <div className="h-16 flex items-center px-4 border-b border-[#E5E8DF] justify-between">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-10 h-10 rounded-full bg-white border border-[#E5E8DF] shadow-xs flex items-center justify-center shrink-0 p-0.5 overflow-hidden">
+            <div className="w-11 h-11 rounded-full bg-white border border-[#DDD6C5] shadow-xs flex items-center justify-center shrink-0 p-0.5 overflow-hidden">
               <img
                 src="/logo.png"
                 alt="Godavari Organics Logo"
