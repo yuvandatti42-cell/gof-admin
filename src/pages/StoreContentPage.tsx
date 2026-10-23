@@ -58,6 +58,7 @@ export const StoreContentPage: React.FC = () => {
   const slides = storeContent.heroSlides || [];
 
   // Form input for adding a new image
+  const [uploadTab, setUploadTab] = useState<'upload' | 'url'>('upload');
   const [imageUrlInput, setImageUrlInput] = useState('');
   const [linkInput, setLinkInput] = useState('');
   const [imagePreview, setImagePreview] = useState('');
@@ -115,6 +116,7 @@ export const StoreContentPage: React.FC = () => {
   const handlePickSample = (url: string) => {
     setImageUrlInput(url);
     setImagePreview(url);
+    setUploadTab('url');
     showToast('Sample image selected. Tap "Add Slide Image" to add it.', 'info');
   };
 
@@ -167,23 +169,52 @@ export const StoreContentPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* 1. SECTION: ADD HERO SLIDE IMAGE */}
+      {/* 1. SECTION: ADD HERO SLIDE IMAGE (COMPACT & ALIGNED) */}
       <Card>
-        <div className="pb-3 border-b border-[#E5E8DF] mb-4">
-          <h3 className="text-base font-bold text-[#173D2A] flex items-center gap-2">
-            <Plus className="w-4 h-4 text-[#245C3A]" />
-            Add New Hero Slide Image
-          </h3>
-          <p className="text-xs text-[#737B72] mt-0.5">
-            Upload an image banner from your device or paste an image URL.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E5E8DF] mb-3">
+          <div>
+            <h3 className="text-sm sm:text-base font-bold text-[#173D2A] flex items-center gap-1.5">
+              <Plus className="w-4 h-4 text-[#245C3A]" />
+              Add New Hero Slide Image
+            </h3>
+            <p className="text-[11px] sm:text-xs text-[#737B72]">
+              Choose a device image or paste an image link.
+            </p>
+          </div>
+
+          {/* Mode Switcher Tabs */}
+          <div className="inline-flex bg-[#FAF9F4] p-0.5 rounded-lg border border-[#E5E8DF] self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => setUploadTab('upload')}
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                uploadTab === 'upload'
+                  ? 'bg-[#245C3A] text-white shadow-2xs'
+                  : 'text-[#555E52] hover:text-[#173D2A]'
+              }`}
+            >
+              <Upload className="w-3.5 h-3.5" />
+              Upload File
+            </button>
+            <button
+              type="button"
+              onClick={() => setUploadTab('url')}
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                uploadTab === 'url'
+                  ? 'bg-[#245C3A] text-white shadow-2xs'
+                  : 'text-[#555E52] hover:text-[#173D2A]'
+              }`}
+            >
+              <LinkIcon className="w-3.5 h-3.5" />
+              Paste URL
+            </button>
+          </div>
         </div>
 
-        <form onSubmit={handleAddSlide} className="space-y-4">
-          {/* Upload Button or URL Input */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Option A: Choose File */}
-            <div className="p-4 rounded-xl border-2 border-dashed border-[#DDD6C5] bg-[#FAF9F4] flex flex-col items-center justify-center text-center">
+        <form onSubmit={handleAddSlide} className="space-y-3">
+          {/* Main Input Row: Upload File OR Paste URL */}
+          {uploadTab === 'upload' ? (
+            <div>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -194,26 +225,30 @@ export const StoreContentPage: React.FC = () => {
               />
               <label
                 htmlFor="hero-file-upload"
-                className="cursor-pointer flex flex-col items-center gap-2"
+                className="flex items-center justify-between px-3.5 py-2.5 rounded-xl border-2 border-dashed border-[#DDD6C5] hover:border-[#245C3A] bg-[#FAF9F4] hover:bg-[#F3F6F2] transition-colors cursor-pointer group"
               >
-                <div className="w-10 h-10 rounded-full bg-white shadow-xs border border-[#E5E8DF] flex items-center justify-center text-[#245C3A]">
-                  <Upload className="w-5 h-5" />
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-white shadow-2xs border border-[#E5E8DF] flex items-center justify-center text-[#245C3A] group-hover:bg-[#245C3A] group-hover:text-white transition-colors shrink-0">
+                    <Upload className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-[#173D2A] truncate">
+                      {imagePreview && imageUrlInput.startsWith('data:')
+                        ? 'Image Selected (click to change)'
+                        : 'Choose Image from Device'}
+                    </p>
+                    <p className="text-[10px] text-[#737B72]">PNG, JPG, WEBP up to 3MB</p>
+                  </div>
                 </div>
-                <span className="text-xs font-bold text-[#173D2A]">
-                  Choose Image from Device
-                </span>
-                <span className="text-[11px] text-[#737B72]">
-                  PNG, JPG, WEBP up to 3MB
+                <span className="text-[11px] font-bold text-[#245C3A] bg-white px-2.5 py-1 rounded-lg border border-[#E5E8DF] shrink-0">
+                  Browse File
                 </span>
               </label>
             </div>
-
-            {/* Option B: Paste Image URL */}
-            <div className="space-y-3 flex flex-col justify-center">
-              <div>
-                <label className="block text-xs font-bold text-[#173D2A] mb-1">
-                  Or Paste Image URL:
-                </label>
+          ) : (
+            <div>
+              <div className="relative flex items-center">
+                <LinkIcon className="absolute left-3 w-4 h-4 text-[#737B72] pointer-events-none" />
                 <input
                   type="text"
                   value={imageUrlInput}
@@ -222,70 +257,80 @@ export const StoreContentPage: React.FC = () => {
                     setImagePreview(e.target.value);
                   }}
                   placeholder="https://example.com/banner-image.jpg"
-                  className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white font-mono focus:ring-1 focus:ring-[#245C3A]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#173D2A] mb-1">
-                  Click Redirect Link (Optional):
-                </label>
-                <input
-                  type="text"
-                  value={linkInput}
-                  onChange={(e) => setLinkInput(e.target.value)}
-                  placeholder="/collections/organic-millets"
-                  className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white font-mono"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Instant Image Preview */}
-          {imagePreview && (
-            <div className="p-3 bg-[#FAF9F4] rounded-xl border border-[#E5E8DF]">
-              <span className="text-xs font-bold text-[#173D2A] block mb-1.5">
-                Image Preview:
-              </span>
-              <div className="relative rounded-lg overflow-hidden border border-[#DDD6C5] h-36 bg-neutral-900 flex items-center justify-center">
-                <img
-                  src={imagePreview}
-                  alt="Slide preview"
-                  className="w-full h-full object-cover"
-                  onError={() => showToast('Image URL failed to load preview.', 'error')}
+                  className="w-full text-xs sm:text-sm pl-9 pr-3 py-2 rounded-xl border border-[#E5E8DF] bg-white font-mono focus:ring-1 focus:ring-[#245C3A] focus:outline-hidden"
                 />
               </div>
             </div>
           )}
 
-          {/* Quick Sample Presets */}
-          <div>
-            <span className="text-[11px] font-bold text-[#737B72] block mb-1.5">
-              Or pick a quick sample image:
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {QUICK_SAMPLE_IMAGES.map((sample) => (
-                <button
-                  key={sample.name}
-                  type="button"
-                  onClick={() => handlePickSample(sample.url)}
-                  className="text-xs px-2.5 py-1 rounded-lg border border-[#E5E8DF] bg-white hover:bg-[#E8F0EB] text-[#245C3A] font-medium transition-colors cursor-pointer"
-                >
-                  🌾 {sample.name}
-                </button>
-              ))}
+          {/* Compact Image Preview strip if image is ready */}
+          {imagePreview && (
+            <div className="flex items-center gap-3 px-3 py-2 bg-[#FAF9F4] rounded-xl border border-[#DDD6C5]">
+              <img
+                src={imagePreview}
+                alt="Slide preview"
+                className="w-16 h-9 object-cover rounded-md border border-[#DDD6C5] shrink-0 bg-neutral-900"
+                onError={() => showToast('Image URL failed to load preview.', 'error')}
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-[#173D2A] truncate">Preview Ready</p>
+                <p className="text-[10px] text-[#737B72] truncate font-mono">
+                  {imageUrlInput.startsWith('data:') ? 'Local file ready to add' : imageUrlInput}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setImageUrlInput('');
+                  setImagePreview('');
+                  if (fileInputRef.current) fileInputRef.current.value = '';
+                }}
+                className="text-xs text-red-600 hover:text-red-700 font-semibold px-2 py-1 shrink-0 cursor-pointer"
+              >
+                Clear
+              </button>
+            </div>
+          )}
+
+          {/* Redirect Link + Add Slide Button Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-center">
+            <div className="sm:col-span-2">
+              <input
+                type="text"
+                value={linkInput}
+                onChange={(e) => setLinkInput(e.target.value)}
+                placeholder="Click Redirect Link (Optional e.g. /products)"
+                className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white font-mono focus:ring-1 focus:ring-[#245C3A] focus:outline-hidden"
+              />
+            </div>
+            <div className="sm:col-span-1 flex justify-end">
+              <Button
+                variant="primary"
+                type="submit"
+                size="sm"
+                icon={<Plus className="w-4 h-4" />}
+                className="w-full sm:w-auto justify-center"
+              >
+                Add Slide Image
+              </Button>
             </div>
           </div>
 
-          {/* Add Slide Submit Button */}
-          <div className="pt-2 flex justify-end">
-            <Button
-              variant="primary"
-              type="submit"
-              icon={<Plus className="w-4 h-4" />}
-            >
-              Add Slide Image
-            </Button>
+          {/* Quick Sample Presets (Compact horizontal scrollable chip row) */}
+          <div className="pt-2 border-t border-[#F0F2EB] flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+            <span className="text-[11px] font-bold text-[#737B72] shrink-0">
+              Quick samples:
+            </span>
+            {QUICK_SAMPLE_IMAGES.map((sample) => (
+              <button
+                key={sample.name}
+                type="button"
+                onClick={() => handlePickSample(sample.url)}
+                className="text-[11px] px-2 py-0.5 rounded-md border border-[#E5E8DF] bg-white hover:bg-[#E8F0EB] hover:border-[#245C3A] text-[#245C3A] font-medium whitespace-nowrap shrink-0 transition-colors cursor-pointer"
+              >
+                🌾 {sample.name.replace(' Banner', '')}
+              </button>
+            ))}
           </div>
         </form>
       </Card>
