@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  --color-forest: #245C3A;
+  --color-forest-dark: #1e4e31;
+  --color-forest-light: #e8f0eb;
+  --color-deep-green: #173D2A;
+  --color-leaf: #6F9F62;
+  --color-cream: #F7F6EF;
+  --color-cream-card: #FAF9F4;
+  --color-main: #202820;
+  --color-muted: #737B72;
+  --color-border: #E5E8DF;
+  --color-border-subtle: #ECEFE8;
+  --color-success: #2F7D4A;
+  --color-warning: #B7791F;
+  --color-danger: #B64238;
+  --color-info: #356AA0;
+}
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #F7F6EF;
+  color: #202820;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tabular numerals for numbers, money, metrics */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom scrollbars for tables and panels */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F7F6EF;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D2D8CB;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B5BEAC;
+}

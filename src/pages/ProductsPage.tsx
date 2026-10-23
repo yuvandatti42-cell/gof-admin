@@ -1,0 +1,1970 @@
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useAdmin } from '../context/AdminContext';
+import { useToast } from '../context/ToastContext';
+import { Card } from '../components/common/Card';
+import { Button } from '../components/common/Button';
+import { Badge } from '../components/common/Badge';
+import { Modal } from '../components/common/Modal';
+import { Drawer } from '../components/common/Drawer';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
+import { EmptyState } from '../components/common/EmptyState';
+import { formatINR } from '../utils/formatters';
+import type { Product, ProductStatus } from '../types';
+import {
+  Search,
+  Plus,
+  Edit2,
+  Copy,
+  Trash2,
+  Eye,
+  UploadCloud,
+  Sprout,
+  CheckCircle2,
+  SlidersHorizontal,
+  X,
+} from 'lucide-react';
+
+export const ProductsPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const {
+    products,
+    categories,
+    storeContent,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    duplicateProduct,
+    bulkUpdateProductStatus,
+    bulkDeleteProducts,
+    addCategory,
+    isProductOnStorefront,
+    addProductToStorefront,
+    removeProductFromStorefront,
+    addMultipleProductsToStorefront,
+    removeMultipleProductsFromStorefront,
+    setLiveStorefrontOpen,
+    setStorefrontPickerOpen,
+  } = useAdmin();
+
+  const { showToast } = useToast();
+
+  // Filter & Search states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [stockFilter, setStockFilter] = useState<'all' | 'in_stock' | 'low_stock' | 'out_of_stock'>('all');
+  const [sortBy, setSortBy] = useState<string>('updated');
+  const [priceFilter, setPriceFilter] = useState<string>('all');
+  const [brandFilter, setBrandFilter] = useState<string>('all');
+  const [ratingFilter, setRatingFilter] = useState<string>('all');
+
+  // Filter Harvest Modal States (Matching User's 2-Column Design)
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [activeFilterTab, setActiveFilterTab] = useState<'sort' | 'tags' | 'type' | 'brand' | 'price' | 'ratings'>('sort');
+
+  // Draft filter selections
+  const [draftSortBy, setDraftSortBy] = useState(sortBy);
+  const [draftCategory, setDraftCategory] = useState(categoryFilter);
+  const [draftStock, setDraftStock] = useState(stockFilter);
+  const [draftPrice, setDraftPrice] = useState(priceFilter);
+  const [draftBrand, setDraftBrand] = useState(brandFilter);
+  const [draftRating, setDraftRating] = useState(ratingFilter);
+
+  // Active filters count
+  const activeFiltersCount = useMemo(() => {
+    return [
+      categoryFilter !== 'all',
+      stockFilter !== 'all',
+      sortBy !== 'updated',
+      priceFilter !== 'all',
+      brandFilter !== 'all',
+      ratingFilter !== 'all',
+    ].filter(Boolean).length;
+  }, [categoryFilter, stockFilter, sortBy, priceFilter, brandFilter, ratingFilter]);
+
+  // Open Filter Modal
+  const handleOpenFilterModal = () => {
+    setDraftSortBy(sortBy);
+    setDraftCategory(categoryFilter);
+    setDraftStock(stockFilter);
+    setDraftPrice(priceFilter);
+    setDraftBrand(brandFilter);
+    setDraftRating(ratingFilter);
+    setIsFilterModalOpen(true);
+  };
+
+  // Apply filters from modal
+  const handleApplyFilters = () => {
+    setSortBy(draftSortBy);
+    setCategoryFilter(draftCategory);
+    setStockFilter(draftStock);
+    setPriceFilter(draftPrice);
+    setBrandFilter(draftBrand);
+    setRatingFilter(draftRating);
+    setIsFilterModalOpen(false);
+    showToast('Harvest filters applied.', 'info');
+  };
+
+  // Clear all filters
+  const handleClearFilters = () => {
+    setDraftSortBy('updated');
+    setDraftCategory('all');
+    setDraftStock('all');
+    setDraftPrice('all');
+    setDraftBrand('all');
+    setDraftRating('all');
+    setSortBy('updated');
+    setCategoryFilter('all');
+    setStockFilter('all');
+    setPriceFilter('all');
+    setBrandFilter('all');
+    setRatingFilter('all');
+    setIsFilterModalOpen(false);
+    showToast('All filters cleared.', 'info');
+  };
+
+  // Quick Add Category Modal state
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryDesc, setNewCategoryDesc] = useState('');
+
+  // Category counts map
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    products.forEach((p) => {
+      counts[p.categoryId] = (counts[p.categoryId] || 0) + 1;
+    });
+    return counts;
+  }, [products]);
+
+  // Create Category Handler
+  const handleCreateCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = newCategoryName.trim();
+    if (!name) {
+      showToast('Please enter a category name.', 'error');
+      return;
+    }
+    const slug = name.toLowerCase().replace(/\s+/g, '-');
+    const created = addCategory({
+      name,
+      slug,
+      description: newCategoryDesc.trim() || 'Organic Farm Category',
+      visibility: 'Visible',
+      displayOrder: categories.length + 1,
+    });
+    showToast(`Category "${created.name}" created!`, 'success');
+    setCategoryFilter(created.id);
+    setNewCategoryName('');
+    setNewCategoryDesc('');
+    setIsAddCategoryOpen(false);
+  };
+
+  // Bulk selection
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  // Modal / Drawer states
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
+
+  // Form State
+  const initialFormState = {
+    name: '',
+    sku: '',
+    categoryId: categories[0]?.id || '',
+    categoryName: categories[0]?.name || '',
+    description: '',
+    price: '',
+    compareAtPrice: '',
+    stock: '',
+    unit: '1 kg',
+    status: 'Active' as ProductStatus,
+    featured: false,
+    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80',
+    harvestLocation: 'Godavari Basin Farms',
+  };
+
+  const [formData, setFormData] = useState(initialFormState);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  // Open Add Product Modal
+  const handleOpenAddModal = () => {
+    setEditingProduct(null);
+    setFormData({
+      ...initialFormState,
+      categoryId: categories[0]?.id || '',
+      categoryName: categories[0]?.name || '',
+      sku: `GOF-${Math.floor(100 + Math.random() * 900)}`,
+    });
+    setFormErrors({});
+    setIsFormModalOpen(true);
+  };
+
+  // Check URL query action=new
+  useEffect(() => {
+    if (searchParams.get('action') === 'new') {
+      handleOpenAddModal();
+      searchParams.delete('action');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams]);
+
+  // Open Edit Product Modal
+  const handleOpenEditModal = (product: Product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      sku: product.sku,
+      categoryId: product.categoryId,
+      categoryName: product.categoryName,
+      description: product.description,
+      price: product.price.toString(),
+      compareAtPrice: product.compareAtPrice ? product.compareAtPrice.toString() : '',
+      stock: product.stock.toString(),
+      unit: product.unit,
+      status: product.status,
+      featured: product.featured,
+      imageUrl: product.imageUrl,
+      harvestLocation: product.harvestLocation || 'Godavari Delta Farms',
+    });
+    setFormErrors({});
+    setIsFormModalOpen(true);
+  };
+
+  // Image Upload handler (Client-side FileReader preview)
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('Image size exceeds 2MB limit for preview.', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, imageUrl: reader.result as string }));
+        showToast('Local image preview loaded.', 'info');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Validate and submit form
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const errors: Record<string, string> = {};
+
+    if (!formData.name.trim()) errors.name = 'Product name is required';
+    if (!formData.sku.trim()) errors.sku = 'SKU is required';
+    if (!formData.price || Number(formData.price) <= 0) errors.price = 'Valid price is required (> 0)';
+    if (formData.compareAtPrice && Number(formData.compareAtPrice) < Number(formData.price)) {
+      errors.compareAtPrice = 'Compare-at price cannot be lower than price';
+    }
+    if (formData.stock === '' || Number(formData.stock) < 0) {
+      errors.stock = 'Valid stock quantity is required (>= 0)';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    const categoryObj = categories.find((c) => c.id === formData.categoryId);
+    const categoryName = categoryObj ? categoryObj.name : 'General Organics';
+
+    const stockNumber = Number(formData.stock);
+    let autoStatus = formData.status;
+    if (stockNumber === 0 && formData.status === 'Active') {
+      autoStatus = 'Out of Stock';
+    }
+
+    if (editingProduct) {
+      updateProduct(editingProduct.id, {
+        name: formData.name.trim(),
+        sku: formData.sku.trim(),
+        categoryId: formData.categoryId,
+        categoryName,
+        description: formData.description.trim(),
+        price: Number(formData.price),
+        compareAtPrice: formData.compareAtPrice ? Number(formData.compareAtPrice) : undefined,
+        stock: stockNumber,
+        unit: formData.unit,
+        status: autoStatus,
+        featured: formData.featured,
+        imageUrl: formData.imageUrl,
+        harvestLocation: formData.harvestLocation,
+      });
+      showToast(`"${formData.name}" was updated successfully.`, 'success', 'Product Updated');
+    } else {
+      addProduct({
+        name: formData.name.trim(),
+        sku: formData.sku.trim(),
+        categoryId: formData.categoryId,
+        categoryName,
+        description: formData.description.trim(),
+        price: Number(formData.price),
+        compareAtPrice: formData.compareAtPrice ? Number(formData.compareAtPrice) : undefined,
+        stock: stockNumber,
+        unit: formData.unit,
+        status: autoStatus,
+        featured: formData.featured,
+        imageUrl: formData.imageUrl,
+        harvestLocation: formData.harvestLocation,
+      });
+      showToast(`"${formData.name}" added to catalog.`, 'success', 'Product Created');
+    }
+
+    setIsFormModalOpen(false);
+  };
+
+  // Duplicate handler
+  const handleDuplicate = (id: string) => {
+    const duplicated = duplicateProduct(id);
+    if (duplicated) {
+      showToast(`Duplicated into "${duplicated.name}"`, 'success', 'Product Duplicated');
+    }
+  };
+
+  // Delete product handler
+  const handleConfirmDelete = () => {
+    if (deleteTargetId) {
+      const target = products.find((p) => p.id === deleteTargetId);
+      deleteProduct(deleteTargetId);
+      setSelectedIds((prev) => prev.filter((id) => id !== deleteTargetId));
+      showToast(`"${target?.name || 'Product'}" has been deleted.`, 'info', 'Product Removed');
+      setDeleteTargetId(null);
+    }
+  };
+
+  // Bulk delete handler
+  const handleConfirmBulkDelete = () => {
+    bulkDeleteProducts(selectedIds);
+    showToast(`${selectedIds.length} products deleted.`, 'info', 'Bulk Action');
+    setSelectedIds([]);
+    setIsBulkDeleteModalOpen(false);
+  };
+
+  // Multi-select toggle
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredProducts.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredProducts.map((p) => p.id));
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  // Filter and Sort Pipeline
+  const filteredProducts = useMemo(() => {
+    return products
+      .filter((p) => {
+        // Search
+        const q = searchTerm.toLowerCase().trim();
+        const matchesSearch =
+          !q ||
+          p.name.toLowerCase().includes(q) ||
+          p.sku.toLowerCase().includes(q) ||
+          p.categoryName.toLowerCase().includes(q);
+
+        // Category filter
+        const matchesCategory =
+          categoryFilter === 'all' || p.categoryId === categoryFilter;
+
+        // Stock filter
+        const matchesStock =
+          stockFilter === 'all' ||
+          (stockFilter === 'in_stock' && p.stock > 15) ||
+          (stockFilter === 'low_stock' && p.stock > 0 && p.stock <= 15) ||
+          (stockFilter === 'out_of_stock' && p.stock === 0);
+
+        // Price filter
+        let matchesPrice = true;
+        if (priceFilter === 'under_250') matchesPrice = p.price < 250;
+        if (priceFilter === '250_500') matchesPrice = p.price >= 250 && p.price <= 500;
+        if (priceFilter === '500_1000') matchesPrice = p.price >= 500 && p.price <= 1000;
+        if (priceFilter === 'above_1000') matchesPrice = p.price > 1000;
+
+        // Brand filter
+        let matchesBrand = true;
+        if (brandFilter === 'Arma') {
+          matchesBrand = p.name.toLowerCase().includes('millet') || (p.harvestLocation || '').includes('Arma');
+        }
+        if (brandFilter === 'Godavari Organics') {
+          matchesBrand = !p.name.toLowerCase().includes('millet');
+        }
+
+        // Ratings filter
+        let matchesRating = true;
+        if (ratingFilter === '4_5_above') matchesRating = (p.salesCount || 0) >= 100;
+        if (ratingFilter === '4_above') matchesRating = (p.salesCount || 0) >= 50;
+
+        return (
+          matchesSearch &&
+          matchesCategory &&
+          matchesStock &&
+          matchesPrice &&
+          matchesBrand &&
+          matchesRating
+        );
+      })
+      .sort((a, b) => {
+        if (sortBy === 'name') return a.name.localeCompare(b.name);
+        if (sortBy === 'price_asc') return a.price - b.price;
+        if (sortBy === 'price_desc') return b.price - a.price;
+        if (sortBy === 'stock') return a.stock - b.stock;
+        if (sortBy === 'discount') {
+          const discountA = a.compareAtPrice ? (a.compareAtPrice - a.price) / a.compareAtPrice : 0;
+          const discountB = b.compareAtPrice ? (b.compareAtPrice - b.price) / b.compareAtPrice : 0;
+          return discountB - discountA;
+        }
+        if (sortBy === 'highest_rated') {
+          return (b.salesCount || 0) - (a.salesCount || 0);
+        }
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      });
+  }, [products, searchTerm, categoryFilter, stockFilter, sortBy, priceFilter, brandFilter, ratingFilter]);
+
+  return (
+    <div className="space-y-3.5 sm:space-y-6">
+      {/* Page Title & Action Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg sm:text-2xl font-bold text-[#173D2A] font-heading">
+                Products Catalog
+              </h2>
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#E8F0EB] text-[#245C3A] border border-[#C0D6C8]">
+                {products.length}
+              </span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-[#737B72] mt-0.5 hidden xs:block">
+              Godavari single-origin grains, cold-pressed oils & spices.
+            </p>
+          </div>
+
+          {/* Mobile-only Action Buttons */}
+          <div className="flex sm:hidden items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handleOpenFilterModal}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-[#DDD6C5] bg-[#FAF6EE] text-[#173D2A] font-bold text-xs shrink-0 cursor-pointer"
+              title="Open Filter Harvest"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 text-[#173D2A]" />
+              <span>Filters</span>
+              {activeFiltersCount > 0 && (
+                <span className="w-4 h-4 rounded-full bg-[#173D2A] text-white text-[9px] font-bold flex items-center justify-center">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleOpenAddModal}
+              icon={<Plus className="w-3.5 h-3.5" />}
+              className="px-2.5 py-1.5 text-xs"
+            >
+              Add
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile secondary actions (Live Store & Storefront) */}
+        <div className="flex sm:hidden items-center gap-2 text-xs">
+          <button
+            onClick={() => setLiveStorefrontOpen(true)}
+            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl bg-white border border-[#E5E8DF] text-[#173D2A] font-semibold text-xs hover:bg-[#FAF9F4]"
+          >
+            <Eye className="w-3.5 h-3.5 text-[#245C3A]" />
+            <span>Live Store</span>
+          </button>
+          <button
+            onClick={() => setStorefrontPickerOpen(true)}
+            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl bg-[#E8F0EB] border border-[#C0D6C8] text-[#245C3A] font-semibold text-xs hover:bg-[#D5E6DA]"
+          >
+            <Sprout className="w-3.5 h-3.5 text-[#245C3A]" />
+            <span>Storefront ({storeContent.featuredProductIds.length})</span>
+          </button>
+        </div>
+
+        {/* Desktop / Tablet Action Buttons */}
+        <div className="hidden sm:flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setLiveStorefrontOpen(true)}
+            icon={<Eye className="w-4 h-4 text-[#245C3A]" />}
+          >
+            Live Store
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setStorefrontPickerOpen(true)}
+            icon={<Sprout className="w-4 h-4 text-[#245C3A]" />}
+          >
+            Storefront ({storeContent.featuredProductIds.length})
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleOpenFilterModal}
+            icon={<SlidersHorizontal className="w-4 h-4 text-[#173D2A]" />}
+          >
+            <span>Filter Harvest</span>
+            {activeFiltersCount > 0 && (
+              <span className="w-5 h-5 rounded-full bg-[#173D2A] text-white text-[10px] font-bold flex items-center justify-center">
+                {activeFiltersCount}
+              </span>
+            )}
+          </Button>
+
+          <Button
+            variant="primary"
+            onClick={handleOpenAddModal}
+            icon={<Plus className="w-4 h-4" />}
+          >
+            Add Product
+          </Button>
+        </div>
+      </div>
+
+      {/* Categories Filter Tabs (Compact Horizontal Scroll) */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        <button
+          type="button"
+          onClick={() => setCategoryFilter('all')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            categoryFilter === 'all'
+              ? 'bg-[#245C3A] text-white shadow-xs'
+              : 'bg-white text-[#555E53] hover:bg-[#FAF9F4] border border-[#E5E8DF]'
+          }`}
+        >
+          All ({products.length})
+        </button>
+
+        {categories.map((c) => {
+          const count = categoryCounts[c.id] || 0;
+          const isSelected = categoryFilter === c.id;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => setCategoryFilter(c.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                isSelected
+                  ? 'bg-[#245C3A] text-white shadow-xs'
+                  : 'bg-white text-[#555E53] hover:bg-[#FAF9F4] border border-[#E5E8DF]'
+              }`}
+            >
+              <span>{c.name}</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                  isSelected ? 'bg-white/20 text-white' : 'bg-[#FAF9F4] text-[#737B72]'
+                }`}
+              >
+                {count}
+              </span>
+            </button>
+          );
+        })}
+
+        <button
+          type="button"
+          onClick={() => setIsAddCategoryOpen(true)}
+          className="px-2.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-[#245C3A] bg-[#E8F0EB] hover:bg-[#D5E6DA] transition-colors cursor-pointer flex items-center gap-1 shrink-0 ml-0.5 border border-[#C0D6C8]"
+          title="Create a new product category"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          <span>Category</span>
+        </button>
+      </div>
+
+      {/* Filter & Search Bar (Compact Mobile-Optimized) */}
+      <Card padding="sm" className="space-y-2.5">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5">
+          {/* Search Input & Quick Filter Harvest Trigger in One Row */}
+          <div className="flex items-center gap-2 flex-1">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-[#737B72] absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search products..."
+                className="w-full text-xs sm:text-sm pl-9 pr-4 py-2 rounded-xl border border-[#E5E8DF] bg-white text-[#202820] placeholder-[#737B72] focus:outline-none focus:ring-1 focus:ring-[#245C3A]"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#737B72] hover:text-[#202820]"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleOpenFilterModal}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#DDD6C5] bg-[#FAF6EE] hover:bg-[#F0EBE0] text-[#173D2A] font-bold text-xs shrink-0 cursor-pointer transition-colors shadow-2xs"
+              title="Open Filter Harvest"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 text-[#173D2A]" />
+              <span>Filters</span>
+              {activeFiltersCount > 0 && (
+                <span className="w-4 h-4 rounded-full bg-[#173D2A] text-white text-[9px] font-bold flex items-center justify-center">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Desktop-only Quick Dropdowns (Hidden on mobile to save vertical space) */}
+          <div className="hidden md:flex items-center gap-2 flex-wrap">
+            {/* Category Dropdown */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-[#737B72] shrink-0 hidden lg:inline">Category:</span>
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="text-xs sm:text-sm py-2 px-3 rounded-xl border border-[#E5E8DF] bg-white text-[#202820] focus:ring-1 focus:ring-[#245C3A]"
+              >
+                <option value="all">All Categories ({products.length})</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Stock Filter Dropdown */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-[#737B72] shrink-0 hidden lg:inline">Stock:</span>
+              <select
+                value={stockFilter}
+                onChange={(e) => setStockFilter(e.target.value as any)}
+                className="text-xs sm:text-sm py-2 px-3 rounded-xl border border-[#E5E8DF] bg-white text-[#202820] focus:ring-1 focus:ring-[#245C3A]"
+              >
+                <option value="all">All Stock Statuses</option>
+                <option value="in_stock">In Stock (&gt;15)</option>
+                <option value="low_stock">Low Stock (1-15)</option>
+                <option value="out_of_stock">Out of Stock (0)</option>
+              </select>
+            </div>
+
+            {/* Sort By Dropdown */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-[#737B72] shrink-0 hidden lg:inline">Sort:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="text-xs sm:text-sm py-2 px-3 rounded-xl border border-[#E5E8DF] bg-white text-[#202820] focus:ring-1 focus:ring-[#245C3A]"
+              >
+                <option value="updated">Relevance (Recent)</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+                <option value="discount">Discount: High to Low</option>
+                <option value="highest_rated">Highest Rated</option>
+                <option value="name">Product Name (A-Z)</option>
+                <option value="stock">Stock Quantity</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Active Filter Chips */}
+        {activeFiltersCount > 0 && (
+          <div className="pt-2 border-t border-[#E5E8DF]/60 flex flex-wrap items-center gap-1.5 text-xs">
+            <span className="text-[#737B72] font-semibold text-[11px] mr-1">Active Filters:</span>
+            {categoryFilter !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#E8F0EB] text-[#245C3A] font-semibold text-[11px] border border-[#C0D6C8]">
+                Category: {categories.find((c) => c.id === categoryFilter)?.name || categoryFilter}
+                <button
+                  type="button"
+                  onClick={() => setCategoryFilter('all')}
+                  className="hover:text-red-600 cursor-pointer ml-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {stockFilter !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#E8F0EB] text-[#245C3A] font-semibold text-[11px] border border-[#C0D6C8]">
+                Stock: {stockFilter.replace('_', ' ')}
+                <button
+                  type="button"
+                  onClick={() => setStockFilter('all')}
+                  className="hover:text-red-600 cursor-pointer ml-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {priceFilter !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#E8F0EB] text-[#245C3A] font-semibold text-[11px] border border-[#C0D6C8]">
+                Price: {priceFilter.replace('_', ' ')}
+                <button
+                  type="button"
+                  onClick={() => setPriceFilter('all')}
+                  className="hover:text-red-600 cursor-pointer ml-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {brandFilter !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#E8F0EB] text-[#245C3A] font-semibold text-[11px] border border-[#C0D6C8]">
+                Brand: {brandFilter}
+                <button
+                  type="button"
+                  onClick={() => setBrandFilter('all')}
+                  className="hover:text-red-600 cursor-pointer ml-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {sortBy !== 'updated' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#E8F0EB] text-[#245C3A] font-semibold text-[11px] border border-[#C0D6C8]">
+                Sorted: {sortBy.replace('_', ' ')}
+                <button
+                  type="button"
+                  onClick={() => setSortBy('updated')}
+                  className="hover:text-red-600 cursor-pointer ml-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="text-[11px] text-[#B64238] font-bold hover:underline cursor-pointer ml-1"
+            >
+              Clear All
+            </button>
+          </div>
+        )}
+
+        {/* Active Filters & Bulk Selection Indicator */}
+        {(selectedIds.length > 0 || searchTerm || categoryFilter !== 'all' || stockFilter !== 'all') && (
+          <div className="pt-2 border-t border-[#E5E8DF]/60 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2">
+              {selectedIds.length > 0 && (
+                <span className="px-2.5 py-1 rounded-lg bg-[#E8F0EB] text-[#245C3A] font-semibold">
+                  {selectedIds.length} selected
+                </span>
+              )}
+              {selectedIds.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      addMultipleProductsToStorefront(selectedIds);
+                      showToast(`Added ${selectedIds.length} products to live customer storefront.`, 'success', 'Bulk Storefront Added');
+                    }}
+                  >
+                    + Add to Store
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      removeMultipleProductsFromStorefront(selectedIds);
+                      showToast(`Removed ${selectedIds.length} products from customer storefront.`, 'info', 'Bulk Storefront Removed');
+                    }}
+                  >
+                    ✕ Remove from Store
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      bulkUpdateProductStatus(selectedIds, 'Active');
+                      showToast(`Marked ${selectedIds.length} products Active.`, 'success');
+                    }}
+                  >
+                    Set Active
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => setIsBulkDeleteModalOpen(true)}
+                  >
+                    Delete Selected
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 text-[#737B72]">
+              <span>Showing {filteredProducts.length} of {products.length} products</span>
+              {(searchTerm || categoryFilter !== 'all' || stockFilter !== 'all') && (
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setCategoryFilter('all');
+                    setStockFilter('all');
+                  }}
+                  className="text-[#245C3A] font-semibold hover:underline"
+                >
+                  Reset filters
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* Product Table */}
+      <Card padding="none" className="overflow-hidden">
+        {filteredProducts.length === 0 ? (
+          <EmptyState
+            title="No Products Found"
+            description="No items match your active search terms and filter criteria. You can clear filters or add a new organic product."
+            actionText="Clear Filters"
+            onAction={() => {
+              setSearchTerm('');
+              setCategoryFilter('all');
+              setStockFilter('all');
+            }}
+            secondaryActionText="Add Product"
+            onSecondaryAction={handleOpenAddModal}
+          />
+        ) : (
+          <>
+            {/* Desktop Table View (hidden on mobile) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-[#FAF9F4] text-xs font-semibold text-[#737B72] border-b border-[#E5E8DF]">
+                  <tr>
+                    <th className="py-3 px-4 w-10 text-center">
+                      <input
+                        type="checkbox"
+                        checked={
+                          selectedIds.length > 0 &&
+                          selectedIds.length === filteredProducts.length
+                        }
+                        onChange={toggleSelectAll}
+                        className="rounded border-[#E5E8DF] text-[#245C3A] focus:ring-[#245C3A]"
+                        aria-label="Select all products"
+                      />
+                    </th>
+                    <th className="py-3 px-4 w-14">Image</th>
+                    <th className="py-3 px-4">Product & SKU</th>
+                    <th className="py-3 px-4">Category</th>
+                    <th className="py-3 px-4">Price</th>
+                    <th className="py-3 px-4">Stock</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4 text-center">Storefront</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E5E8DF]/60">
+                  {filteredProducts.map((p) => {
+                    const isSelected = selectedIds.includes(p.id);
+                    const isOnStore = isProductOnStorefront(p.id);
+                    return (
+                      <tr
+                        key={p.id}
+                        className={`hover:bg-[#FAF9F4]/70 transition-colors ${
+                          isSelected ? 'bg-[#E8F0EB]/30' : ''
+                        }`}
+                      >
+                        <td className="py-3 px-4 text-center">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleSelectOne(p.id)}
+                            className="rounded border-[#E5E8DF] text-[#245C3A] focus:ring-[#245C3A]"
+                            aria-label={`Select ${p.name}`}
+                          />
+                        </td>
+                        <td className="py-3 px-4">
+                          <img
+                            src={p.imageUrl}
+                            alt={p.name}
+                            className="w-10 h-10 rounded-xl object-cover border border-[#E5E8DF] shrink-0"
+                          />
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-1.5">
+                            <p
+                              onClick={() => setViewingProduct(p)}
+                              className="font-medium text-[#202820] hover:text-[#245C3A] cursor-pointer"
+                            >
+                              {p.name}
+                            </p>
+                            {isOnStore && (
+                              <span
+                                title="Active on Storefront"
+                                className="text-[10px] px-1.5 py-0.2 rounded bg-[#E8F0EB] text-[#245C3A] border border-[#C0D6C8] font-bold"
+                              >
+                                Live
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-[#737B72] font-mono mt-0.5">
+                            {p.sku} • {p.unit}
+                          </p>
+                        </td>
+                        <td className="py-3 px-4 text-xs text-[#555E53] whitespace-nowrap">
+                          {p.categoryName}
+                        </td>
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <span className="font-semibold text-[#173D2A] tabular-nums">
+                            {formatINR(p.price)}
+                          </span>
+                          {p.compareAtPrice && (
+                            <span className="text-[11px] text-[#737B72] line-through ml-1.5 tabular-nums">
+                              {formatINR(p.compareAtPrice)}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className={`w-2 h-2 rounded-full ${
+                                p.stock === 0
+                                  ? 'bg-[#B64238]'
+                                  : p.stock <= 15
+                                  ? 'bg-[#B7791F]'
+                                  : 'bg-[#2F7D4A]'
+                              }`}
+                            />
+                            <span className="text-xs font-medium tabular-nums text-[#202820]">
+                              {p.stock} units
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <Badge status={p.status} size="sm">
+                            {p.status}
+                          </Badge>
+                        </td>
+                        <td className="py-3 px-4 text-center whitespace-nowrap">
+                          {isOnStore ? (
+                            <button
+                              onClick={() => {
+                                removeProductFromStorefront(p.id);
+                                showToast(
+                                  `Removed "${p.name}" from customer storefront.`,
+                                  'info',
+                                  'Removed from Store'
+                                );
+                              }}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#E8F0EB] text-[#245C3A] hover:bg-[#FDEEED] hover:text-[#B64238] border border-[#C0D6C8] transition-colors cursor-pointer group"
+                              title="Active on storefront. Click to remove."
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5 text-[#2F7D4A] group-hover:hidden" />
+                              <Trash2 className="w-3.5 h-3.5 text-[#B64238] hidden group-hover:inline" />
+                              <span className="group-hover:hidden">On Store</span>
+                              <span className="hidden group-hover:inline">Remove</span>
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                addProductToStorefront(p.id);
+                                showToast(
+                                  `Added "${p.name}" to live customer storefront!`,
+                                  'success',
+                                  'Added to Store'
+                                );
+                              }}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#FAF9F4] text-[#737B72] hover:bg-[#E8F0EB] hover:text-[#245C3A] border border-[#E5E8DF] transition-colors cursor-pointer"
+                              title="Click to publish to customer storefront"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>Add to Store</span>
+                            </button>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => setViewingProduct(p)}
+                              title="View product details"
+                              className="p-1.5 rounded-lg text-[#737B72] hover:text-[#245C3A] hover:bg-[#E8F0EB] transition-colors"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenEditModal(p)}
+                              title="Edit product"
+                              className="p-1.5 rounded-lg text-[#737B72] hover:text-[#245C3A] hover:bg-[#E8F0EB] transition-colors"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDuplicate(p.id)}
+                              title="Duplicate product"
+                              className="p-1.5 rounded-lg text-[#737B72] hover:text-[#245C3A] hover:bg-[#E8F0EB] transition-colors"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteTargetId(p.id)}
+                              title="Delete product"
+                              className="p-1.5 rounded-lg text-[#737B72] hover:text-[#B64238] hover:bg-[#FDEEED] transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View (renders on phones and narrow viewports) */}
+            <div className="md:hidden divide-y divide-[#E5E8DF]/70">
+              {filteredProducts.map((p) => {
+                const isSelected = selectedIds.includes(p.id);
+                const isOnStore = isProductOnStorefront(p.id);
+                return (
+                  <div
+                    key={p.id}
+                    className={`p-4 space-y-3 transition-colors ${
+                      isSelected ? 'bg-[#E8F0EB]/30' : 'bg-white'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelectOne(p.id)}
+                        className="mt-1 rounded border-[#E5E8DF] text-[#245C3A] focus:ring-[#245C3A]"
+                      />
+
+                      <img
+                        src={p.imageUrl}
+                        alt={p.name}
+                        onClick={() => setViewingProduct(p)}
+                        className="w-16 h-16 rounded-xl object-cover border border-[#E5E8DF] shrink-0 cursor-pointer"
+                      />
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h4
+                            onClick={() => setViewingProduct(p)}
+                            className="text-xs sm:text-sm font-bold text-[#173D2A] truncate cursor-pointer"
+                          >
+                            {p.name}
+                          </h4>
+                          {isOnStore && (
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#E8F0EB] text-[#245C3A] border border-[#C0D6C8]">
+                              Live on Store
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-[11px] text-[#737B72] font-mono mt-0.5">
+                          {p.sku} • {p.unit}
+                        </p>
+
+                        <div className="flex items-center justify-between mt-1.5">
+                          <span className="text-xs font-bold text-[#173D2A] tabular-nums">
+                            {formatINR(p.price)}
+                          </span>
+                          <span
+                            className={`text-[10px] font-semibold ${
+                              p.stock <= 15 ? 'text-[#B7791F]' : 'text-[#2F7D4A]'
+                            }`}
+                          >
+                            {p.stock} units
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mobile Action Buttons Bar */}
+                    <div className="pt-2 border-t border-[#E5E8DF]/60 flex items-center justify-between gap-2">
+                      {isOnStore ? (
+                        <button
+                          onClick={() => {
+                            removeProductFromStorefront(p.id);
+                            showToast(
+                              `Removed "${p.name}" from customer storefront.`,
+                              'info',
+                              'Removed from Store'
+                            );
+                          }}
+                          className="flex-1 py-1.5 px-2 rounded-lg bg-[#FDEEED] text-[#B64238] text-[11px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Remove from Store</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            addProductToStorefront(p.id);
+                            showToast(
+                              `Added "${p.name}" to customer storefront!`,
+                              'success',
+                              'Added to Store'
+                            );
+                          }}
+                          className="flex-1 py-1.5 px-2 rounded-lg bg-[#E8F0EB] text-[#245C3A] text-[11px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Add to Store</span>
+                        </button>
+                      )}
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleOpenEditModal(p)}
+                          className="p-1.5 rounded-lg text-[#737B72] hover:bg-[#FAF9F4] hover:text-[#245C3A] border border-[#E5E8DF]"
+                          title="Edit"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteTargetId(p.id)}
+                          className="p-1.5 rounded-lg text-[#737B72] hover:bg-[#FDEEED] hover:text-[#B64238] border border-[#E5E8DF]"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </Card>
+
+      {/* Add / Edit Product Modal */}
+      <Modal
+        isOpen={isFormModalOpen}
+        onClose={() => setIsFormModalOpen(false)}
+        title={editingProduct ? 'Edit Product' : 'Add New Product'}
+        description={
+          editingProduct
+            ? `Update fields for ${editingProduct.sku}`
+            : 'Fill in product catalog information to display on store.'
+        }
+        size="lg"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => setIsFormModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleFormSubmit}>
+              {editingProduct ? 'Save Changes' : 'Create Product'}
+            </Button>
+          </>
+        }
+      >
+        <form onSubmit={handleFormSubmit} className="space-y-4">
+          {/* Row 1: Name and SKU */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+                Product Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="e.g. Organic BPT Sona Masoori Raw Rice"
+                className={`w-full text-xs sm:text-sm px-3 py-2 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-[#245C3A] ${
+                  formErrors.name ? 'border-[#B64238]' : 'border-[#E5E8DF]'
+                }`}
+              />
+              {formErrors.name && (
+                <p className="text-[11px] text-[#B64238] mt-0.5">{formErrors.name}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+                SKU <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.sku}
+                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                placeholder="e.g. GOF-RIC-001"
+                className={`w-full text-xs sm:text-sm px-3 py-2 rounded-xl border bg-white uppercase font-mono focus:outline-none focus:ring-1 focus:ring-[#245C3A] ${
+                  formErrors.sku ? 'border-[#B64238]' : 'border-[#E5E8DF]'
+                }`}
+              />
+              {formErrors.sku && (
+                <p className="text-[11px] text-[#B64238] mt-0.5">{formErrors.sku}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2: Category & Unit */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+                Category <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={formData.categoryId}
+                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white focus:ring-1 focus:ring-[#245C3A]"
+              >
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+                Unit / Package Weight
+              </label>
+              <input
+                type="text"
+                value={formData.unit}
+                onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                placeholder="e.g. 1 kg, 500 ml, 5 kg"
+                className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white focus:ring-1 focus:ring-[#245C3A]"
+              />
+            </div>
+          </div>
+
+          {/* Row 3: Pricing and Stock */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+                Price (₹) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                placeholder="360"
+                className={`w-full text-xs sm:text-sm px-3 py-2 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-[#245C3A] ${
+                  formErrors.price ? 'border-[#B64238]' : 'border-[#E5E8DF]'
+                }`}
+              />
+              {formErrors.price && (
+                <p className="text-[11px] text-[#B64238] mt-0.5">{formErrors.price}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+                Compare-at Price (₹)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={formData.compareAtPrice}
+                onChange={(e) => setFormData({ ...formData, compareAtPrice: e.target.value })}
+                placeholder="420"
+                className={`w-full text-xs sm:text-sm px-3 py-2 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-[#245C3A] ${
+                  formErrors.compareAtPrice ? 'border-[#B64238]' : 'border-[#E5E8DF]'
+                }`}
+              />
+              {formErrors.compareAtPrice && (
+                <p className="text-[11px] text-[#B64238] mt-0.5">{formErrors.compareAtPrice}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+                Stock Quantity <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={formData.stock}
+                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                placeholder="50"
+                className={`w-full text-xs sm:text-sm px-3 py-2 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-[#245C3A] ${
+                  formErrors.stock ? 'border-[#B64238]' : 'border-[#E5E8DF]'
+                }`}
+              />
+              {formErrors.stock && (
+                <p className="text-[11px] text-[#B64238] mt-0.5">{formErrors.stock}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+              Short Description / Traditional Notes
+            </label>
+            <textarea
+              rows={3}
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Describe farming method, aroma, health benefits..."
+              className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white focus:ring-1 focus:ring-[#245C3A]"
+            />
+          </div>
+
+          {/* Harvest Location */}
+          <div>
+            <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+              Harvest Location / Mandi
+            </label>
+            <input
+              type="text"
+              value={formData.harvestLocation}
+              onChange={(e) => setFormData({ ...formData, harvestLocation: e.target.value })}
+              placeholder="e.g. Tanuku, West Godavari"
+              className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white focus:ring-1 focus:ring-[#245C3A]"
+            />
+          </div>
+
+          {/* Image URL & Local Preview File Input */}
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold text-[#173D2A]">
+              Product Image Preview
+            </label>
+            <div className="flex items-center gap-3">
+              <img
+                src={formData.imageUrl}
+                alt="Preview"
+                className="w-14 h-14 rounded-xl object-cover border border-[#E5E8DF] shrink-0"
+              />
+              <div className="flex-1 space-y-1.5">
+                <input
+                  type="text"
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full text-xs px-3 py-1.5 rounded-lg border border-[#E5E8DF] bg-white"
+                />
+                <div className="flex items-center gap-2">
+                  <label className="text-[11px] font-medium text-[#245C3A] hover:underline cursor-pointer flex items-center gap-1">
+                    <UploadCloud className="w-3.5 h-3.5" /> Upload Local Preview Image
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageFileChange}
+                      className="hidden"
+                    />
+                  </label>
+                  <span className="text-[10px] text-[#737B72]">(Client FileReader demo)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Status & Featured Flag */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-[#E5E8DF]">
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold text-[#173D2A]">Status:</label>
+              <select
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as ProductStatus })}
+                className="text-xs px-2.5 py-1 rounded-lg border border-[#E5E8DF] bg-white"
+              >
+                <option value="Active">Active</option>
+                <option value="Draft">Draft</option>
+                <option value="Out of Stock">Out of Stock</option>
+                <option value="Archived">Archived</option>
+              </select>
+            </div>
+
+            <label className="flex items-center gap-2 text-xs font-medium text-[#202820] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.featured}
+                onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                className="rounded border-[#E5E8DF] text-[#245C3A] focus:ring-[#245C3A]"
+              />
+              <span>Feature on Storefront Homepage</span>
+            </label>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Product Detail Drawer */}
+      {viewingProduct && (
+        <Drawer
+          isOpen={!!viewingProduct}
+          onClose={() => setViewingProduct(null)}
+          title={viewingProduct.name}
+          subtitle={`SKU: ${viewingProduct.sku}`}
+          footer={
+            <div className="flex items-center justify-between w-full">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  handleOpenEditModal(viewingProduct);
+                  setViewingProduct(null);
+                }}
+                icon={<Edit2 className="w-3.5 h-3.5" />}
+              >
+                Edit Product
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setViewingProduct(null)}
+              >
+                Close Drawer
+              </Button>
+            </div>
+          }
+        >
+          <div className="space-y-5">
+            {/* Main Preview Image */}
+            <div className="rounded-2xl overflow-hidden border border-[#E5E8DF] bg-[#FAF9F4]">
+              <img
+                src={viewingProduct.imageUrl}
+                alt={viewingProduct.name}
+                className="w-full h-56 object-cover"
+              />
+            </div>
+
+            {/* Quick Metadata Grid */}
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="p-3 rounded-xl bg-[#FAF9F4] border border-[#E5E8DF]">
+                <span className="text-[#737B72] block">Catalog Price</span>
+                <span className="text-base font-bold text-[#173D2A] mt-0.5 block tabular-nums">
+                  {formatINR(viewingProduct.price)}
+                </span>
+                {viewingProduct.compareAtPrice && (
+                  <span className="text-[11px] text-[#737B72] line-through">
+                    {formatINR(viewingProduct.compareAtPrice)}
+                  </span>
+                )}
+              </div>
+
+              <div className="p-3 rounded-xl bg-[#FAF9F4] border border-[#E5E8DF]">
+                <span className="text-[#737B72] block">Available Inventory</span>
+                <span className="text-base font-bold text-[#173D2A] mt-0.5 block tabular-nums">
+                  {viewingProduct.stock} units
+                </span>
+                <span className="text-[11px] text-[#2F7D4A] font-medium">
+                  {viewingProduct.salesCount} units ordered
+                </span>
+              </div>
+            </div>
+
+            {/* Details */}
+            <div className="space-y-3 text-xs">
+              <div>
+                <span className="font-semibold text-[#737B72] uppercase tracking-wider block mb-1">
+                  Category
+                </span>
+                <p className="text-sm font-medium text-[#202820]">{viewingProduct.categoryName}</p>
+              </div>
+
+              <div>
+                <span className="font-semibold text-[#737B72] uppercase tracking-wider block mb-1">
+                  Packaging Unit
+                </span>
+                <p className="text-sm text-[#202820]">{viewingProduct.unit}</p>
+              </div>
+
+              <div>
+                <span className="font-semibold text-[#737B72] uppercase tracking-wider block mb-1">
+                  Harvest Location
+                </span>
+                <p className="text-sm text-[#202820]">{viewingProduct.harvestLocation || 'Godavari Delta Organic Belt'}</p>
+              </div>
+
+              <div>
+                <span className="font-semibold text-[#737B72] uppercase tracking-wider block mb-1">
+                  Description
+                </span>
+                <p className="text-xs text-[#555E53] leading-relaxed bg-[#FAF9F4] p-3 rounded-xl border border-[#E5E8DF]">
+                  {viewingProduct.description || 'No description provided.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </Drawer>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!deleteTargetId}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Product?"
+        message="Are you sure you want to remove this product from the mock catalog? This client-side change will update your dashboard metrics."
+        confirmText="Delete Product"
+        variant="danger"
+      />
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={isBulkDeleteModalOpen}
+        onClose={() => setIsBulkDeleteModalOpen(false)}
+        onConfirm={handleConfirmBulkDelete}
+        title="Delete Selected Products?"
+        message={`Are you sure you want to delete ${selectedIds.length} products? This action will remove them from the mock list.`}
+        confirmText={`Delete ${selectedIds.length} Products`}
+        variant="danger"
+      />
+
+      {/* CREATE CATEGORY MODAL */}
+      <Modal
+        isOpen={isAddCategoryOpen}
+        onClose={() => setIsAddCategoryOpen(false)}
+        title="Create New Category"
+        description="Add a new category to organize and filter your farm products."
+        size="md"
+        footer={
+          <div className="flex items-center justify-between w-full">
+            <Button variant="secondary" onClick={() => setIsAddCategoryOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleCreateCategory}>
+              Create Category
+            </Button>
+          </div>
+        }
+      >
+        <form onSubmit={handleCreateCategory} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-[#173D2A] mb-1">
+              Category Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              placeholder="e.g. Natural Sweeteners, Wood-Pressed Oils"
+              className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white font-semibold focus:ring-1 focus:ring-[#245C3A]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+              Description (Optional)
+            </label>
+            <textarea
+              rows={2}
+              value={newCategoryDesc}
+              onChange={(e) => setNewCategoryDesc(e.target.value)}
+              placeholder="e.g. Traditional natural palm jaggery, forest honey, and raw cane sugar"
+              className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white focus:ring-1 focus:ring-[#245C3A]"
+            />
+          </div>
+        </form>
+      </Modal>
+
+      {/* FILTER HARVEST 2-COLUMN MODAL (Matching User Screenshot) */}
+      {isFilterModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
+          <div
+            className="w-full max-w-md bg-[#F4EFE6] rounded-3xl shadow-2xl border border-[#DDD6C5] overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-150"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="filter-harvest-title"
+          >
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-[#DDD6C5] flex items-center justify-between bg-[#F4EFE6]">
+              <h3
+                id="filter-harvest-title"
+                className="text-lg sm:text-xl font-bold text-[#173D2A] font-heading tracking-tight"
+              >
+                Filter Harvest
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsFilterModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-[#E5DDD0] hover:bg-[#D8CFBF] text-[#173D2A] flex items-center justify-center transition-colors cursor-pointer"
+                aria-label="Close filters"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Body: 2 Columns */}
+            <div className="flex-1 flex overflow-hidden min-h-[380px]">
+              {/* Left Column: Navigation Tabs */}
+              <div className="w-36 sm:w-40 bg-[#ECE5D8] border-r border-[#DDD6C5] py-2 flex flex-col shrink-0 select-none">
+                {(
+                  [
+                    { id: 'sort', label: 'Sort' },
+                    { id: 'tags', label: 'Tags' },
+                    { id: 'type', label: 'Type' },
+                    { id: 'brand', label: 'Brand' },
+                    { id: 'price', label: 'Price' },
+                    { id: 'ratings', label: 'Customer Ratings' },
+                  ] as const
+                ).map((tab) => {
+                  const isActive = activeFilterTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveFilterTab(tab.id)}
+                      className={`w-full text-left px-5 py-3.5 text-xs sm:text-sm transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-[#F4EFE6] text-[#173D2A] font-bold'
+                          : 'text-[#4A5548] hover:text-[#173D2A] hover:bg-[#E4DDCF]/60 font-medium'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Right Column: Radio Options Panel */}
+              <div className="flex-1 p-5 sm:p-6 bg-[#F4EFE6] overflow-y-auto">
+                {activeFilterTab === 'sort' && (
+                  <div>
+                    <h4 className="text-[11px] font-bold text-[#173D2A] tracking-wider uppercase mb-4">
+                      SORT BY
+                    </h4>
+                    <div className="space-y-4">
+                      {[
+                        { id: 'updated', label: 'Relevance' },
+                        { id: 'price_asc', label: 'Price (Low To High)' },
+                        { id: 'price_desc', label: 'Price (High To Low)' },
+                        { id: 'discount', label: 'Discount (High To Low)' },
+                        { id: 'highest_rated', label: 'Highest Rated' },
+                        { id: 'name', label: 'Product Name (A to Z)' },
+                      ].map((opt) => {
+                        const isSelected = draftSortBy === opt.id;
+                        return (
+                          <button
+                            type="button"
+                            key={opt.id}
+                            onClick={() => setDraftSortBy(opt.id)}
+                            className="flex items-center gap-3 w-full text-left py-1 cursor-pointer group"
+                          >
+                            <div
+                              className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                                isSelected
+                                  ? 'border-2 border-[#173D2A]'
+                                  : 'border-2 border-[#BEB6A2] group-hover:border-[#173D2A]'
+                              }`}
+                            >
+                              {isSelected && (
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#173D2A]" />
+                              )}
+                            </div>
+                            <span
+                              className={`text-xs sm:text-sm transition-colors ${
+                                isSelected
+                                  ? 'font-bold text-[#173D2A]'
+                                  : 'font-medium text-[#2A4533]'
+                              }`}
+                            >
+                              {opt.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {activeFilterTab === 'tags' && (
+                  <div>
+                    <h4 className="text-[11px] font-bold text-[#173D2A] tracking-wider uppercase mb-4">
+                      HARVEST AVAILABILITY & TAGS
+                    </h4>
+                    <div className="space-y-4">
+                      {[
+                        { id: 'all', label: 'All Harvest Statuses' },
+                        { id: 'in_stock', label: 'In Stock (>15 units)' },
+                        { id: 'low_stock', label: 'Low Stock (1-15 units)' },
+                        { id: 'out_of_stock', label: 'Out of Stock' },
+                      ].map((opt) => {
+                        const isSelected = draftStock === opt.id;
+                        return (
+                          <button
+                            type="button"
+                            key={opt.id}
+                            onClick={() => setDraftStock(opt.id as any)}
+                            className="flex items-center gap-3 w-full text-left py-1 cursor-pointer group"
+                          >
+                            <div
+                              className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                                isSelected
+                                  ? 'border-2 border-[#173D2A]'
+                                  : 'border-2 border-[#BEB6A2] group-hover:border-[#173D2A]'
+                              }`}
+                            >
+                              {isSelected && (
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#173D2A]" />
+                              )}
+                            </div>
+                            <span
+                              className={`text-xs sm:text-sm transition-colors ${
+                                isSelected
+                                  ? 'font-bold text-[#173D2A]'
+                                  : 'font-medium text-[#2A4533]'
+                              }`}
+                            >
+                              {opt.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {activeFilterTab === 'type' && (
+                  <div>
+                    <h4 className="text-[11px] font-bold text-[#173D2A] tracking-wider uppercase mb-4">
+                      FARM CATEGORY & PRODUCT TYPE
+                    </h4>
+                    <div className="space-y-4">
+                      <button
+                        type="button"
+                        onClick={() => setDraftCategory('all')}
+                        className="flex items-center gap-3 w-full text-left py-1 cursor-pointer group"
+                      >
+                        <div
+                          className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                            draftCategory === 'all'
+                              ? 'border-2 border-[#173D2A]'
+                              : 'border-2 border-[#BEB6A2] group-hover:border-[#173D2A]'
+                          }`}
+                        >
+                          {draftCategory === 'all' && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#173D2A]" />
+                          )}
+                        </div>
+                        <span
+                          className={`text-xs sm:text-sm transition-colors ${
+                            draftCategory === 'all'
+                              ? 'font-bold text-[#173D2A]'
+                              : 'font-medium text-[#2A4533]'
+                          }`}
+                        >
+                          All Categories ({products.length})
+                        </span>
+                      </button>
+
+                      {categories.map((c) => {
+                        const isSelected = draftCategory === c.id;
+                        const count = categoryCounts[c.id] || 0;
+                        return (
+                          <button
+                            type="button"
+                            key={c.id}
+                            onClick={() => setDraftCategory(c.id)}
+                            className="flex items-center gap-3 w-full text-left py-1 cursor-pointer group"
+                          >
+                            <div
+                              className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                                isSelected
+                                  ? 'border-2 border-[#173D2A]'
+                                  : 'border-2 border-[#BEB6A2] group-hover:border-[#173D2A]'
+                              }`}
+                            >
+                              {isSelected && (
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#173D2A]" />
+                              )}
+                            </div>
+                            <span
+                              className={`text-xs sm:text-sm transition-colors ${
+                                isSelected
+                                  ? 'font-bold text-[#173D2A]'
+                                  : 'font-medium text-[#2A4533]'
+                              }`}
+                            >
+                              {c.name} ({count})
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {activeFilterTab === 'brand' && (
+                  <div>
+                    <h4 className="text-[11px] font-bold text-[#173D2A] tracking-wider uppercase mb-4">
+                      FARM LABEL & BRAND
+                    </h4>
+                    <div className="space-y-4">
+                      {[
+                        { id: 'all', label: 'All Labels' },
+                        { id: 'Godavari Organics', label: 'Godavari Organics Direct' },
+                        { id: 'Arma', label: 'Arma Organic Millets' },
+                      ].map((opt) => {
+                        const isSelected = draftBrand === opt.id;
+                        return (
+                          <button
+                            type="button"
+                            key={opt.id}
+                            onClick={() => setDraftBrand(opt.id)}
+                            className="flex items-center gap-3 w-full text-left py-1 cursor-pointer group"
+                          >
+                            <div
+                              className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                                isSelected
+                                  ? 'border-2 border-[#173D2A]'
+                                  : 'border-2 border-[#BEB6A2] group-hover:border-[#173D2A]'
+                              }`}
+                            >
+                              {isSelected && (
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#173D2A]" />
+                              )}
+                            </div>
+                            <span
+                              className={`text-xs sm:text-sm transition-colors ${
+                                isSelected
+                                  ? 'font-bold text-[#173D2A]'
+                                  : 'font-medium text-[#2A4533]'
+                              }`}
+                            >
+                              {opt.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {activeFilterTab === 'price' && (
+                  <div>
+                    <h4 className="text-[11px] font-bold text-[#173D2A] tracking-wider uppercase mb-4">
+                      PRICE RANGE
+                    </h4>
+                    <div className="space-y-4">
+                      {[
+                        { id: 'all', label: 'All Prices' },
+                        { id: 'under_250', label: 'Under ₹250' },
+                        { id: '250_500', label: 'Price (₹250 To ₹500)' },
+                        { id: '500_1000', label: 'Price (₹500 To ₹1,000)' },
+                        { id: 'above_1000', label: 'Above ₹1,000' },
+                      ].map((opt) => {
+                        const isSelected = draftPrice === opt.id;
+                        return (
+                          <button
+                            type="button"
+                            key={opt.id}
+                            onClick={() => setDraftPrice(opt.id)}
+                            className="flex items-center gap-3 w-full text-left py-1 cursor-pointer group"
+                          >
+                            <div
+                              className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                                isSelected
+                                  ? 'border-2 border-[#173D2A]'
+                                  : 'border-2 border-[#BEB6A2] group-hover:border-[#173D2A]'
+                              }`}
+                            >
+                              {isSelected && (
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#173D2A]" />
+                              )}
+                            </div>
+                            <span
+                              className={`text-xs sm:text-sm transition-colors ${
+                                isSelected
+                                  ? 'font-bold text-[#173D2A]'
+                                  : 'font-medium text-[#2A4533]'
+                              }`}
+                            >
+                              {opt.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {activeFilterTab === 'ratings' && (
+                  <div>
+                    <h4 className="text-[11px] font-bold text-[#173D2A] tracking-wider uppercase mb-4">
+                      CUSTOMER RATINGS & POPULARITY
+                    </h4>
+                    <div className="space-y-4">
+                      {[
+                        { id: 'all', label: 'All Customer Ratings' },
+                        { id: '4_5_above', label: '4.5★ & Above (Top Rated)' },
+                        { id: '4_above', label: '4.0★ & Above (Popular)' },
+                      ].map((opt) => {
+                        const isSelected = draftRating === opt.id;
+                        return (
+                          <button
+                            type="button"
+                            key={opt.id}
+                            onClick={() => setDraftRating(opt.id)}
+                            className="flex items-center gap-3 w-full text-left py-1 cursor-pointer group"
+                          >
+                            <div
+                              className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                                isSelected
+                                  ? 'border-2 border-[#173D2A]'
+                                  : 'border-2 border-[#BEB6A2] group-hover:border-[#173D2A]'
+                              }`}
+                            >
+                              {isSelected && (
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#173D2A]" />
+                              )}
+                            </div>
+                            <span
+                              className={`text-xs sm:text-sm transition-colors ${
+                                isSelected
+                                  ? 'font-bold text-[#173D2A]'
+                                  : 'font-medium text-[#2A4533]'
+                              }`}
+                            >
+                              {opt.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer (Clear Filters left, Apply button right) */}
+            <div className="px-6 py-4 border-t border-[#DDD6C5] flex items-center justify-between bg-[#F4EFE6]">
+              <button
+                type="button"
+                onClick={handleClearFilters}
+                className="text-xs sm:text-sm font-bold text-[#173D2A] underline underline-offset-4 hover:opacity-75 transition-opacity cursor-pointer"
+              >
+                Clear Filters
+              </button>
+              <button
+                type="button"
+                onClick={handleApplyFilters}
+                className="px-8 py-2.5 rounded-full bg-[#173D2A] text-white text-xs sm:text-sm font-bold hover:bg-[#0E291A] transition-colors shadow-sm cursor-pointer"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
