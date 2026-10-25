@@ -184,6 +184,7 @@ export const ProductsPage: React.FC = () => {
     status: 'Active' as ProductStatus,
     featured: false,
     imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80',
+    secondaryImageUrl: '',
     harvestLocation: 'Godavari Basin Farms',
   };
 
@@ -228,6 +229,7 @@ export const ProductsPage: React.FC = () => {
       status: product.status,
       featured: product.featured,
       imageUrl: product.imageUrl,
+      secondaryImageUrl: product.secondaryImageUrl || '',
       harvestLocation: product.harvestLocation || 'Godavari Delta Farms',
     });
     setFormErrors({});
@@ -246,6 +248,22 @@ export const ProductsPage: React.FC = () => {
       reader.onloadend = () => {
         setFormData((prev) => ({ ...prev, imageUrl: reader.result as string }));
         showToast('Local image preview loaded.', 'info');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSecondaryImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('Image size exceeds 2MB limit for preview.', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, secondaryImageUrl: reader.result as string }));
+        showToast('Secondary nutrition label image preview loaded.', 'info');
       };
       reader.readAsDataURL(file);
     }
@@ -294,6 +312,7 @@ export const ProductsPage: React.FC = () => {
         status: autoStatus,
         featured: formData.featured,
         imageUrl: formData.imageUrl,
+        secondaryImageUrl: formData.secondaryImageUrl,
         harvestLocation: formData.harvestLocation,
       });
       showToast(`"${formData.name}" was updated successfully.`, 'success', 'Product Updated');
@@ -311,6 +330,7 @@ export const ProductsPage: React.FC = () => {
         status: autoStatus,
         featured: formData.featured,
         imageUrl: formData.imageUrl,
+        secondaryImageUrl: formData.secondaryImageUrl,
         harvestLocation: formData.harvestLocation,
       });
       showToast(`"${formData.name}" added to catalog.`, 'success', 'Product Created');
@@ -1341,36 +1361,85 @@ export const ProductsPage: React.FC = () => {
             />
           </div>
 
-          {/* Image URL & Local Preview File Input */}
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-[#173D2A]">
-              Product Image Preview
-            </label>
-            <div className="flex items-center gap-3">
-              <img
-                src={formData.imageUrl}
-                alt="Preview"
-                className="w-14 h-14 rounded-xl object-cover border border-[#E5E8DF] shrink-0"
-              />
-              <div className="flex-1 space-y-1.5">
-                <input
-                  type="text"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full text-xs px-3 py-1.5 rounded-lg border border-[#E5E8DF] bg-white"
+          {/* Multi-Image Management: Primary & Secondary Labels */}
+          <div className="space-y-3 p-3 bg-[#FAF9F4] rounded-xl border border-[#E5E8DF]">
+            <div>
+              <label className="block text-xs font-bold text-[#173D2A] mb-1">
+                1. Primary Front Image (Pack / Bottle)
+              </label>
+              <div className="flex items-center gap-3">
+                <img
+                  src={formData.imageUrl}
+                  alt="Primary Preview"
+                  className="w-14 h-14 rounded-xl object-contain bg-white border border-[#E5E8DF] shrink-0 p-1"
                 />
-                <div className="flex items-center gap-2">
-                  <label className="text-[11px] font-medium text-[#245C3A] hover:underline cursor-pointer flex items-center gap-1">
-                    <UploadCloud className="w-3.5 h-3.5" /> Upload Local Preview Image
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageFileChange}
-                      className="hidden"
+                <div className="flex-1 space-y-1">
+                  <input
+                    type="text"
+                    value={formData.imageUrl}
+                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                    placeholder="https://... or upload local image"
+                    className="w-full text-xs px-3 py-1.5 rounded-lg border border-[#E5E8DF] bg-white"
+                  />
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px] font-bold text-[#245C3A] hover:underline cursor-pointer flex items-center gap-1">
+                      <UploadCloud className="w-3.5 h-3.5" /> Upload Front Image
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-[#E5E8DF]/60">
+              <label className="block text-xs font-bold text-[#173D2A] mb-1">
+                2. Secondary Image (Back / Nutrition Label / Farm Process)
+              </label>
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-xl bg-white border border-[#E5E8DF] shrink-0 p-1 flex items-center justify-center overflow-hidden">
+                  {formData.secondaryImageUrl ? (
+                    <img
+                      src={formData.secondaryImageUrl}
+                      alt="Secondary Preview"
+                      className="w-full h-full object-contain"
                     />
-                  </label>
-                  <span className="text-[10px] text-[#737B72]">(Client FileReader demo)</span>
+                  ) : (
+                    <span className="text-[10px] text-[#737B72] text-center font-medium">No Image</span>
+                  )}
+                </div>
+                <div className="flex-1 space-y-1">
+                  <input
+                    type="text"
+                    value={formData.secondaryImageUrl}
+                    onChange={(e) => setFormData({ ...formData, secondaryImageUrl: e.target.value })}
+                    placeholder="Optional: Nutrition label or reverse angle URL"
+                    className="w-full text-xs px-3 py-1.5 rounded-lg border border-[#E5E8DF] bg-white"
+                  />
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px] font-bold text-[#245C3A] hover:underline cursor-pointer flex items-center gap-1">
+                      <UploadCloud className="w-3.5 h-3.5" /> Upload Back / Label Image
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleSecondaryImageFileChange}
+                        className="hidden"
+                      />
+                    </label>
+                    {formData.secondaryImageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData((prev) => ({ ...prev, secondaryImageUrl: '' }))}
+                        className="text-[11px] text-[#B64238] hover:underline cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

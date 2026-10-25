@@ -2,9 +2,13 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
 import {
+  LayoutDashboard,
   Package,
+  Layers,
   ShoppingBag,
-  LayoutTemplate,
+  Users,
+  Tag,
+  Image as ImageIcon,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -20,7 +24,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
     isSidebarCollapsed,
     toggleSidebar,
     products,
+    categories,
     orders,
+    customers,
+    promotions,
     resetToDemoData,
   } = useAdmin();
 
@@ -32,11 +39,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
 
   const navItems = [
     {
+      to: '/dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      badge: null,
+    },
+    {
       to: '/products',
       label: 'Products',
       icon: Package,
       badge: lowStockCount > 0 ? `${lowStockCount} low` : `${products.length}`,
       badgeColor: lowStockCount > 0 ? 'bg-[#FEF7EA] text-[#B7791F]' : 'bg-[#FAF9F4] text-[#737B72]',
+    },
+    {
+      to: '/categories',
+      label: 'Categories',
+      icon: Layers,
+      badge: `${categories.length}`,
+      badgeColor: 'bg-[#FAF9F4] text-[#737B72]',
     },
     {
       to: '/orders',
@@ -46,10 +66,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
       badgeColor: 'bg-[#E8F0EB] text-[#245C3A]',
     },
     {
+      to: '/customers',
+      label: 'Customers',
+      icon: Users,
+      badge: `${customers.length}`,
+      badgeColor: 'bg-[#FAF9F4] text-[#737B72]',
+    },
+    {
+      to: '/promotions',
+      label: 'Promotions',
+      icon: Tag,
+      badge: `${promotions.filter((p) => p.status === 'Active').length} active`,
+      badgeColor: 'bg-[#E8F0EB] text-[#245C3A]',
+    },
+    {
       to: '/store-content',
-      label: 'Store Content',
-      icon: LayoutTemplate,
-      badge: null,
+      label: 'Store Visuals & Images',
+      icon: ImageIcon,
+      badge: 'Visuals',
+      badgeColor: 'bg-[#E8F0EB] text-[#245C3A]',
     },
     {
       to: '/settings',
@@ -90,7 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
           {/* Collapse button on desktop */}
           <button
             onClick={toggleSidebar}
-            className="hidden md:flex items-center justify-center w-7 h-7 rounded-lg text-[#737B72] hover:text-[#202820] hover:bg-[#ECEFE8] transition-colors"
+            className="hidden md:flex items-center justify-center w-7 h-7 rounded-lg text-[#737B72] hover:text-[#202820] hover:bg-[#ECEFE8] transition-colors cursor-pointer"
             title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
@@ -103,17 +138,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
         </div>
 
         {/* Navigation Destination List */}
-        <nav className="p-3 space-y-1">
+        <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-140px)] no-scrollbar">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
               <NavLink
                 key={item.to}
                 to={item.to}
-                end={item.to === '/'}
+                end={item.to === '/dashboard'}
                 onClick={onNavClick}
                 className={({ isActive }) =>
-                  `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
+                  `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-150 ${
                     isActive
                       ? 'bg-[#E8F0EB] text-[#245C3A] font-semibold shadow-xs'
                       : 'text-[#555E53] hover:text-[#173D2A] hover:bg-[#F0F2EB]'
@@ -127,7 +162,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
                       <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#245C3A] rounded-r-full" />
                     )}
                     <Icon
-                      className={`w-5 h-5 shrink-0 transition-colors ${
+                      className={`w-4.5 h-4.5 shrink-0 transition-colors ${
                         isActive ? 'text-[#245C3A]' : 'text-[#737B72] group-hover:text-[#245C3A]'
                       }`}
                     />
@@ -136,7 +171,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
                     )}
                     {!isSidebarCollapsed && item.badge && (
                       <span
-                        className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border border-[#E5E8DF] tabular-nums ${item.badgeColor}`}
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border border-[#E5E8DF] tabular-nums ${item.badgeColor}`}
                       >
                         {item.badge}
                       </span>
@@ -185,13 +220,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
             isSidebarCollapsed ? 'justify-center' : ''
           }`}
         >
-          <div className="w-9 h-9 rounded-xl bg-[#173D2A] text-[#FAF9F4] font-semibold text-xs flex items-center justify-center shrink-0 shadow-xs">
+          <div className="w-8 h-8 rounded-xl bg-[#173D2A] text-[#FAF9F4] font-semibold text-xs flex items-center justify-center shrink-0 shadow-xs">
             SA
           </div>
           {!isSidebarCollapsed && (
             <div className="min-w-0 flex-1">
               <p className="text-xs font-bold text-[#173D2A] truncate">Store Admin</p>
-              <p className="text-[11px] text-[#737B72] truncate">admin@godavariorganic.in</p>
+              <p className="text-[10px] text-[#737B72] truncate">admin@godavariorganic.in</p>
             </div>
           )}
         </div>

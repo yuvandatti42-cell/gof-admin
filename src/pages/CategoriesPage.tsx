@@ -17,6 +17,7 @@ import {
   Edit2,
   Trash2,
   Package,
+  UploadCloud,
 } from 'lucide-react';
 
 
@@ -59,6 +60,22 @@ export const CategoriesPage: React.FC = () => {
     setFormData(initialForm);
     setErrors({});
     setIsModalOpen(true);
+  };
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('Image size exceeds 2MB limit for preview.', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, imageUrl: reader.result as string }));
+        showToast('Local category image preview loaded.', 'info');
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // Open Edit Modal
@@ -446,17 +463,61 @@ export const CategoriesPage: React.FC = () => {
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-[#173D2A] mb-1">
-              Cover Image URL
+          <div className="space-y-2 p-3 bg-[#FAF9F4] rounded-xl border border-[#E5E8DF]">
+            <label className="block text-xs font-bold text-[#173D2A]">
+              Category Cover Image
             </label>
-            <input
-              type="text"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              placeholder="https://images.unsplash.com/..."
-              className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white"
-            />
+            <div className="flex items-center gap-3">
+              <div className="w-16 h-16 rounded-xl bg-white border border-[#E5E8DF] p-1 flex items-center justify-center shrink-0 overflow-hidden">
+                {formData.imageUrl ? (
+                  <img
+                    src={formData.imageUrl}
+                    alt="Category Preview"
+                    className="w-full h-full object-contain filter drop-shadow-xs"
+                  />
+                ) : (
+                  <span className="text-[10px] text-[#737B72]">No Image</span>
+                )}
+              </div>
+              <div className="flex-1 space-y-1.5">
+                <input
+                  type="text"
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  placeholder="/categories/oil.png or https://..."
+                  className="w-full text-xs px-3 py-1.5 rounded-lg border border-[#E5E8DF] bg-white"
+                />
+                <div className="flex items-center gap-2">
+                  <label className="text-[11px] font-bold text-[#245C3A] hover:underline cursor-pointer flex items-center gap-1">
+                    <UploadCloud className="w-3.5 h-3.5" /> Upload Local Image
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageFileChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+            {/* Quick Category Image Presets */}
+            <div className="pt-1 flex flex-wrap gap-1.5">
+              {[
+                { name: 'Oils', url: '/categories/oil.png' },
+                { name: 'Rice', url: '/categories/rice.png' },
+                { name: 'Millets', url: '/categories/millet.png' },
+                { name: 'Spices', url: '/categories/spices.png' },
+              ].map((p) => (
+                <button
+                  type="button"
+                  key={p.name}
+                  onClick={() => setFormData({ ...formData, imageUrl: p.url })}
+                  className="text-[10px] px-2 py-0.5 rounded-md border border-[#E5E8DF] bg-white text-[#245C3A] font-semibold hover:border-[#245C3A]"
+                >
+                  {p.name}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="flex items-center gap-3 pt-2">

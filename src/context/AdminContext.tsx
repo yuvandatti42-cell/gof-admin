@@ -148,10 +148,26 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
   const [storeContent, setStoreContent] = useState<StoreContent>(() => {
     const loaded = safeGetStorage(STORAGE_KEYS.STORE_CONTENT, INITIAL_STORE_CONTENT);
-    if (!loaded.heroSlides || !Array.isArray(loaded.heroSlides) || loaded.heroSlides.length === 0) {
-      return { ...loaded, heroSlides: INITIAL_STORE_CONTENT.heroSlides };
-    }
-    return loaded;
+    return {
+      ...INITIAL_STORE_CONTENT,
+      ...loaded,
+      heroSlides: (loaded.heroSlides && Array.isArray(loaded.heroSlides) && loaded.heroSlides.length > 0)
+        ? loaded.heroSlides
+        : INITIAL_STORE_CONTENT.heroSlides,
+      trustBadges: (loaded.trustBadges && Array.isArray(loaded.trustBadges) && loaded.trustBadges.length > 0)
+        ? loaded.trustBadges
+        : INITIAL_STORE_CONTENT.trustBadges,
+      storyImages: (loaded.storyImages && Array.isArray(loaded.storyImages) && loaded.storyImages.length > 0)
+        ? loaded.storyImages
+        : INITIAL_STORE_CONTENT.storyImages,
+      offerBanners: (loaded.offerBanners && Array.isArray(loaded.offerBanners) && loaded.offerBanners.length > 0)
+        ? loaded.offerBanners
+        : INITIAL_STORE_CONTENT.offerBanners,
+      testimonials: (loaded.testimonials && Array.isArray(loaded.testimonials) && loaded.testimonials.length > 0)
+        ? loaded.testimonials
+        : INITIAL_STORE_CONTENT.testimonials,
+      brandAssets: loaded.brandAssets || INITIAL_STORE_CONTENT.brandAssets,
+    };
   });
   const [settings, setSettings] = useState<StoreSettings>(() =>
     safeGetStorage(STORAGE_KEYS.SETTINGS, INITIAL_SETTINGS)

@@ -14,6 +14,8 @@ export interface Product {
   status: ProductStatus;
   featured: boolean;
   imageUrl: string;
+  secondaryImageUrl?: string; // Secondary back / nutrition / process label image
+  galleryImages?: string[];   // Additional thumbnail / angle shots
   updatedAt: string;
   salesCount: number;
   harvestLocation?: string;
@@ -117,6 +119,7 @@ export interface TrustHighlight {
 export interface HeroSlide {
   id: string;
   imageUrl: string;
+  mobileImageUrl?: string;
   link?: string;
   title?: string;
   subtitle?: string;
@@ -124,6 +127,51 @@ export interface HeroSlide {
   ctaText?: string;
   ctaLink?: string;
   active?: boolean;
+}
+
+export interface TrustBadge {
+  id: string;
+  name: string;
+  imageUrl: string;
+  subtitle: string;
+  active?: boolean;
+}
+
+export interface StoryImage {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  tag: string;
+  active?: boolean;
+}
+
+export interface OfferBanner {
+  id: string;
+  title: string;
+  subtitle: string;
+  imageUrl: string;
+  ctaText: string;
+  ctaLink: string;
+  badge?: string;
+  active: boolean;
+}
+
+export interface TestimonialItem {
+  id: string;
+  name: string;
+  location: string;
+  comment: string;
+  rating: number;
+  avatarUrl: string;
+  verified?: boolean;
+}
+
+export interface BrandAssets {
+  primaryLogoUrl: string;
+  headerLogoUrl: string;
+  footerLogoUrl: string;
+  faviconUrl: string;
 }
 
 export interface StoreContent {
@@ -142,6 +190,11 @@ export interface StoreContent {
   };
   featuredProductIds: string[];
   trustHighlights: TrustHighlight[];
+  trustBadges?: TrustBadge[];
+  storyImages?: StoryImage[];
+  offerBanners?: OfferBanner[];
+  testimonials?: TestimonialItem[];
+  brandAssets?: BrandAssets;
 }
 
 export interface StoreSettings {

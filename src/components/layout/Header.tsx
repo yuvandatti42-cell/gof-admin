@@ -54,8 +54,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
   const getPageInfo = () => {
     switch (location.pathname) {
       case '/':
+      case '/dashboard':
+        return { title: 'Executive Overview', category: 'Analytics & Insights' };
       case '/products':
-        return { title: 'Products', category: 'Catalog Management' };
+        return { title: 'Products Catalog', category: 'Catalog Management' };
       case '/categories':
         return { title: 'Categories', category: 'Catalog Management' };
       case '/orders':
@@ -65,7 +67,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
       case '/promotions':
         return { title: 'Promotions & Coupons', category: 'Marketing' };
       case '/store-content':
-        return { title: 'Store Content', category: 'Online Storefront' };
+        return { title: 'Store Visuals & Images', category: 'Media & Branding Manager' };
       case '/settings':
         return { title: 'Settings', category: 'Store Configuration' };
       default:
