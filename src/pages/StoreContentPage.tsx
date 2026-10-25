@@ -256,13 +256,13 @@ export const StoreContentPage: React.FC = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1 border-b border-[#E5E8DF]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1 border-b border-[#dfd5bf]">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#173D2A] flex items-center gap-2.5 font-heading">
-            <ImageIcon className="w-6 h-6 text-[#245C3A]" />
+          <h1 className="text-xl sm:text-2xl font-bold text-[#103b1d] flex items-center gap-2.5 font-heading">
+            <ImageIcon className="w-6 h-6 text-[#18542a]" />
             Store Visuals & Image Manager
           </h1>
-          <p className="text-xs sm:text-sm text-[#737B72] mt-0.5">
+          <p className="text-xs sm:text-sm text-[#5a6e54] mt-0.5">
             Full visual command center: edit, replace, or upload every single banner, category photo, certification seal, and logo on the customer website.
           </p>
         </div>
@@ -279,7 +279,7 @@ export const StoreContentPage: React.FC = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 border-b border-[#E5E8DF]">
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 border-b border-[#dfd5bf]">
         {[
           { id: 'hero', label: 'Hero Banners', icon: Monitor, count: (storeContent.heroSlides || []).length },
           { id: 'categories', label: 'Category Images', icon: Layers, count: categories.length },
@@ -297,15 +297,15 @@ export const StoreContentPage: React.FC = () => {
               onClick={() => setActiveTab(tab.id as any)}
               className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${
                 isActive
-                  ? 'bg-[#245C3A] text-white shadow-xs'
-                  : 'text-[#555E53] hover:text-[#173D2A] hover:bg-[#F0F2EB]'
+                  ? 'bg-[#18542a] text-white shadow-xs'
+                  : 'text-[#5a6e54] hover:text-[#103b1d] hover:bg-[#f3e8cc]'
               }`}
             >
               <Icon className="w-4 h-4 shrink-0" />
               <span>{tab.label}</span>
               <span
                 className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                  isActive ? 'bg-white/20 text-white' : 'bg-[#EAECE4] text-[#737B72]'
+                  isActive ? 'bg-white/20 text-white' : 'bg-[#f3e8cc] text-[#5a6e54]'
                 }`}
               >
                 {tab.count}
@@ -320,13 +320,13 @@ export const StoreContentPage: React.FC = () => {
       {/* ============================================================= */}
       {activeTab === 'hero' && (
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF9F4] p-4 rounded-2xl border border-[#E5E8DF]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
             <div>
-              <h2 className="text-sm sm:text-base font-bold text-[#173D2A] flex items-center gap-2">
-                <Monitor className="w-4 h-4 text-[#245C3A]" />
+              <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
+                <Monitor className="w-4 h-4 text-[#18542a]" />
                 Top Hero Slider Banners
               </h2>
-              <p className="text-xs text-[#737B72] mt-0.5">
+              <p className="text-xs text-[#5a6e54] mt-0.5">
                 Controls the large promotional carousel on the customer homepage. Supports both desktop and mobile image aspect ratios.
               </p>
             </div>
@@ -337,9 +337,9 @@ export const StoreContentPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {(storeContent.heroSlides || []).map((slide, index) => (
-              <Card key={slide.id} padding="none" className="overflow-hidden flex flex-col group border border-[#E5E8DF]">
+              <Card key={slide.id} padding="none" className="overflow-hidden flex flex-col group border border-[#dfd5bf]">
                 {/* Image Frame with gradient overlay */}
-                <div className="relative aspect-[16/9] bg-[#EAECE4] overflow-hidden">
+                <div className="relative aspect-[16/9] bg-[#f3e8cc] overflow-hidden">
                   <img
                     src={slide.imageUrl}
                     alt={slide.title || 'Hero Slide'}
@@ -356,8 +356,8 @@ export const StoreContentPage: React.FC = () => {
                       onClick={() => toggleHeroSlideStatus(slide.id)}
                       className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all shadow-xs cursor-pointer ${
                         slide.active
-                          ? 'bg-[#2F7D4A] text-white hover:bg-[#25633b]'
-                          : 'bg-[#B64238] text-white hover:bg-[#96342c]'
+                          ? 'bg-[#18542a] text-white hover:bg-[#25633b]'
+                          : 'bg-[#d52518] text-white hover:bg-[#96342c]'
                       }`}
                     >
                       {slide.active ? '● Active' : '○ Inactive'}
@@ -381,12 +381,12 @@ export const StoreContentPage: React.FC = () => {
                 </div>
 
                 {/* Controls Footer */}
-                <div className="p-3 bg-white flex items-center justify-between gap-2 border-t border-[#E5E8DF]">
+                <div className="p-3 bg-white flex items-center justify-between gap-2 border-t border-[#dfd5bf]">
                   <div className="flex items-center gap-1">
                     <button
                       disabled={index === 0}
                       onClick={() => handleMoveSlide(index, 'up')}
-                      className="p-1.5 rounded-lg border border-[#E5E8DF] text-[#737B72] hover:text-[#173D2A] hover:bg-[#FAF9F4] disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="p-1.5 rounded-lg border border-[#dfd5bf] text-[#5a6e54] hover:text-[#103b1d] hover:bg-[#faf5ea] disabled:opacity-30 disabled:cursor-not-allowed"
                       title="Move slide left/up"
                     >
                       <ArrowUp className="w-4 h-4" />
@@ -394,12 +394,12 @@ export const StoreContentPage: React.FC = () => {
                     <button
                       disabled={index === (storeContent.heroSlides || []).length - 1}
                       onClick={() => handleMoveSlide(index, 'down')}
-                      className="p-1.5 rounded-lg border border-[#E5E8DF] text-[#737B72] hover:text-[#173D2A] hover:bg-[#FAF9F4] disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="p-1.5 rounded-lg border border-[#dfd5bf] text-[#5a6e54] hover:text-[#103b1d] hover:bg-[#faf5ea] disabled:opacity-30 disabled:cursor-not-allowed"
                       title="Move slide right/down"
                     >
                       <ArrowDown className="w-4 h-4" />
                     </button>
-                    <span className="text-xs font-semibold text-[#737B72] ml-2 truncate max-w-[140px]">
+                    <span className="text-xs font-semibold text-[#5a6e54] ml-2 truncate max-w-[140px]">
                       CTA: {slide.ctaText || 'Shop Now'}
                     </span>
                   </div>
@@ -407,13 +407,13 @@ export const StoreContentPage: React.FC = () => {
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => handleOpenEditSlide(slide)}
-                      className="px-2.5 py-1.5 rounded-lg bg-[#FAF9F4] hover:bg-[#E8F0EB] text-[#245C3A] text-xs font-bold border border-[#E5E8DF] flex items-center gap-1 transition-colors cursor-pointer"
+                      className="px-2.5 py-1.5 rounded-lg bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center gap-1 transition-colors cursor-pointer"
                     >
                       <Edit2 className="w-3.5 h-3.5" /> Edit Banner
                     </button>
                     <button
                       onClick={() => setDeleteSlideId(slide.id)}
-                      className="p-1.5 rounded-lg text-[#B64238] hover:bg-[#FDEEED] transition-colors"
+                      className="p-1.5 rounded-lg text-[#d52518] hover:bg-[#FDEEED] transition-colors"
                       title="Delete Slide"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -431,20 +431,20 @@ export const StoreContentPage: React.FC = () => {
       {/* ============================================================= */}
       {activeTab === 'categories' && (
         <div className="space-y-6">
-          <div className="bg-[#FAF9F4] p-4 rounded-2xl border border-[#E5E8DF]">
-            <h2 className="text-sm sm:text-base font-bold text-[#173D2A] flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#245C3A]" />
+          <div className="bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
+            <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
+              <Layers className="w-4 h-4 text-[#18542a]" />
               Storefront Category Cards
             </h2>
-            <p className="text-xs text-[#737B72] mt-0.5">
+            <p className="text-xs text-[#5a6e54] mt-0.5">
               These images appear in the "Our Harvest Categories" grid on the homepage and in the top category navigation bar.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {categories.map((cat) => (
-              <Card key={cat.id} padding="none" className="overflow-hidden flex flex-col border border-[#E5E8DF] group hover:shadow-md transition-all">
-                <div className="relative aspect-square bg-[#FAF5EA] flex items-center justify-center p-4 overflow-hidden border-b border-[#E5E8DF]">
+              <Card key={cat.id} padding="none" className="overflow-hidden flex flex-col border border-[#dfd5bf] group hover:shadow-md transition-all">
+                <div className="relative aspect-square bg-[#FAF5EA] flex items-center justify-center p-4 overflow-hidden border-b border-[#dfd5bf]">
                   <img
                     src={cat.imageUrl}
                     alt={cat.name}
@@ -459,14 +459,14 @@ export const StoreContentPage: React.FC = () => {
 
                 <div className="p-3.5 flex flex-col flex-1 justify-between gap-3 bg-white">
                   <div>
-                    <h3 className="font-bold text-[#173D2A] text-sm leading-tight">{cat.name}</h3>
-                    <p className="text-[11px] font-mono text-[#737B72] mt-0.5">/{cat.slug}</p>
-                    <p className="text-xs text-[#737B72] line-clamp-2 mt-1">{cat.description}</p>
+                    <h3 className="font-bold text-[#103b1d] text-sm leading-tight">{cat.name}</h3>
+                    <p className="text-[11px] font-mono text-[#5a6e54] mt-0.5">/{cat.slug}</p>
+                    <p className="text-xs text-[#5a6e54] line-clamp-2 mt-1">{cat.description}</p>
                   </div>
 
                   <button
                     onClick={() => handleOpenEditCategory(cat)}
-                    className="w-full py-2 rounded-xl bg-[#FAF9F4] hover:bg-[#E8F0EB] text-[#245C3A] text-xs font-bold border border-[#E5E8DF] flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+                    className="w-full py-2 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
                   >
                     <UploadCloud className="w-3.5 h-3.5" />
                     Replace Image
@@ -483,34 +483,34 @@ export const StoreContentPage: React.FC = () => {
       {/* ============================================================= */}
       {activeTab === 'badges' && (
         <div className="space-y-6">
-          <div className="bg-[#FAF9F4] p-4 rounded-2xl border border-[#E5E8DF]">
-            <h2 className="text-sm sm:text-base font-bold text-[#173D2A] flex items-center gap-2">
-              <Award className="w-4 h-4 text-[#245C3A]" />
+          <div className="bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
+            <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
+              <Award className="w-4 h-4 text-[#18542a]" />
               Certified Quality Standards & Trust Badges
             </h2>
-            <p className="text-xs text-[#737B72] mt-0.5">
+            <p className="text-xs text-[#5a6e54] mt-0.5">
               Displayed in the verified quality banner strip below the hero slider (FSSAI, USDA Organic, SGS Bio-Verified, APEDA Pure).
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {(storeContent.trustBadges || []).map((badge) => (
-              <Card key={badge.id} padding="none" className="overflow-hidden flex flex-col border border-[#E5E8DF] bg-white hover:shadow-md transition-all">
-                <div className="h-28 bg-[#FAF9F4] flex items-center justify-center p-3 border-b border-[#E5E8DF] relative">
+              <Card key={badge.id} padding="none" className="overflow-hidden flex flex-col border border-[#dfd5bf] bg-white hover:shadow-md transition-all">
+                <div className="h-28 bg-[#faf5ea] flex items-center justify-center p-3 border-b border-[#dfd5bf] relative">
                   <img
                     src={badge.imageUrl}
                     alt={badge.name}
                     className="max-h-16 max-w-full object-contain filter drop-shadow-sm"
                   />
                   <div className="absolute top-2 right-2">
-                    <span className="w-2 h-2 rounded-full bg-[#2F7D4A]" />
+                    <span className="w-2 h-2 rounded-full bg-[#18542a]" />
                   </div>
                 </div>
 
                 <div className="p-3.5 flex flex-col flex-1 justify-between gap-3">
                   <div>
-                    <h3 className="font-bold text-[#173D2A] text-sm">{badge.name}</h3>
-                    <p className="text-xs text-[#737B72] mt-0.5">{badge.subtitle}</p>
+                    <h3 className="font-bold text-[#103b1d] text-sm">{badge.name}</h3>
+                    <p className="text-xs text-[#5a6e54] mt-0.5">{badge.subtitle}</p>
                   </div>
 
                   <button
@@ -524,7 +524,7 @@ export const StoreContentPage: React.FC = () => {
                       });
                       setTempImageUrl(badge.imageUrl);
                     }}
-                    className="w-full py-1.5 rounded-xl bg-[#FAF9F4] hover:bg-[#E8F0EB] text-[#245C3A] text-xs font-bold border border-[#E5E8DF] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="w-full py-1.5 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <UploadCloud className="w-3.5 h-3.5" />
                     Replace Seal Image
@@ -541,20 +541,20 @@ export const StoreContentPage: React.FC = () => {
       {/* ============================================================= */}
       {activeTab === 'offers' && (
         <div className="space-y-6">
-          <div className="bg-[#FAF9F4] p-4 rounded-2xl border border-[#E5E8DF]">
-            <h2 className="text-sm sm:text-base font-bold text-[#173D2A] flex items-center gap-2">
-              <Tag className="w-4 h-4 text-[#245C3A]" />
+          <div className="bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
+            <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
+              <Tag className="w-4 h-4 text-[#18542a]" />
               Promotional Deal Banners & Strip Cards
             </h2>
-            <p className="text-xs text-[#737B72] mt-0.5">
+            <p className="text-xs text-[#5a6e54] mt-0.5">
               Mid-page marketing callouts, festive season discounts, and combo offer banners.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {(storeContent.offerBanners || []).map((offer) => (
-              <Card key={offer.id} padding="none" className="overflow-hidden flex flex-col border border-[#E5E8DF] bg-white group">
-                <div className="relative aspect-[16/8] bg-[#EAECE4] overflow-hidden">
+              <Card key={offer.id} padding="none" className="overflow-hidden flex flex-col border border-[#dfd5bf] bg-white group">
+                <div className="relative aspect-[16/8] bg-[#f3e8cc] overflow-hidden">
                   <img
                     src={offer.imageUrl}
                     alt={offer.title}
@@ -576,9 +576,9 @@ export const StoreContentPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-3.5 bg-white flex items-center justify-between gap-3 border-t border-[#E5E8DF]">
-                  <span className="text-xs text-[#737B72] font-semibold">
-                    Target: <code className="text-[#245C3A] font-mono">{offer.ctaLink}</code>
+                <div className="p-3.5 bg-white flex items-center justify-between gap-3 border-t border-[#dfd5bf]">
+                  <span className="text-xs text-[#5a6e54] font-semibold">
+                    Target: <code className="text-[#18542a] font-mono">{offer.ctaLink}</code>
                   </span>
 
                   <button
@@ -592,7 +592,7 @@ export const StoreContentPage: React.FC = () => {
                       });
                       setTempImageUrl(offer.imageUrl);
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-[#FAF9F4] hover:bg-[#E8F0EB] text-[#245C3A] text-xs font-bold border border-[#E5E8DF] flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <UploadCloud className="w-3.5 h-3.5" />
                     Replace Banner
@@ -609,20 +609,20 @@ export const StoreContentPage: React.FC = () => {
       {/* ============================================================= */}
       {activeTab === 'stories' && (
         <div className="space-y-6">
-          <div className="bg-[#FAF9F4] p-4 rounded-2xl border border-[#E5E8DF]">
-            <h2 className="text-sm sm:text-base font-bold text-[#173D2A] flex items-center gap-2">
-              <Sprout className="w-4 h-4 text-[#245C3A]" />
+          <div className="bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
+            <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
+              <Sprout className="w-4 h-4 text-[#18542a]" />
               Farm Story & Heritage Processing Photos
             </h2>
-            <p className="text-xs text-[#737B72] mt-0.5">
+            <p className="text-xs text-[#5a6e54] mt-0.5">
               Displayed in the "Why Choose Arma" and "Our Godavari Heritage" storytelling sections to communicate authentic organic processing.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {(storeContent.storyImages || []).map((story) => (
-              <Card key={story.id} padding="none" className="overflow-hidden flex flex-col border border-[#E5E8DF] bg-white group">
-                <div className="relative aspect-[4/3] bg-[#EAECE4] overflow-hidden">
+              <Card key={story.id} padding="none" className="overflow-hidden flex flex-col border border-[#dfd5bf] bg-white group">
+                <div className="relative aspect-[4/3] bg-[#f3e8cc] overflow-hidden">
                   <img
                     src={story.imageUrl}
                     alt={story.title}
@@ -637,8 +637,8 @@ export const StoreContentPage: React.FC = () => {
 
                 <div className="p-3.5 flex flex-col flex-1 justify-between gap-3">
                   <div>
-                    <h3 className="font-bold text-[#173D2A] text-sm leading-snug">{story.title}</h3>
-                    <p className="text-xs text-[#737B72] mt-1 line-clamp-2">{story.description}</p>
+                    <h3 className="font-bold text-[#103b1d] text-sm leading-snug">{story.title}</h3>
+                    <p className="text-xs text-[#5a6e54] mt-1 line-clamp-2">{story.description}</p>
                   </div>
 
                   <button
@@ -652,7 +652,7 @@ export const StoreContentPage: React.FC = () => {
                       });
                       setTempImageUrl(story.imageUrl);
                     }}
-                    className="w-full py-1.5 rounded-xl bg-[#FAF9F4] hover:bg-[#E8F0EB] text-[#245C3A] text-xs font-bold border border-[#E5E8DF] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="w-full py-1.5 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <UploadCloud className="w-3.5 h-3.5" />
                     Replace Photo
@@ -669,37 +669,37 @@ export const StoreContentPage: React.FC = () => {
       {/* ============================================================= */}
       {activeTab === 'testimonials' && (
         <div className="space-y-6">
-          <div className="bg-[#FAF9F4] p-4 rounded-2xl border border-[#E5E8DF]">
-            <h2 className="text-sm sm:text-base font-bold text-[#173D2A] flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-[#245C3A]" />
+          <div className="bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
+            <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-[#18542a]" />
               Customer Testimonial Avatars & Reviews
             </h2>
-            <p className="text-xs text-[#737B72] mt-0.5">
+            <p className="text-xs text-[#5a6e54] mt-0.5">
               Customer review cards with authentic user avatars shown in the homepage social proof section.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {(storeContent.testimonials || []).map((t) => (
-              <Card key={t.id} className="border border-[#E5E8DF] flex flex-col justify-between gap-4">
+              <Card key={t.id} className="border border-[#dfd5bf] flex flex-col justify-between gap-4">
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <img
                       src={t.avatarUrl}
                       alt={t.name}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-[#245C3A]/30 shrink-0 shadow-xs"
+                      className="w-12 h-12 rounded-full object-cover border-2 border-[#18542a]/30 shrink-0 shadow-xs"
                     />
                     <div>
-                      <h4 className="font-bold text-[#173D2A] text-sm flex items-center gap-1">
+                      <h4 className="font-bold text-[#103b1d] text-sm flex items-center gap-1">
                         {t.name}
-                        {t.verified && <CheckCircle2 className="w-3.5 h-3.5 text-[#2F7D4A]" />}
+                        {t.verified && <CheckCircle2 className="w-3.5 h-3.5 text-[#18542a]" />}
                       </h4>
-                      <p className="text-[11px] text-[#737B72]">{t.location}</p>
+                      <p className="text-[11px] text-[#5a6e54]">{t.location}</p>
                       <div className="flex text-[#ffc926] text-xs mt-0.5">{'★'.repeat(t.rating)}</div>
                     </div>
                   </div>
 
-                  <p className="text-xs text-[#555E53] italic bg-[#FAF9F4] p-2.5 rounded-xl border border-[#E5E8DF]/60">
+                  <p className="text-xs text-[#5a6e54] italic bg-[#faf5ea] p-2.5 rounded-xl border border-[#dfd5bf]/60">
                     "{t.comment}"
                   </p>
                 </div>
@@ -715,7 +715,7 @@ export const StoreContentPage: React.FC = () => {
                     });
                     setTempImageUrl(t.avatarUrl);
                   }}
-                  className="w-full py-1.5 rounded-xl bg-[#FAF9F4] hover:bg-[#E8F0EB] text-[#245C3A] text-xs font-bold border border-[#E5E8DF] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  className="w-full py-1.5 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <UploadCloud className="w-3.5 h-3.5" />
                   Replace Avatar Photo
@@ -731,12 +731,12 @@ export const StoreContentPage: React.FC = () => {
       {/* ============================================================= */}
       {activeTab === 'branding' && (
         <div className="space-y-6">
-          <div className="bg-[#FAF9F4] p-4 rounded-2xl border border-[#E5E8DF]">
-            <h2 className="text-sm sm:text-base font-bold text-[#173D2A] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#245C3A]" />
+          <div className="bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
+            <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#18542a]" />
               Brand Identity & Logo Assets
             </h2>
-            <p className="text-xs text-[#737B72] mt-0.5">
+            <p className="text-xs text-[#5a6e54] mt-0.5">
               Manage the official store logo across desktop header, mobile sticky bar, footer, and browser favicon.
             </p>
           </div>
@@ -772,9 +772,9 @@ export const StoreContentPage: React.FC = () => {
                 darkBg: false,
               },
             ].map((asset) => (
-              <Card key={asset.key} padding="none" className="overflow-hidden flex flex-col border border-[#E5E8DF] bg-white">
+              <Card key={asset.key} padding="none" className="overflow-hidden flex flex-col border border-[#dfd5bf] bg-white">
                 <div
-                  className={`h-36 flex items-center justify-center p-4 border-b border-[#E5E8DF] ${
+                  className={`h-36 flex items-center justify-center p-4 border-b border-[#dfd5bf] ${
                     asset.darkBg ? 'bg-[#18542a]' : 'bg-[#FAF5EA]'
                   }`}
                 >
@@ -787,8 +787,8 @@ export const StoreContentPage: React.FC = () => {
 
                 <div className="p-3.5 flex flex-col flex-1 justify-between gap-3">
                   <div>
-                    <h3 className="font-bold text-[#173D2A] text-sm">{asset.title}</h3>
-                    <p className="text-xs text-[#737B72] mt-0.5">{asset.desc}</p>
+                    <h3 className="font-bold text-[#103b1d] text-sm">{asset.title}</h3>
+                    <p className="text-xs text-[#5a6e54] mt-0.5">{asset.desc}</p>
                   </div>
 
                   <button
@@ -802,7 +802,7 @@ export const StoreContentPage: React.FC = () => {
                       });
                       setTempImageUrl(asset.url);
                     }}
-                    className="w-full py-1.5 rounded-xl bg-[#FAF9F4] hover:bg-[#E8F0EB] text-[#245C3A] text-xs font-bold border border-[#E5E8DF] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="w-full py-1.5 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <UploadCloud className="w-3.5 h-3.5" />
                     Replace Logo File
@@ -835,10 +835,10 @@ export const StoreContentPage: React.FC = () => {
         <form onSubmit={handleSaveSlide} className="space-y-4">
           {/* Banner Preview */}
           <div>
-            <label className="block text-xs font-semibold text-[#173D2A] mb-1.5">
+            <label className="block text-xs font-semibold text-[#103b1d] mb-1.5">
               Banner Preview (Desktop 16:9 / 16:10)
             </label>
-            <div className="relative aspect-[16/9] rounded-2xl bg-[#EAECE4] overflow-hidden border border-[#E5E8DF] shadow-xs">
+            <div className="relative aspect-[16/9] rounded-2xl bg-[#f3e8cc] overflow-hidden border border-[#dfd5bf] shadow-xs">
               <img
                 src={slideFormData.imageUrl}
                 alt="Banner Preview"
@@ -859,7 +859,7 @@ export const StoreContentPage: React.FC = () => {
 
           {/* Image Upload & URL input */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-[#173D2A]">
+            <label className="block text-xs font-semibold text-[#103b1d]">
               Banner Image Source
             </label>
             <div className="flex gap-2">
@@ -868,9 +868,9 @@ export const StoreContentPage: React.FC = () => {
                 value={slideFormData.imageUrl}
                 onChange={(e) => setSlideFormData({ ...slideFormData, imageUrl: e.target.value })}
                 placeholder="https://... or upload local file"
-                className="flex-1 text-xs px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white focus:ring-1 focus:ring-[#245C3A]"
+                className="flex-1 text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white focus:ring-1 focus:ring-[#18542a]"
               />
-              <label className="px-3 py-2 rounded-xl bg-[#245C3A] text-white text-xs font-bold hover:bg-[#1a442a] cursor-pointer flex items-center gap-1.5 shrink-0 transition-colors">
+              <label className="px-3 py-2 rounded-xl bg-[#18542a] text-white text-xs font-bold hover:bg-[#103b1d] cursor-pointer flex items-center gap-1.5 shrink-0 transition-colors">
                 <UploadCloud className="w-4 h-4" />
                 <span>Upload Local</span>
                 <input
@@ -886,7 +886,7 @@ export const StoreContentPage: React.FC = () => {
 
             {/* Quick Preset Selector */}
             <div className="pt-1">
-              <span className="text-[11px] font-semibold text-[#737B72] block mb-1">
+              <span className="text-[11px] font-semibold text-[#5a6e54] block mb-1">
                 Or select 1-click organic product preset:
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -897,8 +897,8 @@ export const StoreContentPage: React.FC = () => {
                     onClick={() => setSlideFormData({ ...slideFormData, imageUrl: preset.url })}
                     className={`text-[10px] px-2 py-1 rounded-lg border font-medium transition-colors cursor-pointer ${
                       slideFormData.imageUrl === preset.url
-                        ? 'bg-[#245C3A] text-white border-[#245C3A]'
-                        : 'bg-[#FAF9F4] text-[#555E53] border-[#E5E8DF] hover:border-[#245C3A]'
+                        ? 'bg-[#18542a] text-white border-[#18542a]'
+                        : 'bg-[#faf5ea] text-[#5a6e54] border-[#dfd5bf] hover:border-[#18542a]'
                     }`}
                   >
                     {preset.name}
@@ -911,7 +911,7 @@ export const StoreContentPage: React.FC = () => {
           {/* Title & Badge */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+              <label className="block text-xs font-semibold text-[#103b1d] mb-1">
                 Badge Tag
               </label>
               <input
@@ -919,11 +919,11 @@ export const StoreContentPage: React.FC = () => {
                 value={slideFormData.badgeText}
                 onChange={(e) => setSlideFormData({ ...slideFormData, badgeText: e.target.value })}
                 placeholder="e.g. 100% WOOD COLD PRESSED"
-                className="w-full text-xs px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white"
+                className="w-full text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+              <label className="block text-xs font-semibold text-[#103b1d] mb-1">
                 Headline Title
               </label>
               <input
@@ -931,14 +931,14 @@ export const StoreContentPage: React.FC = () => {
                 value={slideFormData.title}
                 onChange={(e) => setSlideFormData({ ...slideFormData, title: e.target.value })}
                 placeholder="e.g. Wholesome Millet Power"
-                className="w-full text-xs px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white"
+                className="w-full text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
               />
             </div>
           </div>
 
           {/* Subtitle */}
           <div>
-            <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+            <label className="block text-xs font-semibold text-[#103b1d] mb-1">
               Subtitle / Description
             </label>
             <input
@@ -946,14 +946,14 @@ export const StoreContentPage: React.FC = () => {
               value={slideFormData.subtitle}
               onChange={(e) => setSlideFormData({ ...slideFormData, subtitle: e.target.value })}
               placeholder="e.g. Traditional Wood Pressed (Kachi Ghani) Extraction"
-              className="w-full text-xs px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white"
+              className="w-full text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
             />
           </div>
 
           {/* CTA Button Text & Link */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+              <label className="block text-xs font-semibold text-[#103b1d] mb-1">
                 CTA Button Text
               </label>
               <input
@@ -961,11 +961,11 @@ export const StoreContentPage: React.FC = () => {
                 value={slideFormData.ctaText}
                 onChange={(e) => setSlideFormData({ ...slideFormData, ctaText: e.target.value })}
                 placeholder="SHOP NOW"
-                className="w-full text-xs px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white"
+                className="w-full text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+              <label className="block text-xs font-semibold text-[#103b1d] mb-1">
                 CTA Destination URL
               </label>
               <input
@@ -973,7 +973,7 @@ export const StoreContentPage: React.FC = () => {
                 value={slideFormData.ctaLink}
                 onChange={(e) => setSlideFormData({ ...slideFormData, ctaLink: e.target.value })}
                 placeholder="/collections/oils"
-                className="w-full text-xs px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white"
+                className="w-full text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
               />
             </div>
           </div>
@@ -999,7 +999,7 @@ export const StoreContentPage: React.FC = () => {
         }
       >
         <div className="space-y-4">
-          <div className="flex items-center justify-center p-4 rounded-2xl bg-[#FAF5EA] border border-[#E5E8DF]">
+          <div className="flex items-center justify-center p-4 rounded-2xl bg-[#FAF5EA] border border-[#dfd5bf]">
             <img
               src={categoryImageUrl}
               alt="Category Preview"
@@ -1008,7 +1008,7 @@ export const StoreContentPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+            <label className="block text-xs font-semibold text-[#103b1d] mb-1">
               Category Image URL
             </label>
             <div className="flex gap-2">
@@ -1017,9 +1017,9 @@ export const StoreContentPage: React.FC = () => {
                 value={categoryImageUrl}
                 onChange={(e) => setCategoryImageUrl(e.target.value)}
                 placeholder="/categories/oil.png or https://..."
-                className="flex-1 text-xs px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white"
+                className="flex-1 text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
               />
-              <label className="px-3 py-2 rounded-xl bg-[#245C3A] text-white text-xs font-bold hover:bg-[#1a442a] cursor-pointer flex items-center gap-1.5 shrink-0">
+              <label className="px-3 py-2 rounded-xl bg-[#18542a] text-white text-xs font-bold hover:bg-[#103b1d] cursor-pointer flex items-center gap-1.5 shrink-0">
                 <UploadCloud className="w-4 h-4" />
                 <span>Upload</span>
                 <input
@@ -1033,7 +1033,7 @@ export const StoreContentPage: React.FC = () => {
           </div>
 
           <div>
-            <span className="text-[11px] font-semibold text-[#737B72] block mb-1">
+            <span className="text-[11px] font-semibold text-[#5a6e54] block mb-1">
               Or pick an organic category asset preset:
             </span>
             <div className="flex flex-wrap gap-1.5">
@@ -1044,8 +1044,8 @@ export const StoreContentPage: React.FC = () => {
                   onClick={() => setCategoryImageUrl(preset.url)}
                   className={`text-[10px] px-2 py-1 rounded-lg border font-medium transition-colors cursor-pointer ${
                     categoryImageUrl === preset.url
-                      ? 'bg-[#245C3A] text-white border-[#245C3A]'
-                      : 'bg-[#FAF9F4] text-[#555E53] border-[#E5E8DF] hover:border-[#245C3A]'
+                      ? 'bg-[#18542a] text-white border-[#18542a]'
+                      : 'bg-[#faf5ea] text-[#5a6e54] border-[#dfd5bf] hover:border-[#18542a]'
                   }`}
                 >
                   {preset.name}
@@ -1084,10 +1084,10 @@ export const StoreContentPage: React.FC = () => {
         }
       >
         <div className="space-y-4">
-          <p className="text-xs text-[#737B72]">{imageModalConfig.description}</p>
+          <p className="text-xs text-[#5a6e54]">{imageModalConfig.description}</p>
 
           {/* Live Preview Frame */}
-          <div className="h-44 rounded-2xl bg-[#FAF9F4] border border-[#E5E8DF] flex items-center justify-center p-3 overflow-hidden">
+          <div className="h-44 rounded-2xl bg-[#faf5ea] border border-[#dfd5bf] flex items-center justify-center p-3 overflow-hidden">
             <img
               src={tempImageUrl}
               alt="Preview"
@@ -1096,7 +1096,7 @@ export const StoreContentPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+            <label className="block text-xs font-semibold text-[#103b1d] mb-1">
               Image Source URL
             </label>
             <div className="flex gap-2">
@@ -1105,9 +1105,9 @@ export const StoreContentPage: React.FC = () => {
                 value={tempImageUrl}
                 onChange={(e) => setTempImageUrl(e.target.value)}
                 placeholder="https://... or upload local file"
-                className="flex-1 text-xs px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white focus:ring-1 focus:ring-[#245C3A]"
+                className="flex-1 text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white focus:ring-1 focus:ring-[#18542a]"
               />
-              <label className="px-3 py-2 rounded-xl bg-[#245C3A] text-white text-xs font-bold hover:bg-[#1a442a] cursor-pointer flex items-center gap-1.5 shrink-0 transition-colors">
+              <label className="px-3 py-2 rounded-xl bg-[#18542a] text-white text-xs font-bold hover:bg-[#103b1d] cursor-pointer flex items-center gap-1.5 shrink-0 transition-colors">
                 <UploadCloud className="w-4 h-4" />
                 <span>Upload File</span>
                 <input

@@ -32,9 +32,9 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       onClose={onClose}
       title={
         <div className="flex items-center gap-2.5">
-          {variant === 'danger' && <AlertCircle className="w-5 h-5 text-[#B64238]" />}
-          {variant === 'warning' && <AlertTriangle className="w-5 h-5 text-[#B7791F]" />}
-          {variant === 'primary' && <HelpCircle className="w-5 h-5 text-[#245C3A]" />}
+          {variant === 'danger' && <AlertCircle className="w-5 h-5 text-[#d52518]" />}
+          {variant === 'warning' && <AlertTriangle className="w-5 h-5 text-[#f96015]" />}
+          {variant === 'primary' && <HelpCircle className="w-5 h-5 text-[#18542a]" />}
           <span>{title}</span>
         </div>
       }
@@ -57,7 +57,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </>
       }
     >
-      <p className="text-sm text-[#737B72] leading-relaxed">{message}</p>
+      <p className="text-sm text-[#5a6e54] leading-relaxed">{message}</p>
     </Modal>
   );
 };

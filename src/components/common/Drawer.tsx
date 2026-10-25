@@ -47,23 +47,23 @@ export const Drawer: React.FC<DrawerProps> = ({
     <div className="fixed inset-0 z-50 overflow-hidden" role="dialog" aria-modal="true">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
       />
 
       <div className="fixed inset-y-0 right-0 flex pl-10 max-w-full">
         <div
-          className={`w-screen ${widthClasses[width]} bg-white shadow-2xl flex flex-col border-l border-[#E5E8DF] animate-in slide-in-from-right duration-250`}
+          className={`w-screen ${widthClasses[width]} bg-white shadow-2xl flex flex-col border-l border-[#dfd5bf] animate-in slide-in-from-right duration-250`}
         >
           {/* Header */}
-          <div className="flex items-start justify-between border-b border-[#E5E8DF] px-6 py-5 bg-[#FAF9F4]/70">
+          <div className="flex items-start justify-between border-b border-[#dfd5bf] px-6 py-5 bg-[#faf5ea]">
             <div>
-              <h3 className="text-xl font-semibold text-[#173D2A]">{title}</h3>
-              {subtitle && <p className="text-xs text-[#737B72] mt-0.5">{subtitle}</p>}
+              <h3 className="text-xl font-bold text-[#103b1d] font-heading">{title}</h3>
+              {subtitle && <p className="text-xs text-[#5a6e54] mt-0.5">{subtitle}</p>}
             </div>
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 text-[#737B72] hover:bg-[#EAECE4] hover:text-[#202820] transition-colors focus:outline-none"
+              className="rounded-lg p-1.5 text-[#5a6e54] hover:bg-[#f3e8cc] hover:text-[#103b1d] transition-colors focus:outline-none cursor-pointer"
               aria-label="Close drawer"
             >
               <X className="w-5 h-5" />
@@ -77,7 +77,7 @@ export const Drawer: React.FC<DrawerProps> = ({
 
           {/* Optional Footer */}
           {footer && (
-            <div className="border-t border-[#E5E8DF] px-6 py-4 bg-[#FAF9F4]/90 flex items-center justify-end gap-3 shrink-0">
+            <div className="border-t border-[#dfd5bf] px-6 py-4 bg-[#faf5ea] flex items-center justify-end gap-3 shrink-0">
               {footer}
             </div>
           )}

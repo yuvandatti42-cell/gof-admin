@@ -197,10 +197,10 @@ export const PromotionsPage: React.FC = () => {
       {/* Title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#173D2A] font-heading">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#103b1d] font-heading">
             Promotions & Coupons
           </h2>
-          <p className="text-xs sm:text-sm text-[#737B72] mt-0.5">
+          <p className="text-xs sm:text-sm text-[#5a6e54] mt-0.5">
             Configure harvest discount codes, fixed pantry concessions, and seasonal vouchers.
           </p>
         </div>
@@ -213,33 +213,33 @@ export const PromotionsPage: React.FC = () => {
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
-          <p className="text-xs font-semibold text-[#737B72] uppercase tracking-wider">
+          <p className="text-xs font-semibold text-[#5a6e54] uppercase tracking-wider">
             Active Campaigns
           </p>
-          <h3 className="text-2xl font-bold text-[#173D2A] mt-1 tabular-nums font-heading">
-            {summaryMetrics.activeCount} <span className="text-sm font-normal text-[#737B72]">/ {promotions.length}</span>
+          <h3 className="text-2xl font-bold text-[#103b1d] mt-1 tabular-nums font-heading">
+            {summaryMetrics.activeCount} <span className="text-sm font-normal text-[#5a6e54]">/ {promotions.length}</span>
           </h3>
-          <p className="text-xs text-[#2F7D4A] mt-2 font-medium">Ready for checkout validation</p>
+          <p className="text-xs text-[#18542a] mt-2 font-medium">Ready for checkout validation</p>
         </Card>
 
         <Card>
-          <p className="text-xs font-semibold text-[#737B72] uppercase tracking-wider">
+          <p className="text-xs font-semibold text-[#5a6e54] uppercase tracking-wider">
             Total Redemptions
           </p>
-          <h3 className="text-2xl font-bold text-[#173D2A] mt-1 tabular-nums font-heading">
+          <h3 className="text-2xl font-bold text-[#103b1d] mt-1 tabular-nums font-heading">
             {formatNumber(summaryMetrics.totalRedemptions)}
           </h3>
-          <p className="text-xs text-[#737B72] mt-2">Across all recorded customer checkouts</p>
+          <p className="text-xs text-[#5a6e54] mt-2">Across all recorded customer checkouts</p>
         </Card>
 
         <Card>
-          <p className="text-xs font-semibold text-[#737B72] uppercase tracking-wider">
+          <p className="text-xs font-semibold text-[#5a6e54] uppercase tracking-wider">
             Estimated Savings Given
           </p>
-          <h3 className="text-2xl font-bold text-[#173D2A] mt-1 tabular-nums font-heading">
+          <h3 className="text-2xl font-bold text-[#103b1d] mt-1 tabular-nums font-heading">
             {formatINR(summaryMetrics.estimatedSavings)}
           </h3>
-          <p className="text-xs text-[#2F7D4A] mt-2 font-medium">Pantry incentives delivered</p>
+          <p className="text-xs text-[#18542a] mt-2 font-medium">Pantry incentives delivered</p>
         </Card>
       </div>
 
@@ -247,18 +247,18 @@ export const PromotionsPage: React.FC = () => {
       <Card padding="sm" className="space-y-3">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#737B72] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#5a6e54] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search coupon code or description..."
-              className="w-full text-xs sm:text-sm pl-9 pr-4 py-2 rounded-xl border border-[#E5E8DF] bg-white text-[#202820] placeholder-[#737B72] focus:ring-1 focus:ring-[#245C3A]"
+              className="w-full text-xs sm:text-sm pl-9 pr-4 py-2 rounded-xl border border-[#dfd5bf] bg-white text-[#103b1d] placeholder-[#5a6e54] focus:ring-1 focus:ring-[#18542a]"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#737B72] hover:text-[#202820]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#5a6e54] hover:text-[#103b1d]"
               >
                 Clear
               </button>
@@ -266,11 +266,11 @@ export const PromotionsPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-[#737B72] shrink-0 hidden sm:inline">Status:</span>
+            <span className="text-xs text-[#5a6e54] shrink-0 hidden sm:inline">Status:</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="text-xs sm:text-sm py-2 px-3 rounded-xl border border-[#E5E8DF] bg-white text-[#202820]"
+              className="text-xs sm:text-sm py-2 px-3 rounded-xl border border-[#dfd5bf] bg-white text-[#103b1d]"
             >
               <option value="all">All Statuses</option>
               <option value="Active">Active</option>
@@ -285,7 +285,7 @@ export const PromotionsPage: React.FC = () => {
       <Card padding="none" className="overflow-hidden">
         {filteredPromotions.length === 0 ? (
           <EmptyState
-            icon={<Tag className="w-7 h-7 text-[#245C3A]" />}
+            icon={<Tag className="w-7 h-7 text-[#18542a]" />}
             title="No Promotions Found"
             description="No coupons match your filter. Create a new campaign code for store buyers."
             actionText="Clear Filter"
@@ -299,7 +299,7 @@ export const PromotionsPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-[#FAF9F4] text-xs font-semibold text-[#737B72] border-b border-[#E5E8DF]">
+              <thead className="bg-[#faf5ea] text-xs font-semibold text-[#5a6e54] border-b border-[#dfd5bf]">
                 <tr>
                   <th className="py-3 px-4">Coupon Code</th>
                   <th className="py-3 px-4">Discount Value</th>
@@ -310,64 +310,64 @@ export const PromotionsPage: React.FC = () => {
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E5E8DF]/60">
+              <tbody className="divide-y divide-[#dfd5bf]/60">
                 {filteredPromotions.map((p) => (
-                  <tr key={p.id} className="hover:bg-[#FAF9F4]/70 transition-colors">
+                  <tr key={p.id} className="hover:bg-[#faf5ea]/70 transition-colors">
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-sm text-[#245C3A] tracking-wider bg-[#E8F0EB] px-2.5 py-1 rounded-lg border border-[#C0D6C8]">
+                        <span className="font-mono font-bold text-sm text-[#18542a] tracking-wider bg-[#E8F0EB] px-2.5 py-1 rounded-lg border border-[#C0D6C8]">
                           {p.code}
                         </span>
                         <button
                           onClick={() => handleCopyCode(p.code)}
-                          className="p-1 rounded-md text-[#737B72] hover:text-[#245C3A] hover:bg-neutral-100 transition-colors"
+                          className="p-1 rounded-md text-[#5a6e54] hover:text-[#18542a] hover:bg-neutral-100 transition-colors"
                           title="Copy coupon code"
                         >
                           {copiedCode === p.code ? (
-                            <Check className="w-3.5 h-3.5 text-[#2F7D4A]" />
+                            <Check className="w-3.5 h-3.5 text-[#18542a]" />
                           ) : (
                             <Copy className="w-3.5 h-3.5" />
                           )}
                         </button>
                       </div>
-                      <p className="text-xs text-[#737B72] mt-1 max-w-xs">{p.description}</p>
+                      <p className="text-xs text-[#5a6e54] mt-1 max-w-xs">{p.description}</p>
                     </td>
 
                     <td className="py-3.5 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5 font-bold text-[#173D2A]">
+                      <div className="flex items-center gap-1.5 font-bold text-[#103b1d]">
                         {p.discountType === 'percentage' ? (
                           <>
-                            <Percent className="w-4 h-4 text-[#245C3A]" />
+                            <Percent className="w-4 h-4 text-[#18542a]" />
                             <span>{p.discountValue}% OFF</span>
                           </>
                         ) : (
                           <>
-                            <IndianRupee className="w-4 h-4 text-[#245C3A]" />
+                            <IndianRupee className="w-4 h-4 text-[#18542a]" />
                             <span>{formatINR(p.discountValue)} OFF</span>
                           </>
                         )}
                       </div>
                       {p.maxDiscount && (
-                        <span className="text-[11px] text-[#737B72] block">
+                        <span className="text-[11px] text-[#5a6e54] block">
                           Up to {formatINR(p.maxDiscount)}
                         </span>
                       )}
                     </td>
 
-                    <td className="py-3.5 px-4 text-xs text-[#555E53] whitespace-nowrap">
-                      Min order: <span className="font-semibold text-[#173D2A]">{formatINR(p.minOrderValue)}</span>
+                    <td className="py-3.5 px-4 text-xs text-[#5a6e54] whitespace-nowrap">
+                      Min order: <span className="font-semibold text-[#103b1d]">{formatINR(p.minOrderValue)}</span>
                     </td>
 
                     <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span className="text-xs font-semibold tabular-nums text-[#202820]">
+                      <span className="text-xs font-semibold tabular-nums text-[#103b1d]">
                         {p.usageCount}
                       </span>
                       {p.usageLimit && (
-                        <span className="text-xs text-[#737B72]"> / {p.usageLimit} max</span>
+                        <span className="text-xs text-[#5a6e54]"> / {p.usageLimit} max</span>
                       )}
                     </td>
 
-                    <td className="py-3.5 px-4 text-xs text-[#737B72] whitespace-nowrap">
+                    <td className="py-3.5 px-4 text-xs text-[#5a6e54] whitespace-nowrap">
                       {formatDate(p.startDate)} – {formatDate(p.endDate)}
                     </td>
 
@@ -381,13 +381,13 @@ export const PromotionsPage: React.FC = () => {
                             togglePromotionStatus(p.id);
                             showToast(`Toggled coupon ${p.code} status.`, 'info');
                           }}
-                          className="p-1 text-[#737B72] hover:text-[#245C3A]"
+                          className="p-1 text-[#5a6e54] hover:text-[#18542a]"
                           title="Toggle active status"
                         >
                           {p.status === 'Active' ? (
-                            <ToggleRight className="w-5 h-5 text-[#2F7D4A]" />
+                            <ToggleRight className="w-5 h-5 text-[#18542a]" />
                           ) : (
-                            <ToggleLeft className="w-5 h-5 text-[#737B72]" />
+                            <ToggleLeft className="w-5 h-5 text-[#5a6e54]" />
                           )}
                         </button>
                       </div>
@@ -397,14 +397,14 @@ export const PromotionsPage: React.FC = () => {
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => handleOpenEdit(p)}
-                          className="p-1.5 rounded-lg text-[#737B72] hover:text-[#245C3A] hover:bg-[#E8F0EB] transition-colors"
+                          className="p-1.5 rounded-lg text-[#5a6e54] hover:text-[#18542a] hover:bg-[#E8F0EB] transition-colors"
                           title="Edit promotion"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => setDeleteTargetId(p.id)}
-                          className="p-1.5 rounded-lg text-[#737B72] hover:text-[#B64238] hover:bg-[#FDEEED] transition-colors"
+                          className="p-1.5 rounded-lg text-[#5a6e54] hover:text-[#d52518] hover:bg-[#FDEEED] transition-colors"
                           title="Delete promotion"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -439,7 +439,7 @@ export const PromotionsPage: React.FC = () => {
       >
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div>
-            <label className="block font-semibold text-[#173D2A] mb-1">
+            <label className="block font-semibold text-[#103b1d] mb-1">
               Coupon Code <span className="text-red-500">*</span>
             </label>
             <input
@@ -447,15 +447,15 @@ export const PromotionsPage: React.FC = () => {
               value={formData.code}
               onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
               placeholder="e.g. GODAVARI10"
-              className={`w-full font-mono text-sm px-3 py-2 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-[#245C3A] ${
-                errors.code ? 'border-[#B64238]' : 'border-[#E5E8DF]'
+              className={`w-full font-mono text-sm px-3 py-2 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-[#18542a] ${
+                errors.code ? 'border-[#d52518]' : 'border-[#dfd5bf]'
               }`}
             />
-            {errors.code && <p className="text-[11px] text-[#B64238] mt-0.5">{errors.code}</p>}
+            {errors.code && <p className="text-[11px] text-[#d52518] mt-0.5">{errors.code}</p>}
           </div>
 
           <div>
-            <label className="block font-semibold text-[#173D2A] mb-1">
+            <label className="block font-semibold text-[#103b1d] mb-1">
               Description / Campaign Note
             </label>
             <input
@@ -463,19 +463,19 @@ export const PromotionsPage: React.FC = () => {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="e.g. 10% discount on first organic grocery harvest"
-              className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white focus:ring-1 focus:ring-[#245C3A]"
+              className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white focus:ring-1 focus:ring-[#18542a]"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-[#173D2A] mb-1">
+              <label className="block font-semibold text-[#103b1d] mb-1">
                 Discount Type
               </label>
               <select
                 value={formData.discountType}
                 onChange={(e) => setFormData({ ...formData, discountType: e.target.value as PromotionType })}
-                className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white"
+                className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
               >
                 <option value="percentage">Percentage (%)</option>
                 <option value="fixed">Fixed Amount (₹)</option>
@@ -483,7 +483,7 @@ export const PromotionsPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block font-semibold text-[#173D2A] mb-1">
+              <label className="block font-semibold text-[#103b1d] mb-1">
                 Discount Value <span className="text-red-500">*</span>
               </label>
               <input
@@ -492,19 +492,19 @@ export const PromotionsPage: React.FC = () => {
                 value={formData.discountValue}
                 onChange={(e) => setFormData({ ...formData, discountValue: e.target.value })}
                 placeholder={formData.discountType === 'percentage' ? '10' : '200'}
-                className={`w-full text-xs sm:text-sm px-3 py-2 rounded-xl border bg-white focus:ring-1 focus:ring-[#245C3A] ${
-                  errors.discountValue ? 'border-[#B64238]' : 'border-[#E5E8DF]'
+                className={`w-full text-xs sm:text-sm px-3 py-2 rounded-xl border bg-white focus:ring-1 focus:ring-[#18542a] ${
+                  errors.discountValue ? 'border-[#d52518]' : 'border-[#dfd5bf]'
                 }`}
               />
               {errors.discountValue && (
-                <p className="text-[11px] text-[#B64238] mt-0.5">{errors.discountValue}</p>
+                <p className="text-[11px] text-[#d52518] mt-0.5">{errors.discountValue}</p>
               )}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-[#173D2A] mb-1">
+              <label className="block font-semibold text-[#103b1d] mb-1">
                 Min Order Value (₹)
               </label>
               <input
@@ -513,13 +513,13 @@ export const PromotionsPage: React.FC = () => {
                 value={formData.minOrderValue}
                 onChange={(e) => setFormData({ ...formData, minOrderValue: e.target.value })}
                 placeholder="999"
-                className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white"
+                className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
               />
             </div>
 
             {formData.discountType === 'percentage' ? (
               <div>
-                <label className="block font-semibold text-[#173D2A] mb-1">
+                <label className="block font-semibold text-[#103b1d] mb-1">
                   Max Cap (₹ optional)
                 </label>
                 <input
@@ -528,12 +528,12 @@ export const PromotionsPage: React.FC = () => {
                   value={formData.maxDiscount}
                   onChange={(e) => setFormData({ ...formData, maxDiscount: e.target.value })}
                   placeholder="300"
-                  className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white"
+                  className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
                 />
               </div>
             ) : (
               <div>
-                <label className="block font-semibold text-[#173D2A] mb-1">
+                <label className="block font-semibold text-[#103b1d] mb-1">
                   Total Redemption Limit
                 </label>
                 <input
@@ -542,7 +542,7 @@ export const PromotionsPage: React.FC = () => {
                   value={formData.usageLimit}
                   onChange={(e) => setFormData({ ...formData, usageLimit: e.target.value })}
                   placeholder="250"
-                  className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white"
+                  className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
                 />
               </div>
             )}
@@ -550,19 +550,19 @@ export const PromotionsPage: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-[#173D2A] mb-1">
+              <label className="block font-semibold text-[#103b1d] mb-1">
                 Start Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
                 value={formData.startDate}
                 onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white"
+                className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-[#173D2A] mb-1">
+              <label className="block font-semibold text-[#103b1d] mb-1">
                 End Date <span className="text-red-500">*</span>
               </label>
               <input
@@ -570,21 +570,21 @@ export const PromotionsPage: React.FC = () => {
                 value={formData.endDate}
                 onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
                 className={`w-full text-xs sm:text-sm px-3 py-2 rounded-xl border bg-white ${
-                  errors.endDate ? 'border-[#B64238]' : 'border-[#E5E8DF]'
+                  errors.endDate ? 'border-[#d52518]' : 'border-[#dfd5bf]'
                 }`}
               />
               {errors.endDate && (
-                <p className="text-[11px] text-[#B64238] mt-0.5">{errors.endDate}</p>
+                <p className="text-[11px] text-[#d52518] mt-0.5">{errors.endDate}</p>
               )}
             </div>
           </div>
 
           <div className="pt-2 flex items-center gap-3">
-            <label className="font-semibold text-[#173D2A]">Status:</label>
+            <label className="font-semibold text-[#103b1d]">Status:</label>
             <select
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value as PromotionStatus })}
-              className="px-3 py-1.5 rounded-lg border border-[#E5E8DF] bg-white text-xs"
+              className="px-3 py-1.5 rounded-lg border border-[#dfd5bf] bg-white text-xs"
             >
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>

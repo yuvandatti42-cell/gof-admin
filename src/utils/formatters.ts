@@ -46,7 +46,7 @@ export function formatRelativeTime(dateStr: string): string {
   return formatDate(dateStr);
 }
 
-export type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'forest';
+export type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'forest' | 'kiwi' | 'sunshine' | 'carrot';
 
 export function getStatusBadgeVariant(status: string): BadgeVariant {
   switch (status?.toLowerCase()) {

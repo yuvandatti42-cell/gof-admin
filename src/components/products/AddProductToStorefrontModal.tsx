@@ -76,14 +76,14 @@ export const AddProductToStorefrontModal: React.FC = () => {
       onClose={() => setStorefrontPickerOpen(false)}
       title={
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[#E8F0EB] text-[#245C3A] flex items-center justify-center">
-            <Sprout className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-lg bg-[#e8f0eb] text-[#18542a] flex items-center justify-center shadow-xs">
+            <Sprout className="w-4 h-4 stroke-[2.5]" />
           </div>
           <div>
-            <h3 className="text-base sm:text-lg font-bold text-[#173D2A] font-heading">
+            <h3 className="text-base sm:text-lg font-bold text-[#103b1d] font-heading">
               Manage Storefront Products (Featured Harvest)
             </h3>
-            <p className="text-xs text-[#737B72] font-normal">
+            <p className="text-xs text-[#5a6e54] font-normal">
               Select which products appear on the customer-facing Godavari Organics homepage
             </p>
           </div>
@@ -92,20 +92,20 @@ export const AddProductToStorefrontModal: React.FC = () => {
       size="2xl"
       footer={
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 w-full">
-          <div className="text-xs text-[#737B72] text-center sm:text-left">
-            <strong className="text-[#245C3A] font-bold">{activeStorefrontIds.length}</strong> of{' '}
+          <div className="text-xs text-[#5a6e54] text-center sm:text-left">
+            <strong className="text-[#18542a] font-bold">{activeStorefrontIds.length}</strong> of{' '}
             {products.length} products published to storefront
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <Button
-              variant="outline"
+              variant="sunshine"
               size="sm"
               onClick={() => {
                 setStorefrontPickerOpen(false);
                 setLiveStorefrontOpen(true);
               }}
-              icon={<Eye className="w-4 h-4 text-[#245C3A]" />}
+              icon={<Eye className="w-4 h-4 stroke-[2.5]" />}
             >
               View Live Store
             </Button>
@@ -125,13 +125,13 @@ export const AddProductToStorefrontModal: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#737B72] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#5a6e54] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search products by name, SKU..."
-              className="w-full text-xs sm:text-sm pl-9 pr-4 py-2 rounded-xl border border-[#E5E8DF] bg-white text-[#202820] placeholder-[#737B72] focus:outline-none focus:ring-1 focus:ring-[#245C3A]"
+              className="w-full text-xs sm:text-sm pl-9 pr-4 py-2 rounded-xl border border-[#dfd5bf] bg-white text-[#103b1d] placeholder-[#5a6e54] focus:outline-none focus:ring-1 focus:ring-[#18542a] font-medium"
             />
           </div>
 
@@ -139,7 +139,7 @@ export const AddProductToStorefrontModal: React.FC = () => {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="text-xs py-2 px-3 rounded-xl border border-[#E5E8DF] bg-white text-[#202820] focus:ring-1 focus:ring-[#245C3A]"
+            className="text-xs py-2 px-3 rounded-xl border border-[#dfd5bf] bg-white text-[#103b1d] focus:ring-1 focus:ring-[#18542a] font-medium cursor-pointer"
           >
             <option value="all">All Categories</option>
             {categories.map((c) => (
@@ -150,33 +150,33 @@ export const AddProductToStorefrontModal: React.FC = () => {
           </select>
 
           {/* Status View Tab Buttons */}
-          <div className="inline-flex rounded-xl bg-[#FAF9F4] p-1 border border-[#E5E8DF] text-[11px] font-medium shrink-0">
+          <div className="inline-flex rounded-xl bg-[#faf5ea] p-1 border border-[#dfd5bf] text-[11px] font-semibold shrink-0">
             <button
               onClick={() => setViewFilter('all')}
-              className={`px-2.5 py-1 rounded-lg transition-all ${
+              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                 viewFilter === 'all'
-                  ? 'bg-white text-[#173D2A] font-semibold shadow-xs'
-                  : 'text-[#737B72]'
+                  ? 'bg-white text-[#103b1d] font-bold shadow-xs'
+                  : 'text-[#5a6e54]'
               }`}
             >
               All ({products.length})
             </button>
             <button
               onClick={() => setViewFilter('not_on_store')}
-              className={`px-2.5 py-1 rounded-lg transition-all ${
+              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                 viewFilter === 'not_on_store'
-                  ? 'bg-white text-[#173D2A] font-semibold shadow-xs'
-                  : 'text-[#737B72]'
+                  ? 'bg-white text-[#103b1d] font-bold shadow-xs'
+                  : 'text-[#5a6e54]'
               }`}
             >
               Available ({products.length - activeStorefrontIds.length})
             </button>
             <button
               onClick={() => setViewFilter('on_store')}
-              className={`px-2.5 py-1 rounded-lg transition-all ${
+              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                 viewFilter === 'on_store'
-                  ? 'bg-white text-[#173D2A] font-semibold shadow-xs'
-                  : 'text-[#737B72]'
+                  ? 'bg-white text-[#103b1d] font-bold shadow-xs'
+                  : 'text-[#5a6e54]'
               }`}
             >
               On Store ({activeStorefrontIds.length})
@@ -186,8 +186,8 @@ export const AddProductToStorefrontModal: React.FC = () => {
 
         {/* Bulk Action Bar */}
         {selectedIds.length > 0 && (
-          <div className="p-2.5 rounded-xl bg-[#E8F0EB] border border-[#C0D6C8] flex items-center justify-between text-xs">
-            <span className="font-semibold text-[#245C3A]">
+          <div className="p-2.5 rounded-xl bg-[#e8f0eb] border border-[#c0d6c8] flex items-center justify-between text-xs">
+            <span className="font-bold text-[#18542a]">
               {selectedIds.length} products selected
             </span>
             <div className="flex items-center gap-2">
@@ -204,7 +204,7 @@ export const AddProductToStorefrontModal: React.FC = () => {
         {/* Product List */}
         <div className="max-h-[50vh] overflow-y-auto space-y-2 pr-1">
           {filteredProducts.length === 0 ? (
-            <div className="text-center py-8 text-xs text-[#737B72]">
+            <div className="text-center py-8 text-xs text-[#5a6e54]">
               No products found matching your search.
             </div>
           ) : (
@@ -217,8 +217,8 @@ export const AddProductToStorefrontModal: React.FC = () => {
                   key={p.id}
                   className={`p-3 rounded-xl border transition-all flex items-center justify-between gap-3 ${
                     isOnStore
-                      ? 'bg-[#E8F0EB]/30 border-[#C0D6C8]'
-                      : 'bg-white border-[#E5E8DF] hover:border-[#6F9F62]/60'
+                      ? 'bg-[#e8f0eb]/40 border-[#c0d6c8]'
+                      : 'bg-white border-[#dfd5bf] hover:border-[#18542a]/60'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -227,37 +227,39 @@ export const AddProductToStorefrontModal: React.FC = () => {
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggleSelectOne(p.id)}
-                        className="rounded border-[#E5E8DF] text-[#245C3A] focus:ring-[#245C3A]"
+                        className="rounded border-[#dfd5bf] text-[#18542a] focus:ring-[#18542a] cursor-pointer"
                       />
                     )}
 
-                    <img
-                      src={p.imageUrl}
-                      alt={p.name}
-                      className="w-12 h-12 rounded-lg object-cover border border-[#E5E8DF] shrink-0"
-                    />
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-b from-[#faf6ee] to-[#f4ede0]/60 p-1 border border-[#dfd5bf] flex items-center justify-center shrink-0">
+                      <img
+                        src={p.imageUrl}
+                        alt={p.name}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <h4 className="text-xs sm:text-sm font-semibold text-[#173D2A] truncate">
+                        <h4 className="text-xs sm:text-sm font-bold text-[#103b1d] truncate">
                           {p.name}
                         </h4>
                         {isOnStore && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#2F7D4A] text-white">
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#18542a] text-white">
                             Live on Store
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 text-[11px] text-[#737B72] mt-0.5">
+                      <div className="flex items-center gap-2 text-[11px] text-[#5a6e54] mt-0.5">
                         <span className="font-mono">{p.sku}</span>
                         <span>•</span>
                         <span>{p.categoryName}</span>
                         <span>•</span>
-                        <span className="font-semibold text-[#173D2A] tabular-nums">
+                        <span className="font-bold text-[#103b1d] tabular-nums">
                           {formatINR(p.price)}
                         </span>
                         <span>•</span>
-                        <span className={p.stock <= 15 ? 'text-[#B7791F]' : 'text-[#2F7D4A]'}>
+                        <span className={`font-semibold ${p.stock <= 15 ? 'text-[#f96015]' : 'text-[#18542a]'}`}>
                           {p.stock} in stock
                         </span>
                       </div>
@@ -269,7 +271,7 @@ export const AddProductToStorefrontModal: React.FC = () => {
                     {isOnStore ? (
                       <button
                         onClick={() => handleRemoveSingle(p.id, p.name)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#B64238] bg-[#FDEEED] hover:bg-[#fad8d6] transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-[#d52518] bg-[#fdeeed] hover:bg-[#fad8d6] transition-colors cursor-pointer"
                         title="Remove product from customer storefront"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -278,7 +280,7 @@ export const AddProductToStorefrontModal: React.FC = () => {
                     ) : (
                       <button
                         onClick={() => handleAddSingle(p.id, p.name)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-[#245C3A] hover:bg-[#1a442a] shadow-xs transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#18542a] hover:bg-[#103b1d] shadow-xs transition-colors cursor-pointer"
                         title="Add product to customer storefront"
                       >
                         <Plus className="w-3.5 h-3.5" />

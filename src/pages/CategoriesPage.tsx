@@ -174,10 +174,10 @@ export const CategoriesPage: React.FC = () => {
       {/* Title & Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#173D2A] font-heading">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#103b1d] font-heading">
             Store Categories
           </h2>
-          <p className="text-xs sm:text-sm text-[#737B72] mt-0.5">
+          <p className="text-xs sm:text-sm text-[#5a6e54] mt-0.5">
             Organize organic food collections, navigational taxonomies, and storefront groupings.
           </p>
         </div>
@@ -192,18 +192,18 @@ export const CategoriesPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#737B72] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#5a6e54] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search category name, description, or slug..."
-              className="w-full text-xs sm:text-sm pl-9 pr-4 py-2 rounded-xl border border-[#E5E8DF] bg-white text-[#202820] placeholder-[#737B72] focus:outline-none focus:ring-1 focus:ring-[#245C3A]"
+              className="w-full text-xs sm:text-sm pl-9 pr-4 py-2 rounded-xl border border-[#dfd5bf] bg-white text-[#103b1d] placeholder-[#5a6e54] focus:outline-none focus:ring-1 focus:ring-[#18542a]"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#737B72] hover:text-[#202820]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#5a6e54] hover:text-[#103b1d]"
               >
                 Clear
               </button>
@@ -215,7 +215,7 @@ export const CategoriesPage: React.FC = () => {
             <select
               value={visibilityFilter}
               onChange={(e) => setVisibilityFilter(e.target.value as any)}
-              className="text-xs sm:text-sm py-2 px-3 rounded-xl border border-[#E5E8DF] bg-white text-[#202820]"
+              className="text-xs sm:text-sm py-2 px-3 rounded-xl border border-[#dfd5bf] bg-white text-[#103b1d]"
             >
               <option value="all">All Visibility</option>
               <option value="Visible">Visible ({categories.filter((c) => c.visibility === 'Visible').length})</option>
@@ -223,13 +223,13 @@ export const CategoriesPage: React.FC = () => {
             </select>
 
             {/* Grid vs List toggle */}
-            <div className="flex items-center p-1 rounded-xl bg-[#FAF9F4] border border-[#E5E8DF]">
+            <div className="flex items-center p-1 rounded-xl bg-[#faf5ea] border border-[#dfd5bf]">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-1.5 rounded-lg transition-colors ${
                   viewMode === 'grid'
-                    ? 'bg-white text-[#245C3A] shadow-xs'
-                    : 'text-[#737B72] hover:text-[#202820]'
+                    ? 'bg-white text-[#18542a] shadow-xs'
+                    : 'text-[#5a6e54] hover:text-[#103b1d]'
                 }`}
                 title="Grid view"
               >
@@ -239,8 +239,8 @@ export const CategoriesPage: React.FC = () => {
                 onClick={() => setViewMode('list')}
                 className={`p-1.5 rounded-lg transition-colors ${
                   viewMode === 'list'
-                    ? 'bg-white text-[#245C3A] shadow-xs'
-                    : 'text-[#737B72] hover:text-[#202820]'
+                    ? 'bg-white text-[#18542a] shadow-xs'
+                    : 'text-[#5a6e54] hover:text-[#103b1d]'
                 }`}
                 title="List view"
               >
@@ -254,7 +254,7 @@ export const CategoriesPage: React.FC = () => {
       {/* Category Display: Grid or List */}
       {filteredCategories.length === 0 ? (
         <EmptyState
-          icon={<Layers className="w-7 h-7 text-[#245C3A]" />}
+          icon={<Layers className="w-7 h-7 text-[#18542a]" />}
           title="No Categories Found"
           description="No categories match your search filters. Add a new category or reset your search term."
           actionText="Clear Filter"
@@ -270,10 +270,10 @@ export const CategoriesPage: React.FC = () => {
               <Card
                 key={cat.id}
                 padding="none"
-                className="overflow-hidden flex flex-col group hover:border-[#6F9F62] transition-colors"
+                className="overflow-hidden flex flex-col group hover:border-[#9abc05] transition-colors"
               >
                 {/* Image Header */}
-                <div className="relative h-36 bg-[#FAF9F4] overflow-hidden">
+                <div className="relative h-36 bg-[#faf5ea] overflow-hidden">
                   <img
                     src={cat.imageUrl}
                     alt={cat.name}
@@ -289,19 +289,19 @@ export const CategoriesPage: React.FC = () => {
                 {/* Content */}
                 <div className="p-4 flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-base font-semibold text-[#173D2A] group-hover:text-[#245C3A] transition-colors">
+                    <h3 className="text-base font-semibold text-[#103b1d] group-hover:text-[#18542a] transition-colors">
                       {cat.name}
                     </h3>
-                    <p className="text-[11px] font-mono text-[#737B72] mt-0.5">
+                    <p className="text-[11px] font-mono text-[#5a6e54] mt-0.5">
                       /{cat.slug}
                     </p>
-                    <p className="text-xs text-[#737B72] mt-2 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-[#5a6e54] mt-2 line-clamp-2 leading-relaxed">
                       {cat.description || 'No description provided.'}
                     </p>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-[#E5E8DF]/60 flex items-center justify-between">
-                    <span className="text-xs font-semibold text-[#245C3A] flex items-center gap-1.5">
+                  <div className="mt-4 pt-3 border-t border-[#dfd5bf]/60 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[#18542a] flex items-center gap-1.5">
                       <Package className="w-3.5 h-3.5" />
                       {count} {count === 1 ? 'product' : 'products'}
                     </span>
@@ -309,14 +309,14 @@ export const CategoriesPage: React.FC = () => {
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleOpenEdit(cat)}
-                        className="p-1.5 rounded-lg text-[#737B72] hover:text-[#245C3A] hover:bg-[#E8F0EB] transition-colors"
+                        className="p-1.5 rounded-lg text-[#5a6e54] hover:text-[#18542a] hover:bg-[#E8F0EB] transition-colors"
                         title="Edit category"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => setDeleteTargetId(cat.id)}
-                        className="p-1.5 rounded-lg text-[#737B72] hover:text-[#B64238] hover:bg-[#FDEEED] transition-colors"
+                        className="p-1.5 rounded-lg text-[#5a6e54] hover:text-[#d52518] hover:bg-[#FDEEED] transition-colors"
                         title="Delete category"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -332,7 +332,7 @@ export const CategoriesPage: React.FC = () => {
         <Card padding="none" className="overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-[#FAF9F4] text-xs font-semibold text-[#737B72] border-b border-[#E5E8DF]">
+              <thead className="bg-[#faf5ea] text-xs font-semibold text-[#5a6e54] border-b border-[#dfd5bf]">
                 <tr>
                   <th className="py-3 px-4 w-16">Image</th>
                   <th className="py-3 px-4">Category Name & Slug</th>
@@ -342,27 +342,27 @@ export const CategoriesPage: React.FC = () => {
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E5E8DF]/60">
+              <tbody className="divide-y divide-[#dfd5bf]/60">
                 {filteredCategories.map((cat) => {
                   const count = productCountMap[cat.id] || 0;
                   return (
-                    <tr key={cat.id} className="hover:bg-[#FAF9F4]/70 transition-colors">
+                    <tr key={cat.id} className="hover:bg-[#faf5ea]/70 transition-colors">
                       <td className="py-3 px-4">
                         <img
                           src={cat.imageUrl}
                           alt={cat.name}
-                          className="w-10 h-10 rounded-xl object-cover border border-[#E5E8DF]"
+                          className="w-10 h-10 rounded-xl object-cover border border-[#dfd5bf]"
                         />
                       </td>
                       <td className="py-3 px-4">
-                        <p className="font-semibold text-[#173D2A]">{cat.name}</p>
-                        <p className="text-[11px] font-mono text-[#737B72]">/{cat.slug}</p>
+                        <p className="font-semibold text-[#103b1d]">{cat.name}</p>
+                        <p className="text-[11px] font-mono text-[#5a6e54]">/{cat.slug}</p>
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#737B72] max-w-xs truncate">
+                      <td className="py-3 px-4 text-xs text-[#5a6e54] max-w-xs truncate">
                         {cat.description}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-[#E8F0EB] text-[#245C3A]">
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-[#E8F0EB] text-[#18542a]">
                           {count} items
                         </span>
                       </td>
@@ -375,14 +375,14 @@ export const CategoriesPage: React.FC = () => {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => handleOpenEdit(cat)}
-                            className="p-1.5 rounded-lg text-[#737B72] hover:text-[#245C3A] hover:bg-[#E8F0EB] transition-colors"
+                            className="p-1.5 rounded-lg text-[#5a6e54] hover:text-[#18542a] hover:bg-[#E8F0EB] transition-colors"
                             title="Edit"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => setDeleteTargetId(cat.id)}
-                            className="p-1.5 rounded-lg text-[#737B72] hover:text-[#B64238] hover:bg-[#FDEEED] transition-colors"
+                            className="p-1.5 rounded-lg text-[#5a6e54] hover:text-[#d52518] hover:bg-[#FDEEED] transition-colors"
                             title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -417,7 +417,7 @@ export const CategoriesPage: React.FC = () => {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+            <label className="block text-xs font-semibold text-[#103b1d] mb-1">
               Category Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -425,19 +425,19 @@ export const CategoriesPage: React.FC = () => {
               value={formData.name}
               onChange={(e) => handleNameChange(e.target.value)}
               placeholder="e.g. Cold-Pressed Wood Oils"
-              className={`w-full text-xs sm:text-sm px-3 py-2 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-[#245C3A] ${
-                errors.name ? 'border-[#B64238]' : 'border-[#E5E8DF]'
+              className={`w-full text-xs sm:text-sm px-3 py-2 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-[#18542a] ${
+                errors.name ? 'border-[#d52518]' : 'border-[#dfd5bf]'
               }`}
             />
-            {errors.name && <p className="text-[11px] text-[#B64238] mt-0.5">{errors.name}</p>}
+            {errors.name && <p className="text-[11px] text-[#d52518] mt-0.5">{errors.name}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+            <label className="block text-xs font-semibold text-[#103b1d] mb-1">
               URL Slug <span className="text-red-500">*</span>
             </label>
-            <div className="flex items-center rounded-xl border border-[#E5E8DF] bg-white overflow-hidden">
-              <span className="text-xs text-[#737B72] px-3 bg-[#FAF9F4] border-r border-[#E5E8DF] py-2">
+            <div className="flex items-center rounded-xl border border-[#dfd5bf] bg-white overflow-hidden">
+              <span className="text-xs text-[#5a6e54] px-3 bg-[#faf5ea] border-r border-[#dfd5bf] py-2">
                 /collections/
               </span>
               <input
@@ -447,11 +447,11 @@ export const CategoriesPage: React.FC = () => {
                 className="w-full text-xs sm:text-sm px-3 py-2 font-mono bg-white focus:outline-none"
               />
             </div>
-            {errors.slug && <p className="text-[11px] text-[#B64238] mt-0.5">{errors.slug}</p>}
+            {errors.slug && <p className="text-[11px] text-[#d52518] mt-0.5">{errors.slug}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+            <label className="block text-xs font-semibold text-[#103b1d] mb-1">
               Description
             </label>
             <textarea
@@ -459,16 +459,16 @@ export const CategoriesPage: React.FC = () => {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Explain harvest sources, natural processing, or culinary tips..."
-              className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white focus:ring-1 focus:ring-[#245C3A]"
+              className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white focus:ring-1 focus:ring-[#18542a]"
             />
           </div>
 
-          <div className="space-y-2 p-3 bg-[#FAF9F4] rounded-xl border border-[#E5E8DF]">
-            <label className="block text-xs font-bold text-[#173D2A]">
+          <div className="space-y-2 p-3 bg-[#faf5ea] rounded-xl border border-[#dfd5bf]">
+            <label className="block text-xs font-bold text-[#103b1d]">
               Category Cover Image
             </label>
             <div className="flex items-center gap-3">
-              <div className="w-16 h-16 rounded-xl bg-white border border-[#E5E8DF] p-1 flex items-center justify-center shrink-0 overflow-hidden">
+              <div className="w-16 h-16 rounded-xl bg-white border border-[#dfd5bf] p-1 flex items-center justify-center shrink-0 overflow-hidden">
                 {formData.imageUrl ? (
                   <img
                     src={formData.imageUrl}
@@ -476,7 +476,7 @@ export const CategoriesPage: React.FC = () => {
                     className="w-full h-full object-contain filter drop-shadow-xs"
                   />
                 ) : (
-                  <span className="text-[10px] text-[#737B72]">No Image</span>
+                  <span className="text-[10px] text-[#5a6e54]">No Image</span>
                 )}
               </div>
               <div className="flex-1 space-y-1.5">
@@ -485,10 +485,10 @@ export const CategoriesPage: React.FC = () => {
                   value={formData.imageUrl}
                   onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
                   placeholder="/categories/oil.png or https://..."
-                  className="w-full text-xs px-3 py-1.5 rounded-lg border border-[#E5E8DF] bg-white"
+                  className="w-full text-xs px-3 py-1.5 rounded-lg border border-[#dfd5bf] bg-white"
                 />
                 <div className="flex items-center gap-2">
-                  <label className="text-[11px] font-bold text-[#245C3A] hover:underline cursor-pointer flex items-center gap-1">
+                  <label className="text-[11px] font-bold text-[#18542a] hover:underline cursor-pointer flex items-center gap-1">
                     <UploadCloud className="w-3.5 h-3.5" /> Upload Local Image
                     <input
                       type="file"
@@ -512,7 +512,7 @@ export const CategoriesPage: React.FC = () => {
                   type="button"
                   key={p.name}
                   onClick={() => setFormData({ ...formData, imageUrl: p.url })}
-                  className="text-[10px] px-2 py-0.5 rounded-md border border-[#E5E8DF] bg-white text-[#245C3A] font-semibold hover:border-[#245C3A]"
+                  className="text-[10px] px-2 py-0.5 rounded-md border border-[#dfd5bf] bg-white text-[#18542a] font-semibold hover:border-[#18542a]"
                 >
                   {p.name}
                 </button>
@@ -521,11 +521,11 @@ export const CategoriesPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3 pt-2">
-            <label className="text-xs font-semibold text-[#173D2A]">Visibility:</label>
+            <label className="text-xs font-semibold text-[#103b1d]">Visibility:</label>
             <select
               value={formData.visibility}
               onChange={(e) => setFormData({ ...formData, visibility: e.target.value as CategoryVisibility })}
-              className="text-xs px-3 py-1.5 rounded-lg border border-[#E5E8DF] bg-white"
+              className="text-xs px-3 py-1.5 rounded-lg border border-[#dfd5bf] bg-white"
             >
               <option value="Visible">Visible on store</option>
               <option value="Hidden">Hidden</option>

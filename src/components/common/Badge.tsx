@@ -10,12 +10,15 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  success: 'bg-[#EAF5EE] text-[#1C5632] border-[#C3E4CD]',
-  warning: 'bg-[#FEF7EA] text-[#8D5A0F] border-[#FCE2B6]',
-  danger: 'bg-[#FDEEED] text-[#8D2B22] border-[#F9C7C3]',
-  info: 'bg-[#EBF2F9] text-[#234970] border-[#C5DCF2]',
-  neutral: 'bg-[#F1F3ED] text-[#555E53] border-[#DEE2D7]',
-  forest: 'bg-[#E8F0EB] text-[#245C3A] border-[#C0D6C8]',
+  success: 'bg-[#e8f0eb] text-[#18542a] border-[#c0d6c8]',
+  forest: 'bg-[#e8f0eb] text-[#18542a] border-[#c0d6c8]',
+  warning: 'bg-[#fff8e1] text-[#946200] border-[#ffe082]',
+  sunshine: 'bg-[#fff8e1] text-[#946200] border-[#ffe082]',
+  danger: 'bg-[#fdeeed] text-[#d52518] border-[#f9c7c3]',
+  info: 'bg-[#ebf4fa] text-[#1f4c73] border-[#bee1f5]',
+  kiwi: 'bg-[#f4f8e6] text-[#637d03] border-[#d4e499]',
+  carrot: 'bg-[#fff2e8] text-[#d34e0e] border-[#ffd5bf]',
+  neutral: 'bg-[#faf5ea] text-[#526651] border-[#dfd5bf]',
 };
 
 export const Badge: React.FC<BadgeProps> = ({
@@ -28,23 +31,33 @@ export const Badge: React.FC<BadgeProps> = ({
   const activeVariant = variant || (status ? getStatusBadgeVariant(status) : 'neutral');
   const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs';
 
+  const dotColor = () => {
+    switch (activeVariant) {
+      case 'success':
+      case 'forest':
+        return 'bg-[#18542a]';
+      case 'warning':
+      case 'sunshine':
+        return 'bg-[#ffc926]';
+      case 'danger':
+        return 'bg-[#d52518]';
+      case 'info':
+        return 'bg-[#23547a]';
+      case 'kiwi':
+        return 'bg-[#9abc05]';
+      case 'carrot':
+        return 'bg-[#f96015]';
+      case 'neutral':
+      default:
+        return 'bg-[#7a8a77]';
+    }
+  };
+
   return (
     <span
-      className={`inline-flex items-center gap-1.5 font-medium rounded-full border transition-colors ${sizeClasses} ${variantStyles[activeVariant]} ${className}`}
+      className={`inline-flex items-center gap-1.5 font-semibold rounded-full border transition-colors ${sizeClasses} ${variantStyles[activeVariant] || variantStyles.neutral} ${className}`}
     >
-      <span
-        className={`w-1.5 h-1.5 rounded-full ${
-          activeVariant === 'success'
-            ? 'bg-[#2F7D4A]'
-            : activeVariant === 'warning'
-            ? 'bg-[#B7791F]'
-            : activeVariant === 'danger'
-            ? 'bg-[#B64238]'
-            : activeVariant === 'info'
-            ? 'bg-[#356AA0]'
-            : 'bg-[#737B72]'
-        }`}
-      />
+      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor()}`} />
       {children}
     </span>
   );

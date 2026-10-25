@@ -1033,7 +1033,7 @@ export const INITIAL_SETTINGS: StoreSettings = {
     fssaiLicense: '10123028000419',
   },
   appearance: {
-    primaryAccent: '#245C3A',
+    primaryAccent: '#18542a',
     logoText: 'Godavari Organic Foods',
     tagline: 'Pure Andhra Natural Farm Goodness',
     bannerNotice: 'Demo preview mode active',

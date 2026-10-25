@@ -76,26 +76,26 @@ export const LiveStorefrontModal: React.FC = () => {
       title={
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full pr-6">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#2F7D4A] animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#18542a] animate-pulse" />
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-[#173D2A] font-heading">
+              <h3 className="text-base sm:text-lg font-extrabold text-[#103b1d] font-heading">
                 Godavari Organics • Live Storefront Simulator
               </h3>
-              <p className="text-xs text-[#737B72]">
-                Real-time preview of changes made from the admin dashboard
+              <p className="text-xs text-[#5a6e54]">
+                Real-time preview matching the official Godavari Organic Foods customer store
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             {/* View Mode Toggle */}
-            <div className="inline-flex rounded-xl bg-[#FAF9F4] p-1 border border-[#E5E8DF] text-xs font-medium">
+            <div className="inline-flex rounded-xl bg-[#faf5ea] p-1 border border-[#dfd5bf] text-xs font-semibold">
               <button
                 onClick={() => setDeviceMode('mobile')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                   deviceMode === 'mobile'
-                    ? 'bg-white text-[#173D2A] font-semibold shadow-xs'
-                    : 'text-[#737B72]'
+                    ? 'bg-white text-[#103b1d] font-bold shadow-xs'
+                    : 'text-[#5a6e54]'
                 }`}
               >
                 <Smartphone className="w-3.5 h-3.5" />
@@ -103,10 +103,10 @@ export const LiveStorefrontModal: React.FC = () => {
               </button>
               <button
                 onClick={() => setDeviceMode('desktop')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                   deviceMode === 'desktop'
-                    ? 'bg-white text-[#173D2A] font-semibold shadow-xs'
-                    : 'text-[#737B72]'
+                    ? 'bg-white text-[#103b1d] font-bold shadow-xs'
+                    : 'text-[#5a6e54]'
                 }`}
               >
                 <Monitor className="w-3.5 h-3.5" />
@@ -116,13 +116,13 @@ export const LiveStorefrontModal: React.FC = () => {
 
             {/* Sync Button */}
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={handleSync}
               disabled={isSyncing}
               icon={
                 <RefreshCw
-                  className={`w-3.5 h-3.5 text-[#245C3A] ${
+                  className={`w-3.5 h-3.5 text-[#18542a] ${
                     isSyncing ? 'animate-spin' : ''
                   }`}
                 />
@@ -136,10 +136,10 @@ export const LiveStorefrontModal: React.FC = () => {
       size="4xl"
       footer={
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 w-full">
-          <div className="text-xs text-[#737B72] text-center sm:text-left">
-            <span className="font-semibold text-[#173D2A]">Admin Live Link:</span> Tap{' '}
-            <strong className="text-[#B64238]">"✕ Remove"</strong> on any item below to take it off the storefront, or tap{' '}
-            <strong className="text-[#245C3A]">"+ Add Products"</strong> to feature more items.
+          <div className="text-xs text-[#5a6e54] text-center sm:text-left">
+            <span className="font-bold text-[#103b1d]">Admin Live Link:</span> Tap{' '}
+            <strong className="text-[#d52518]">"✕ Remove"</strong> on any item below to take it off the storefront, or tap{' '}
+            <strong className="text-[#18542a]">"+ Add Products"</strong> to feature more items.
           </div>
 
           <div className="flex items-center gap-2">
@@ -149,7 +149,7 @@ export const LiveStorefrontModal: React.FC = () => {
               onClick={() => {
                 setStorefrontPickerOpen(true);
               }}
-              icon={<Plus className="w-3.5 h-3.5 text-[#245C3A]" />}
+              icon={<Plus className="w-3.5 h-3.5 text-[#18542a]" />}
             >
               + Add Products to Store
             </Button>
@@ -164,33 +164,43 @@ export const LiveStorefrontModal: React.FC = () => {
         </div>
       }
     >
-      <div className="flex justify-center bg-[#ECEBE4] p-2 sm:p-6 rounded-2xl overflow-hidden min-h-[500px]">
+      <div className="flex justify-center bg-[#eae4d3] p-2 sm:p-6 rounded-2xl overflow-hidden min-h-[500px]">
         {/* Device Frame */}
         <div
-          className={`transition-all duration-300 bg-[#F7F6EF] shadow-2xl border border-[#D5D8CF] overflow-hidden ${
+          className={`transition-all duration-300 bg-[#faf5ea] shadow-2xl border border-[#dfd5bf] overflow-hidden ${
             deviceMode === 'mobile'
-              ? 'w-full max-w-[390px] rounded-[36px] ring-8 ring-neutral-800'
+              ? 'w-full max-w-[390px] rounded-[36px] ring-8 ring-[#103b1d]'
               : 'w-full rounded-2xl'
           }`}
         >
           {/* Mobile Status Bar Simulation */}
           {deviceMode === 'mobile' && (
-            <div className="h-6 bg-[#FAF9F4] px-6 flex items-center justify-between text-[10px] font-bold text-neutral-800 select-none">
+            <div className="h-6 bg-[#faf5ea] px-6 flex items-center justify-between text-[10px] font-bold text-[#103b1d] select-none">
               <span>9:41</span>
-              <div className="w-20 h-4 bg-neutral-900 rounded-full mx-auto" />
+              <div className="w-20 h-4 bg-[#103b1d] rounded-full mx-auto" />
               <div className="flex items-center gap-1">
                 <span>5G</span>
-                <div className="w-4 h-2 border border-neutral-800 rounded-xs bg-neutral-800" />
+                <div className="w-4 h-2 border border-[#103b1d] rounded-xs bg-[#103b1d]" />
               </div>
             </div>
           )}
 
-          {/* Godavari Organics Customer Storefront Top Bar (Exact Match from User's Screenshot) */}
-          <div className="bg-[#FAF9F4] px-4 py-3 flex items-center justify-between border-b border-[#EAE8DE]">
+          {/* Top Organic Announcement Bar (Direct from Godavari Organic Foods Storefront) */}
+          <div className="bg-[#18542a] text-white text-[11px] py-1.5 px-3 border-b border-[#9abc05]/30 flex justify-between items-center font-semibold">
+            <span className="bg-[#ffc926] text-[#18542a] font-extrabold text-[9px] px-2 py-0.5 rounded-full uppercase">
+              100% Organic
+            </span>
+            <span className="text-[#f3e8cc] text-[10px] truncate">
+              Direct from Godavari River Delta Farmers
+            </span>
+          </div>
+
+          {/* Customer Storefront Header Bar */}
+          <div className="bg-[#faf5ea] px-4 py-3 flex items-center justify-between border-b border-[#dfd5bf]">
             {/* Hamburger Menu */}
             <button
               onClick={() => showToast('Simulated: Customer mobile navigation drawer', 'info')}
-              className="p-1 text-[#173D2A] hover:bg-[#EAECE4] rounded-lg transition-colors cursor-pointer"
+              className="p-1 text-[#103b1d] hover:bg-[#f3e8cc] rounded-lg transition-colors cursor-pointer"
               aria-label="Open storefront menu"
             >
               <Menu className="w-5 h-5 stroke-[2.2]" />
@@ -198,14 +208,14 @@ export const LiveStorefrontModal: React.FC = () => {
 
             {/* Logo: Circular emblem */}
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full overflow-hidden bg-white border border-[#E5E8DF] shadow-xs flex items-center justify-center p-0.5 shrink-0">
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-white border border-[#dfd5bf] shadow-xs flex items-center justify-center p-0.5 shrink-0">
                 <img
                   src="/logo.png"
                   alt="Godavari Organics Logo"
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="font-heading font-black text-sm tracking-tight text-[#173D2A] uppercase">
+              <span className="font-heading font-black text-sm tracking-wide text-[#18542a] uppercase">
                 Godavari Organics
               </span>
             </div>
@@ -214,7 +224,7 @@ export const LiveStorefrontModal: React.FC = () => {
             <div className="flex items-center gap-2.5">
               <button
                 onClick={() => showToast('Simulated: Search storefront catalog', 'info')}
-                className="p-1 text-[#173D2A] hover:bg-[#EAECE4] rounded-lg transition-colors cursor-pointer"
+                className="p-1 text-[#103b1d] hover:bg-[#f3e8cc] rounded-lg transition-colors cursor-pointer"
                 aria-label="Search storefront"
               >
                 <Search className="w-5 h-5 stroke-[2.2]" />
@@ -225,10 +235,10 @@ export const LiveStorefrontModal: React.FC = () => {
                 className="relative flex items-center cursor-pointer p-1"
                 title="Customer Cart"
               >
-                <div className="w-8 h-8 rounded-full border border-[#D5D8CF] bg-white flex items-center justify-center text-[#173D2A] shadow-2xs">
+                <div className="w-8 h-8 rounded-full border border-[#dfd5bf] bg-white flex items-center justify-center text-[#18542a] shadow-2xs">
                   <ShoppingBag className="w-4 h-4" />
                 </div>
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#173D2A] text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#18542a] text-[#ffc926] text-[10px] font-black flex items-center justify-center shadow-xs">
                   {cartCount}
                 </span>
               </div>
@@ -236,11 +246,11 @@ export const LiveStorefrontModal: React.FC = () => {
           </div>
 
           {/* Storefront Scrollable Body */}
-          <div className="overflow-y-auto max-h-[620px] divide-y divide-[#E5E8DF]/60 bg-[#FAF9F4]">
-            {/* Hero Carousel Banner (Driven by Admin Hero Slide Images) */}
+          <div className="overflow-y-auto max-h-[620px] divide-y divide-[#dfd5bf]/60 bg-[#faf5ea]">
+            {/* Hero Carousel Banner */}
             <div className="p-3">
               {currentSlide ? (
-                <div className="relative rounded-2xl overflow-hidden shadow-xs border border-[#DDD6C5] bg-[#EAE6D8] aspect-[16/9] flex items-center justify-center">
+                <div className="relative rounded-2xl overflow-hidden shadow-xs border border-[#dfd5bf] bg-[#f3e8cc] aspect-[16/9] flex items-center justify-center">
                   <img
                     src={currentSlide.imageUrl}
                     alt={currentSlide.title || 'Hero Banner'}
@@ -281,7 +291,7 @@ export const LiveStorefrontModal: React.FC = () => {
                     </>
                   )}
 
-                  {/* Carousel Pagination Dots (Matching User's Screenshot Exactly) */}
+                  {/* Carousel Pagination Dots */}
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 bg-black/35 backdrop-blur-xs px-2.5 py-1 rounded-full">
                     {activeSlides.map((_, idx) => {
                       const isActive = (currentSlideIndex % activeSlides.length) === idx;
@@ -291,7 +301,7 @@ export const LiveStorefrontModal: React.FC = () => {
                           onClick={() => setCurrentSlideIndex(idx)}
                           className={`rounded-full transition-all cursor-pointer ${
                             isActive
-                              ? 'w-2.5 h-2.5 bg-white shadow-xs'
+                              ? 'w-2.5 h-2.5 bg-[#ffc926] shadow-xs'
                               : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/80'
                           }`}
                           aria-label={`Slide ${idx + 1}`}
@@ -301,15 +311,15 @@ export const LiveStorefrontModal: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="p-6 text-center bg-white rounded-2xl border border-[#E5E8DF]">
-                  <p className="text-xs text-[#737B72]">No active hero slides on storefront</p>
+                <div className="p-6 text-center bg-white rounded-2xl border border-[#dfd5bf]">
+                  <p className="text-xs text-[#5a6e54]">No active hero slides on storefront</p>
                 </div>
               )}
             </div>
 
-            {/* Our Harvest Categories Section (Exact 4 Circular Categories from Screenshot) */}
+            {/* Our Harvest Categories Section */}
             <div className="py-4 px-3 bg-white">
-              <h3 className="text-base font-extrabold text-[#173D2A] font-heading mb-3 px-1">
+              <h3 className="text-base font-extrabold text-[#103b1d] font-heading mb-3 px-1">
                 Our Harvest Categories
               </h3>
 
@@ -319,14 +329,14 @@ export const LiveStorefrontModal: React.FC = () => {
                   onClick={() => showToast('Simulated: Filtered by Oils category', 'info')}
                   className="cursor-pointer group"
                 >
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#F4EFE6] border border-[#E5DEC9] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#f3e8cc]/60 border border-[#dfd5bf] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
                     <img
                       src="/categories/oil.png"
                       alt="Oils"
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <span className="text-[11px] font-bold text-[#173D2A] mt-1.5 block">
+                  <span className="text-[11px] font-bold text-[#103b1d] mt-1.5 block">
                     Oils
                   </span>
                 </div>
@@ -336,14 +346,14 @@ export const LiveStorefrontModal: React.FC = () => {
                   onClick={() => showToast('Simulated: Filtered by Organic Rice category', 'info')}
                   className="cursor-pointer group"
                 >
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#F4EFE6] border border-[#E5DEC9] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#f3e8cc]/60 border border-[#dfd5bf] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
                     <img
                       src="/categories/rice.png"
                       alt="Organic Rice"
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <span className="text-[11px] font-bold text-[#173D2A] mt-1.5 block">
+                  <span className="text-[11px] font-bold text-[#103b1d] mt-1.5 block">
                     Organic Rice
                   </span>
                 </div>
@@ -353,14 +363,14 @@ export const LiveStorefrontModal: React.FC = () => {
                   onClick={() => showToast('Simulated: Filtered by Organic Millets category', 'info')}
                   className="cursor-pointer group"
                 >
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#F4EFE6] border border-[#E5DEC9] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#f3e8cc]/60 border border-[#dfd5bf] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
                     <img
                       src="/categories/millet.png"
                       alt="Organic Millets"
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <span className="text-[11px] font-bold text-[#173D2A] mt-1.5 block">
+                  <span className="text-[11px] font-bold text-[#103b1d] mt-1.5 block">
                     Organic Millets
                   </span>
                 </div>
@@ -370,70 +380,70 @@ export const LiveStorefrontModal: React.FC = () => {
                   onClick={() => showToast('Simulated: Filtered by Organic Spices category', 'info')}
                   className="cursor-pointer group"
                 >
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#F4EFE6] border border-[#E5DEC9] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#f3e8cc]/60 border border-[#dfd5bf] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
                     <img
                       src="/categories/spices.png"
                       alt="Organic Spices"
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <span className="text-[11px] font-bold text-[#173D2A] mt-1.5 block">
+                  <span className="text-[11px] font-bold text-[#103b1d] mt-1.5 block">
                     Organic Spices
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Certifications Row (Jaivik Bharat, FSSAI, USDA Organic, SGS) */}
-            <div className="py-3 px-4 bg-[#FAF9F4] flex items-center justify-around border-y border-[#EAE8DE] text-xs">
-              <div className="flex items-center gap-1 font-bold text-[#245C3A]">
+            {/* Certifications Row */}
+            <div className="py-3 px-4 bg-[#faf5ea] flex items-center justify-around border-y border-[#dfd5bf] text-xs">
+              <div className="flex items-center gap-1 font-bold text-[#18542a]">
                 <span className="text-base">🇮🇳</span>
                 <span className="text-[10px] tracking-tight">Jaivik Bharat</span>
               </div>
-              <div className="flex items-center gap-1 font-bold text-[#173D2A]">
+              <div className="flex items-center gap-1 font-bold text-[#103b1d]">
                 <span className="text-[10px] font-mono border border-neutral-400 px-1 rounded">fssai</span>
                 <span className="text-[9px]">Verified</span>
               </div>
-              <div className="flex items-center gap-1 font-bold text-[#2F7D4A]">
+              <div className="flex items-center gap-1 font-bold text-[#18542a]">
                 <span className="text-sm">🌱</span>
                 <span className="text-[10px]">USDA Organic</span>
               </div>
-              <div className="flex items-center gap-1 font-bold text-neutral-600">
+              <div className="flex items-center gap-1 font-bold text-[#5a6e54]">
                 <span className="text-xs">✓</span>
                 <span className="text-[10px]">SGS Certified</span>
               </div>
             </div>
 
             {/* Green Ribbon Ticker */}
-            <div className="bg-[#173D2A] text-[#F3E7C4] py-1.5 px-4 text-[10px] font-bold tracking-widest uppercase flex items-center justify-center gap-3 overflow-hidden whitespace-nowrap">
+            <div className="bg-[#18542a] text-[#ffc926] py-1.5 px-4 text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-3 overflow-hidden whitespace-nowrap">
               <span>🌾 100% PURE HARVEST</span>
               <span>•</span>
-              <span>GREAT TASTE</span>
+              <span>TRADITIONAL GODAVARI FARMING</span>
               <span>•</span>
-              <span>FAST DELIVERY GUARANTEED</span>
+              <span>ZERO CHEMICALS</span>
               <span>•</span>
-              <span>CHEMICAL FREE</span>
+              <span>DIRECT SOURCING</span>
             </div>
 
-            {/* Featured Harvest Section (Dynamic Products Connected to Dashboard) */}
+            {/* Featured Harvest Section */}
             <div className="p-3 bg-white">
               {/* Header with Sparkle and View All */}
               <div className="flex items-center justify-between mb-3 px-1">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-md bg-[#E8F0EB] text-[#245C3A] flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-md bg-[#e8f0eb] text-[#18542a] flex items-center justify-center">
                     <Sparkles className="w-3.5 h-3.5" />
                   </div>
-                  <h3 className="text-base font-extrabold text-[#173D2A] font-heading">
+                  <h3 className="text-base font-extrabold text-[#103b1d] font-heading">
                     Featured Harvest
                   </h3>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#E8F0EB] text-[#245C3A]">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#e8f0eb] text-[#18542a] border border-[#c0d6c8]">
                     {activeProducts.length} Live
                   </span>
                 </div>
 
                 <button
                   onClick={() => setStorefrontPickerOpen(true)}
-                  className="text-xs font-bold text-[#245C3A] hover:underline flex items-center gap-1"
+                  className="text-xs font-bold text-[#18542a] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <span>View All ({activeProducts.length})</span>
                   <ArrowRight className="w-3 h-3" />
@@ -442,8 +452,8 @@ export const LiveStorefrontModal: React.FC = () => {
 
               {/* Storefront Products Grid */}
               {activeProducts.length === 0 ? (
-                <div className="text-center py-8 p-4 rounded-xl border border-dashed border-[#C0D6C8] bg-[#FAF9F4]">
-                  <p className="text-xs text-[#737B72] mb-3">
+                <div className="text-center py-8 p-4 rounded-xl border border-dashed border-[#c0d6c8] bg-[#faf5ea]">
+                  <p className="text-xs text-[#5a6e54] mb-3">
                     No products are currently published to the storefront!
                   </p>
                   <Button
@@ -460,47 +470,51 @@ export const LiveStorefrontModal: React.FC = () => {
                   {activeProducts.map((p) => (
                     <div
                       key={p.id}
-                      className="relative rounded-2xl border border-[#E5E8DF] bg-white overflow-hidden shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group"
+                      className="relative rounded-2xl border border-[#dfd5bf] bg-white overflow-hidden shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group p-2 text-left"
                     >
                       {/* Admin Remove Button Overlay */}
                       <button
                         onClick={(e) => handleRemoveFromStore(p.id, p.name, e)}
-                        className="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-[#B64238] text-white flex items-center justify-center shadow-md hover:scale-110 transition-transform cursor-pointer"
+                        className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-[#d52518] text-white flex items-center justify-center shadow-md hover:scale-110 transition-transform cursor-pointer"
                         title="Remove from storefront"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3 h-3" />
                       </button>
 
-                      {/* Product Thumbnail */}
-                      <div className="relative h-28 bg-[#FAF9F4] overflow-hidden">
+                      {/* Product Thumbnail in Organic Frame */}
+                      <div className="relative h-28 bg-gradient-to-b from-[#faf6ee] to-[#f4ede0]/60 rounded-xl overflow-hidden mb-2 p-2 flex items-center justify-center border border-[#dfd5bf]/60">
+                        {/* Indian Veg mark */}
+                        <div className="absolute top-1.5 left-1.5 w-3.5 h-3.5 rounded-[2px] border border-emerald-700 bg-white flex items-center justify-center shadow-2xs pointer-events-none">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-700" />
+                        </div>
                         <img
                           src={p.imageUrl}
                           alt={p.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-sm"
                         />
-                        <span className="absolute bottom-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/60 text-white backdrop-blur-xs">
+                        <span className="absolute bottom-1.5 right-1.5 text-[8px] font-bold px-1.5 py-0.5 rounded bg-black/60 text-white backdrop-blur-xs">
                           {p.unit}
                         </span>
                       </div>
 
                       {/* Product Details */}
-                      <div className="p-2.5 flex-1 flex flex-col justify-between">
+                      <div className="flex-1 flex flex-col justify-between">
                         <div>
-                          <span className="text-[9px] font-semibold text-[#737B72] uppercase tracking-wider block">
+                          <span className="text-[9px] font-bold text-[#5a6e54] uppercase tracking-wider block">
                             {p.categoryName}
                           </span>
-                          <h4 className="text-xs font-bold text-[#173D2A] line-clamp-2 mt-0.5 leading-snug">
+                          <h4 className="text-xs font-bold text-[#103b1d] line-clamp-2 mt-0.5 leading-snug">
                             {p.name}
                           </h4>
                         </div>
 
-                        <div className="mt-2.5 pt-2 border-t border-[#E5E8DF]/60 flex items-center justify-between">
+                        <div className="mt-2.5 pt-2 border-t border-[#dfd5bf]/60 flex items-center justify-between">
                           <div>
-                            <span className="text-xs font-extrabold text-[#173D2A] tabular-nums">
+                            <span className="text-xs font-black text-[#103b1d] tabular-nums">
                               {formatINR(p.price)}
                             </span>
                             {p.compareAtPrice && (
-                              <span className="text-[10px] text-[#737B72] line-through ml-1 tabular-nums block">
+                              <span className="text-[10px] text-[#5a6e54] line-through ml-1 tabular-nums block">
                                 {formatINR(p.compareAtPrice)}
                               </span>
                             )}
@@ -508,7 +522,7 @@ export const LiveStorefrontModal: React.FC = () => {
 
                           <button
                             onClick={handleAddToCart}
-                            className="text-[10px] font-bold px-2 py-1 rounded-lg bg-[#245C3A] text-white hover:bg-[#1a442a] transition-colors shadow-2xs cursor-pointer"
+                            className="text-[10px] font-bold px-2 py-1 rounded-lg bg-[#18542a] text-white hover:bg-[#103b1d] transition-colors shadow-2xs cursor-pointer"
                           >
                             + Cart
                           </button>
@@ -520,10 +534,10 @@ export const LiveStorefrontModal: React.FC = () => {
               )}
 
               {/* Add More Products Button */}
-              <div className="mt-4 pt-3 border-t border-[#E5E8DF] flex items-center justify-center">
+              <div className="mt-4 pt-3 border-t border-[#dfd5bf] flex items-center justify-center">
                 <button
                   onClick={() => setStorefrontPickerOpen(true)}
-                  className="w-full py-2.5 rounded-xl border border-dashed border-[#245C3A] bg-[#E8F0EB]/50 hover:bg-[#E8F0EB] text-[#245C3A] text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  className="w-full py-2.5 rounded-xl border border-dashed border-[#18542a] bg-[#e8f0eb]/60 hover:bg-[#e8f0eb] text-[#18542a] text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>+ Add More Products to Featured Harvest</span>

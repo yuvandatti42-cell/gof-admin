@@ -1,7 +1,7 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost' | 'leaf';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost' | 'leaf' | 'sunshine' | 'kiwi';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -24,7 +24,7 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none select-none cursor-pointer';
+    'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none select-none cursor-pointer tracking-wide';
 
   const sizeStyles: Record<ButtonSize, string> = {
     sm: 'text-xs px-3 py-1.5 gap-1.5',
@@ -34,17 +34,21 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantStyles: Record<ButtonVariant, string> = {
     primary:
-      'bg-[#245C3A] text-white hover:bg-[#1C4C2F] active:bg-[#173D2A] focus:ring-[#245C3A] shadow-sm',
+      'bg-[#18542a] text-white hover:bg-[#103b1d] active:bg-[#0c2e16] focus:ring-[#18542a] shadow-xs border border-transparent',
     secondary:
-      'bg-[#FAF9F4] text-[#202820] border border-[#E5E8DF] hover:bg-[#F2EFE7] hover:border-[#D5DACA] active:bg-[#ECE8DC] focus:ring-[#6F9F62]',
+      'bg-white text-[#103b1d] border border-[#dfd5bf] hover:bg-[#faf5ea] hover:border-[#18542a]/40 active:bg-[#f3e8cc] focus:ring-[#9abc05] shadow-2xs',
     outline:
-      'bg-transparent text-[#202820] border border-[#E5E8DF] hover:bg-neutral-100 hover:border-[#C5CBB9] active:bg-neutral-200 focus:ring-[#6F9F62]',
+      'bg-transparent text-[#103b1d] border border-[#dfd5bf] hover:bg-[#faf5ea] hover:border-[#18542a]/40 active:bg-[#f3e8cc] focus:ring-[#9abc05]',
     danger:
-      'bg-[#B64238] text-white hover:bg-[#9B362E] active:bg-[#852C25] focus:ring-[#B64238] shadow-sm',
+      'bg-[#d52518] text-white hover:bg-[#b81f14] active:bg-[#9c180e] focus:ring-[#d52518] shadow-xs border border-transparent',
     ghost:
-      'bg-transparent text-[#202820] hover:bg-black/5 active:bg-black/10 focus:ring-[#245C3A]',
+      'bg-transparent text-[#103b1d] hover:bg-[#f3e8cc]/60 active:bg-[#f3e8cc] focus:ring-[#18542a]',
     leaf:
-      'bg-[#6F9F62] text-white hover:bg-[#5C8A50] active:bg-[#4E7643] focus:ring-[#6F9F62] shadow-sm',
+      'bg-[#9abc05] text-[#103b1d] font-bold hover:bg-[#8ca805] active:bg-[#7d9604] focus:ring-[#9abc05] shadow-xs border border-transparent',
+    kiwi:
+      'bg-[#9abc05] text-[#103b1d] font-bold hover:bg-[#8ca805] active:bg-[#7d9604] focus:ring-[#9abc05] shadow-xs border border-transparent',
+    sunshine:
+      'bg-[#ffc926] text-[#103b1d] font-extrabold hover:bg-[#f2be1d] active:bg-[#e0ad14] focus:ring-[#ffc926] shadow-xs border border-transparent',
   };
 
   return (

@@ -38,26 +38,26 @@ export const NotificationsPopover: React.FC<NotificationsPopoverProps> = ({
   const getIcon = (type: string) => {
     switch (type) {
       case 'order':
-        return <ShoppingBag className="w-4 h-4 text-[#245C3A]" />;
+        return <ShoppingBag className="w-4 h-4 text-[#18542a]" />;
       case 'stock':
-        return <AlertTriangle className="w-4 h-4 text-[#B7791F]" />;
+        return <AlertTriangle className="w-4 h-4 text-[#f96015]" />;
       case 'customer':
-        return <Users className="w-4 h-4 text-[#356AA0]" />;
+        return <Users className="w-4 h-4 text-[#9abc05]" />;
       default:
-        return <Bell className="w-4 h-4 text-[#737B72]" />;
+        return <Bell className="w-4 h-4 text-[#5a6e54]" />;
     }
   };
 
   return (
     <div
       ref={popoverRef}
-      className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-[#E5E8DF] shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+      className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-[#dfd5bf] shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
     >
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#E5E8DF] bg-[#FAF9F4]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#dfd5bf] bg-[#faf5ea]">
         <div className="flex items-center gap-2">
-          <h4 className="text-sm font-semibold text-[#173D2A]">Notifications</h4>
+          <h4 className="text-sm font-bold text-[#103b1d]">Notifications</h4>
           {unreadCount > 0 && (
-            <span className="px-1.5 py-0.5 text-[10px] font-bold bg-[#245C3A] text-white rounded-full">
+            <span className="px-1.5 py-0.5 text-[10px] font-black bg-[#18542a] text-[#ffc926] rounded-full">
               {unreadCount} new
             </span>
           )}
@@ -65,7 +65,7 @@ export const NotificationsPopover: React.FC<NotificationsPopoverProps> = ({
         {unreadCount > 0 && (
           <button
             onClick={() => markAllNotificationsAsRead()}
-            className="text-xs text-[#245C3A] hover:underline flex items-center gap-1 font-medium cursor-pointer"
+            className="text-xs text-[#18542a] hover:underline flex items-center gap-1 font-bold cursor-pointer"
           >
             <Check className="w-3.5 h-3.5" />
             Mark all read
@@ -73,9 +73,9 @@ export const NotificationsPopover: React.FC<NotificationsPopoverProps> = ({
         )}
       </div>
 
-      <div className="max-h-80 overflow-y-auto divide-y divide-[#E5E8DF]/60">
+      <div className="max-h-80 overflow-y-auto divide-y divide-[#dfd5bf]/60">
         {notifications.length === 0 ? (
-          <div className="p-6 text-center text-xs text-[#737B72]">
+          <div className="p-6 text-center text-xs text-[#5a6e54]">
             No notifications at this time
           </div>
         ) : (
@@ -89,36 +89,36 @@ export const NotificationsPopover: React.FC<NotificationsPopoverProps> = ({
                   onClose();
                 }
               }}
-              className={`p-3.5 flex items-start gap-3 hover:bg-[#FAF9F4] transition-colors cursor-pointer text-left ${
-                !item.read ? 'bg-[#E8F0EB]/30' : ''
+              className={`p-3.5 flex items-start gap-3 hover:bg-[#faf5ea] transition-colors cursor-pointer text-left ${
+                !item.read ? 'bg-[#f3e8cc]/40' : ''
               }`}
             >
-              <div className="p-2 rounded-xl bg-white border border-[#E5E8DF] shrink-0 mt-0.5">
+              <div className="p-2 rounded-xl bg-white border border-[#dfd5bf] shrink-0 mt-0.5 shadow-2xs">
                 {getIcon(item.type)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1 mb-1">
-                  <span className="text-xs font-semibold text-[#202820] truncate">
+                  <span className="text-xs font-bold text-[#103b1d] truncate">
                     {item.title}
                   </span>
-                  <span className="text-[10px] text-[#737B72] shrink-0">
+                  <span className="text-[10px] text-[#5a6e54] shrink-0">
                     {formatRelativeTime(item.timestamp)}
                   </span>
                 </div>
-                <p className="text-xs text-[#737B72] leading-snug line-clamp-2">
+                <p className="text-xs text-[#5a6e54] leading-snug line-clamp-2">
                   {item.message}
                 </p>
               </div>
               {!item.read && (
-                <span className="w-2 h-2 rounded-full bg-[#245C3A] shrink-0 mt-1.5" />
+                <span className="w-2 h-2 rounded-full bg-[#d52518] shrink-0 mt-1.5" />
               )}
             </div>
           ))
         )}
       </div>
 
-      <div className="px-4 py-2.5 bg-[#FAF9F4] border-t border-[#E5E8DF] text-center">
-        <span className="text-[11px] text-[#737B72]">
+      <div className="px-4 py-2.5 bg-[#faf5ea] border-t border-[#dfd5bf] text-center">
+        <span className="text-[11px] text-[#5a6e54] font-medium">
           Simulated alerts for store operations
         </span>
       </div>

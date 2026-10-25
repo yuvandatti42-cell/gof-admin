@@ -21,7 +21,7 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <div
-      className={`bg-white rounded-2xl border border-[#E5E8DF] shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-shadow ${paddingStyles[padding]} ${className}`}
+      className={`bg-white rounded-2xl sm:rounded-3xl border border-[#dfd5bf]/90 shadow-[0_2px_8px_rgba(16,59,29,0.03)] hover:shadow-[0_6px_18px_rgba(16,59,29,0.06)] transition-all duration-200 ${paddingStyles[padding]} ${className}`}
       {...props}
     >
       {children}
@@ -38,8 +38,8 @@ export const CardHeader: React.FC<{
   return (
     <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 ${className}`}>
       <div>
-        <h3 className="text-lg font-semibold text-[#173D2A] tracking-tight">{title}</h3>
-        {subtitle && <p className="text-xs text-[#737B72] mt-0.5">{subtitle}</p>}
+        <h3 className="text-lg font-bold text-[#103b1d] tracking-tight font-heading">{title}</h3>
+        {subtitle && <p className="text-xs text-[#5a6e54] mt-0.5">{subtitle}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>

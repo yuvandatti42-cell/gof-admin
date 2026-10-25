@@ -112,15 +112,15 @@ export const OrdersPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#173D2A] font-heading">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#103b1d] font-heading">
             Orders & Fulfillment
           </h2>
-          <p className="text-xs sm:text-sm text-[#737B72] mt-0.5">
+          <p className="text-xs sm:text-sm text-[#5a6e54] mt-0.5">
             Track organic food orders, manage delivery workflows, and inspect customer addresses.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#FAF9F4] border border-[#E5E8DF] text-[#245C3A]">
+        <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#faf5ea] border border-[#dfd5bf] text-[#18542a]">
           <Sparkles className="w-3.5 h-3.5" />
           <span>Demo Fulfillment Environment</span>
         </div>
@@ -129,23 +129,23 @@ export const OrdersPage: React.FC = () => {
       {/* Status Summary Strip (Interactive buttons) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
-          { key: 'all', label: 'All Orders', count: statusCounts.all, color: 'text-[#173D2A]' },
-          { key: 'Pending', label: 'Pending', count: statusCounts.Pending, color: 'text-[#6F9F62]' },
-          { key: 'Processing', label: 'Processing', count: statusCounts.Processing, color: 'text-[#B7791F]' },
+          { key: 'all', label: 'All Orders', count: statusCounts.all, color: 'text-[#103b1d]' },
+          { key: 'Pending', label: 'Pending', count: statusCounts.Pending, color: 'text-[#9abc05]' },
+          { key: 'Processing', label: 'Processing', count: statusCounts.Processing, color: 'text-[#f96015]' },
           { key: 'Shipped', label: 'Shipped', count: statusCounts.Shipped, color: 'text-[#356AA0]' },
-          { key: 'Delivered', label: 'Delivered', count: statusCounts.Delivered, color: 'text-[#2F7D4A]' },
-          { key: 'Cancelled', label: 'Cancelled', count: statusCounts.Cancelled, color: 'text-[#B64238]' },
+          { key: 'Delivered', label: 'Delivered', count: statusCounts.Delivered, color: 'text-[#18542a]' },
+          { key: 'Cancelled', label: 'Cancelled', count: statusCounts.Cancelled, color: 'text-[#d52518]' },
         ].map((tab) => (
           <button
             key={tab.key}
             onClick={() => setStatusFilter(tab.key as any)}
             className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
               statusFilter === tab.key
-                ? 'bg-white border-[#245C3A] ring-2 ring-[#245C3A]/20 shadow-xs'
-                : 'bg-white/70 border-[#E5E8DF] hover:bg-white hover:border-[#6F9F62]'
+                ? 'bg-white border-[#18542a] ring-2 ring-[#18542a]/20 shadow-xs'
+                : 'bg-white/70 border-[#dfd5bf] hover:bg-white hover:border-[#9abc05]'
             }`}
           >
-            <span className="text-[11px] font-medium text-[#737B72] block truncate">
+            <span className="text-[11px] font-medium text-[#5a6e54] block truncate">
               {tab.label}
             </span>
             <span className={`text-xl font-bold tabular-nums block mt-0.5 ${tab.color}`}>
@@ -159,18 +159,18 @@ export const OrdersPage: React.FC = () => {
       <Card padding="sm" className="space-y-3">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#737B72] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#5a6e54] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by Order ID (e.g. 9421), customer name, or phone..."
-              className="w-full text-xs sm:text-sm pl-9 pr-4 py-2 rounded-xl border border-[#E5E8DF] bg-white text-[#202820] placeholder-[#737B72] focus:ring-1 focus:ring-[#245C3A]"
+              className="w-full text-xs sm:text-sm pl-9 pr-4 py-2 rounded-xl border border-[#dfd5bf] bg-white text-[#103b1d] placeholder-[#5a6e54] focus:ring-1 focus:ring-[#18542a]"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#737B72] hover:text-[#202820]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#5a6e54] hover:text-[#103b1d]"
               >
                 Clear
               </button>
@@ -178,11 +178,11 @@ export const OrdersPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-[#737B72] shrink-0 hidden md:inline">Payment:</span>
+            <span className="text-xs text-[#5a6e54] shrink-0 hidden md:inline">Payment:</span>
             <select
               value={paymentFilter}
               onChange={(e) => setPaymentFilter(e.target.value as any)}
-              className="text-xs sm:text-sm py-2 px-3 rounded-xl border border-[#E5E8DF] bg-white text-[#202820]"
+              className="text-xs sm:text-sm py-2 px-3 rounded-xl border border-[#dfd5bf] bg-white text-[#103b1d]"
             >
               <option value="all">All Payment Statuses</option>
               <option value="Paid">Paid</option>
@@ -194,7 +194,7 @@ export const OrdersPage: React.FC = () => {
         </div>
 
         {(searchTerm || statusFilter !== 'all' || paymentFilter !== 'all') && (
-          <div className="pt-2 border-t border-[#E5E8DF]/60 flex items-center justify-between text-xs text-[#737B72]">
+          <div className="pt-2 border-t border-[#dfd5bf]/60 flex items-center justify-between text-xs text-[#5a6e54]">
             <span>Showing {filteredOrders.length} of {orders.length} orders</span>
             <button
               onClick={() => {
@@ -202,7 +202,7 @@ export const OrdersPage: React.FC = () => {
                 setStatusFilter('all');
                 setPaymentFilter('all');
               }}
-              className="text-[#245C3A] font-semibold hover:underline"
+              className="text-[#18542a] font-semibold hover:underline"
             >
               Reset all filters
             </button>
@@ -214,7 +214,7 @@ export const OrdersPage: React.FC = () => {
       <Card padding="none" className="overflow-hidden">
         {filteredOrders.length === 0 ? (
           <EmptyState
-            icon={<ShoppingBag className="w-7 h-7 text-[#245C3A]" />}
+            icon={<ShoppingBag className="w-7 h-7 text-[#18542a]" />}
             title="No Orders Match Your Filter"
             description="No customer orders were found for the chosen criteria. Try resetting the filters."
             actionText="Clear Filters"
@@ -227,7 +227,7 @@ export const OrdersPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-[#FAF9F4] text-xs font-semibold text-[#737B72] border-b border-[#E5E8DF]">
+              <thead className="bg-[#faf5ea] text-xs font-semibold text-[#5a6e54] border-b border-[#dfd5bf]">
                 <tr>
                   <th className="py-3 px-4">Order ID</th>
                   <th className="py-3 px-4">Customer</th>
@@ -239,31 +239,31 @@ export const OrdersPage: React.FC = () => {
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E5E8DF]/60">
+              <tbody className="divide-y divide-[#dfd5bf]/60">
                 {filteredOrders.map((order) => (
                   <tr
                     key={order.id}
                     onClick={() => handleOpenDetail(order)}
-                    className="hover:bg-[#FAF9F4]/70 transition-colors cursor-pointer group"
+                    className="hover:bg-[#faf5ea]/70 transition-colors cursor-pointer group"
                   >
-                    <td className="py-3.5 px-4 font-semibold text-[#245C3A] whitespace-nowrap">
+                    <td className="py-3.5 px-4 font-semibold text-[#18542a] whitespace-nowrap">
                       #{order.id}
                     </td>
                     <td className="py-3.5 px-4">
-                      <p className="font-medium text-[#202820] group-hover:text-[#245C3A] truncate max-w-[160px]">
+                      <p className="font-medium text-[#103b1d] group-hover:text-[#18542a] truncate max-w-[160px]">
                         {order.customerName}
                       </p>
-                      <p className="text-[11px] text-[#737B72] truncate max-w-[160px]">
+                      <p className="text-[11px] text-[#5a6e54] truncate max-w-[160px]">
                         {order.shippingAddress.city}, {order.shippingAddress.state}
                       </p>
                     </td>
-                    <td className="py-3.5 px-4 text-xs text-[#737B72] whitespace-nowrap">
+                    <td className="py-3.5 px-4 text-xs text-[#5a6e54] whitespace-nowrap">
                       {formatDate(order.date)}
                     </td>
-                    <td className="py-3.5 px-4 text-xs text-[#555E53] whitespace-nowrap">
+                    <td className="py-3.5 px-4 text-xs text-[#5a6e54] whitespace-nowrap">
                       {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
                     </td>
-                    <td className="py-3.5 px-4 font-bold text-[#173D2A] tabular-nums whitespace-nowrap">
+                    <td className="py-3.5 px-4 font-bold text-[#103b1d] tabular-nums whitespace-nowrap">
                       {formatINR(order.total)}
                     </td>
                     <td className="py-3.5 px-4 whitespace-nowrap">
@@ -283,7 +283,7 @@ export const OrdersPage: React.FC = () => {
                             e.stopPropagation();
                             handleOpenDetail(order);
                           }}
-                          className="p-1.5 rounded-lg text-[#737B72] hover:text-[#245C3A] hover:bg-[#E8F0EB] transition-colors"
+                          className="p-1.5 rounded-lg text-[#5a6e54] hover:text-[#18542a] hover:bg-[#E8F0EB] transition-colors"
                           title="View order details"
                         >
                           <Eye className="w-4 h-4" />
@@ -336,15 +336,15 @@ export const OrdersPage: React.FC = () => {
         >
           <div className="space-y-6">
             {/* Status & Payment Controls */}
-            <div className="p-4 rounded-xl bg-[#FAF9F4] border border-[#E5E8DF] grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="p-4 rounded-xl bg-[#faf5ea] border border-[#dfd5bf] grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+                <label className="block text-xs font-semibold text-[#103b1d] mb-1">
                   Order Status
                 </label>
                 <select
                   value={selectedOrder.orderStatus}
                   onChange={(e) => handleStatusChange(selectedOrder.id, e.target.value as OrderStatus)}
-                  className="w-full text-xs font-medium px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white text-[#202820] focus:ring-1 focus:ring-[#245C3A]"
+                  className="w-full text-xs font-medium px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white text-[#103b1d] focus:ring-1 focus:ring-[#18542a]"
                 >
                   <option value="Pending">Pending</option>
                   <option value="Processing">Processing</option>
@@ -355,13 +355,13 @@ export const OrdersPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#173D2A] mb-1">
+                <label className="block text-xs font-semibold text-[#103b1d] mb-1">
                   Payment Status
                 </label>
                 <select
                   value={selectedOrder.paymentStatus}
                   onChange={(e) => handlePaymentChange(selectedOrder.id, e.target.value as PaymentStatus)}
-                  className="w-full text-xs font-medium px-3 py-2 rounded-xl border border-[#E5E8DF] bg-white text-[#202820] focus:ring-1 focus:ring-[#245C3A]"
+                  className="w-full text-xs font-medium px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white text-[#103b1d] focus:ring-1 focus:ring-[#18542a]"
                 >
                   <option value="Paid">Paid</option>
                   <option value="Pending">Pending</option>
@@ -373,34 +373,34 @@ export const OrdersPage: React.FC = () => {
 
             {/* Customer & Shipping Information */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div className="p-4 rounded-xl border border-[#E5E8DF] bg-white">
-                <span className="font-semibold text-[#737B72] uppercase tracking-wider block mb-2">
+              <div className="p-4 rounded-xl border border-[#dfd5bf] bg-white">
+                <span className="font-semibold text-[#5a6e54] uppercase tracking-wider block mb-2">
                   Customer
                 </span>
-                <p className="text-sm font-bold text-[#173D2A]">{selectedOrder.customerName}</p>
-                <p className="text-[#737B72] mt-0.5">{selectedOrder.customerEmail}</p>
-                <p className="text-[#737B72]">{selectedOrder.customerPhone}</p>
+                <p className="text-sm font-bold text-[#103b1d]">{selectedOrder.customerName}</p>
+                <p className="text-[#5a6e54] mt-0.5">{selectedOrder.customerEmail}</p>
+                <p className="text-[#5a6e54]">{selectedOrder.customerPhone}</p>
               </div>
 
-              <div className="p-4 rounded-xl border border-[#E5E8DF] bg-white">
-                <span className="font-semibold text-[#737B72] uppercase tracking-wider block mb-2">
+              <div className="p-4 rounded-xl border border-[#dfd5bf] bg-white">
+                <span className="font-semibold text-[#5a6e54] uppercase tracking-wider block mb-2">
                   Shipping Address
                 </span>
-                <p className="text-[#202820] leading-relaxed">
+                <p className="text-[#103b1d] leading-relaxed">
                   {selectedOrder.shippingAddress.street},<br />
                   {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} -{' '}
                   <span className="font-semibold">{selectedOrder.shippingAddress.pincode}</span>
                 </p>
-                <p className="text-[11px] text-[#737B72] mt-1">Payment: {selectedOrder.paymentMethod}</p>
+                <p className="text-[11px] text-[#5a6e54] mt-1">Payment: {selectedOrder.paymentMethod}</p>
               </div>
             </div>
 
             {/* Ordered Items Table */}
             <div>
-              <span className="font-semibold text-xs text-[#737B72] uppercase tracking-wider block mb-2">
+              <span className="font-semibold text-xs text-[#5a6e54] uppercase tracking-wider block mb-2">
                 Order Items ({selectedOrder.items.length})
               </span>
-              <div className="border border-[#E5E8DF] rounded-xl overflow-hidden divide-y divide-[#E5E8DF] bg-white">
+              <div className="border border-[#dfd5bf] rounded-xl overflow-hidden divide-y divide-[#dfd5bf] bg-white">
                 {selectedOrder.items.map((item, idx) => (
                   <div key={idx} className="p-3.5 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
@@ -408,17 +408,17 @@ export const OrdersPage: React.FC = () => {
                         <img
                           src={item.imageUrl}
                           alt={item.productName}
-                          className="w-10 h-10 rounded-lg object-cover border border-[#E5E8DF]"
+                          className="w-10 h-10 rounded-lg object-cover border border-[#dfd5bf]"
                         />
                       )}
                       <div>
-                        <p className="text-xs font-semibold text-[#173D2A]">{item.productName}</p>
-                        <p className="text-[11px] text-[#737B72]">
+                        <p className="text-xs font-semibold text-[#103b1d]">{item.productName}</p>
+                        <p className="text-[11px] text-[#5a6e54]">
                           Unit: {item.unit} • Qty: {item.quantity} × {formatINR(item.unitPrice)}
                         </p>
                       </div>
                     </div>
-                    <span className="text-xs font-bold text-[#173D2A] tabular-nums">
+                    <span className="text-xs font-bold text-[#103b1d] tabular-nums">
                       {formatINR(item.quantity * item.unitPrice)}
                     </span>
                   </div>
@@ -427,24 +427,24 @@ export const OrdersPage: React.FC = () => {
             </div>
 
             {/* Price Breakdown */}
-            <div className="p-4 rounded-xl bg-[#FAF9F4] border border-[#E5E8DF] space-y-1.5 text-xs">
-              <div className="flex justify-between text-[#737B72]">
+            <div className="p-4 rounded-xl bg-[#faf5ea] border border-[#dfd5bf] space-y-1.5 text-xs">
+              <div className="flex justify-between text-[#5a6e54]">
                 <span>Subtotal</span>
                 <span className="tabular-nums">{formatINR(selectedOrder.subtotal)}</span>
               </div>
-              <div className="flex justify-between text-[#737B72]">
+              <div className="flex justify-between text-[#5a6e54]">
                 <span>Delivery Charge</span>
                 <span className="tabular-nums">
                   {selectedOrder.deliveryCharge === 0 ? 'FREE' : formatINR(selectedOrder.deliveryCharge)}
                 </span>
               </div>
               {selectedOrder.discount > 0 && (
-                <div className="flex justify-between text-[#2F7D4A]">
+                <div className="flex justify-between text-[#18542a]">
                   <span>Promo Savings</span>
                   <span className="tabular-nums">- {formatINR(selectedOrder.discount)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-sm font-bold text-[#173D2A] pt-2 border-t border-[#E5E8DF]">
+              <div className="flex justify-between text-sm font-bold text-[#103b1d] pt-2 border-t border-[#dfd5bf]">
                 <span>Total Paid</span>
                 <span className="tabular-nums">{formatINR(selectedOrder.total)}</span>
               </div>
@@ -452,16 +452,16 @@ export const OrdersPage: React.FC = () => {
 
             {/* Timeline */}
             <div>
-              <span className="font-semibold text-xs text-[#737B72] uppercase tracking-wider block mb-3">
+              <span className="font-semibold text-xs text-[#5a6e54] uppercase tracking-wider block mb-3">
                 Tracking & Timeline
               </span>
               <div className="space-y-3 relative pl-4 border-l-2 border-[#E8F0EB]">
                 {selectedOrder.timeline.map((event, idx) => (
                   <div key={idx} className="relative">
-                    <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-[#245C3A] ring-4 ring-white" />
-                    <p className="text-xs font-semibold text-[#173D2A]">{event.status}</p>
-                    <p className="text-[11px] text-[#737B72]">{event.note}</p>
-                    <span className="text-[10px] text-[#737B72]/80">{formatDate(event.timestamp, true)}</span>
+                    <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-[#18542a] ring-4 ring-white" />
+                    <p className="text-xs font-semibold text-[#103b1d]">{event.status}</p>
+                    <p className="text-[11px] text-[#5a6e54]">{event.note}</p>
+                    <span className="text-[10px] text-[#5a6e54]/80">{formatDate(event.timestamp, true)}</span>
                   </div>
                 ))}
               </div>
@@ -469,7 +469,7 @@ export const OrdersPage: React.FC = () => {
 
             {/* Internal Note */}
             <div>
-              <span className="font-semibold text-xs text-[#737B72] uppercase tracking-wider block mb-2">
+              <span className="font-semibold text-xs text-[#5a6e54] uppercase tracking-wider block mb-2">
                 Internal Pack Station Notes
               </span>
               <textarea
@@ -477,7 +477,7 @@ export const OrdersPage: React.FC = () => {
                 onChange={(e) => setInternalNoteDraft(e.target.value)}
                 placeholder="Log package seal details, courier handover remarks..."
                 rows={3}
-                className="w-full text-xs p-3 rounded-xl border border-[#E5E8DF] bg-white focus:outline-none focus:ring-1 focus:ring-[#245C3A]"
+                className="w-full text-xs p-3 rounded-xl border border-[#dfd5bf] bg-white focus:outline-none focus:ring-1 focus:ring-[#18542a]"
               />
               <div className="mt-2 flex justify-end">
                 <Button size="sm" variant="secondary" onClick={handleSaveInternalNote}>

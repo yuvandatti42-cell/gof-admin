@@ -1,28 +1,47 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-heading: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
-  --color-forest: #245C3A;
-  --color-forest-dark: #1e4e31;
+  --font-sans: 'Urbanist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Urbanist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Instrument Serif', 'Cormorant Garamond', Georgia, serif;
+  --font-urbanist: 'Urbanist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Official Godavari Organic Foods Color Palette */
+  --color-forest: #18542a;
+  --color-forest-dark: #103b1d;
   --color-forest-light: #e8f0eb;
-  --color-deep-green: #173D2A;
-  --color-leaf: #6F9F62;
-  --color-cream: #F7F6EF;
-  --color-cream-card: #FAF9F4;
-  --color-main: #202820;
-  --color-muted: #737B72;
-  --color-border: #E5E8DF;
-  --color-border-subtle: #ECEFE8;
-  --color-success: #2F7D4A;
-  --color-warning: #B7791F;
-  --color-danger: #B64238;
-  --color-info: #356AA0;
+  --color-kiwi: #9abc05;
+  --color-sunshine: #ffc926;
+  --color-carrot: #f96015;
+  --color-tomato: #d52518;
+  --color-cream: #f3e8cc;
+  --color-cream-light: #faf5ea;
+  --color-cream-card: #ffffff;
+  
+  --color-main: #103b1d;
+  --color-muted: #5a6e54;
+  --color-border: #dfd5bf;
+  --color-border-subtle: #ece6d8;
+  --color-success: #18542a;
+  --color-warning: #f96015;
+  --color-danger: #d52518;
+  --color-info: #23547a;
 }
 
 :root {
+  font-family: 'Urbanist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light;
+  
+  /* User Color Palette Hex References */
+  --forest-green: #18542a;
+  --forest-dark: #103b1d;
+  --kiwi-green: #9abc05;
+  --sunshine-yellow: #ffc926;
+  --crisp-carrot: #f96015;
+  --tomato-burst: #d52518;
+  --cream-bg: #f3e8cc;
+  --cream-light: #faf5ea;
+  --border-warm: #dfd5bf;
 }
 
 * {
@@ -32,11 +51,27 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #F7F6EF;
-  color: #202820;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #faf5ea;
+  color: #103b1d;
+  font-family: 'Urbanist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.font-serif-editorial {
+  font-family: 'Instrument Serif', 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-serif {
+  font-family: 'Instrument Serif', 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-sans {
+  font-family: 'Urbanist', system-ui, -apple-system, sans-serif;
+}
+
+.font-urbanist {
+  font-family: 'Urbanist', system-ui, -apple-system, sans-serif;
 }
 
 /* Tabular numerals for numbers, money, metrics */
@@ -44,21 +79,43 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Custom scrollbars for tables and panels */
+/* Custom Scrollbar matching storefront */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F7F6EF;
+  background: #f3e8cc;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D2D8CB;
+  background: #18542a;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #B5BEAC;
+  background: #103b1d;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Editorial Beige Frame Card */
+.editorial-card {
+  background-color: #f3e8cc;
+  border: 1px solid #d9ca9d;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.editorial-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -6px rgba(24, 84, 42, 0.12);
+  border-color: #18542a;
 }
