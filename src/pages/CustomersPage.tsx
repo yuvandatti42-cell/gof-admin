@@ -107,7 +107,6 @@ export const CustomersPage: React.FC = () => {
           <span className="w-2 h-2 rounded-full bg-[#18542a] animate-pulse" />
           <span>Real-time Live Sync</span>
         </div>
-        </div>
       </div>
 
       {/* 4 Summary Metric Cards */}
@@ -464,7 +463,6 @@ export const CustomersPage: React.FC = () => {
                     </tr>
                   );
                 })}
-              </tbody>
               </tbody>
             </table>
           </div>
