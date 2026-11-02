@@ -87,6 +87,12 @@ export interface Customer {
   totalOrders: number;
   totalSpent: number;
   joinedDate: string;
+  lastLoginDate?: string;
+  firstOrderDate?: string;
+  lastOrderDate?: string;
+  authProvider?: string;
+  hasPurchased?: boolean;
+  photoURL?: string;
   status: CustomerStatus;
   recentOrderIds: string[];
 }

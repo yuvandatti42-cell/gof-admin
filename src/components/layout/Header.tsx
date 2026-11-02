@@ -29,6 +29,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
     notifications,
     resetToDemoData,
     setLiveStorefrontOpen,
+    firebaseConnected,
+    isFirebaseSyncing,
   } = useAdmin();
   const { showToast } = useToast();
 
@@ -132,11 +134,23 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           <span className="hidden xs:inline">Live Store</span>
         </button>
 
-        {/* Demo Indicator Pill (hidden on tablets/mobile) */}
-        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f3e8cc] border border-[#dfd5bf] text-[11px] font-bold text-[#18542a]">
-          <Sparkles className="w-3.5 h-3.5 text-[#f96015]" />
-          <span>Demo Data</span>
-        </div>
+        {/* Firebase Live Cloud Connection Indicator */}
+        {isFirebaseSyncing ? (
+          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#fef3c7] border border-[#fde68a] text-[11px] font-bold text-[#92400e]">
+            <span className="w-2 h-2 rounded-full bg-[#f59e0b] animate-pulse" />
+            <span>Syncing Cloud...</span>
+          </div>
+        ) : firebaseConnected ? (
+          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#e8f5ec] border border-[#a3d9b1] text-[11px] font-bold text-[#18542a] shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-[#18542a] animate-pulse" />
+            <span>Live Cloud Connected</span>
+          </div>
+        ) : (
+          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f3e8cc] border border-[#dfd5bf] text-[11px] font-bold text-[#5a6e54]">
+            <Sparkles className="w-3.5 h-3.5 text-[#f96015]" />
+            <span>Local Cache</span>
+          </div>
+        )}
 
         {/* Notification Bell */}
         <div className="relative">

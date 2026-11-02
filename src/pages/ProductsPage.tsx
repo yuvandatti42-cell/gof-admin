@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
 import { useToast } from '../context/ToastContext';
@@ -192,26 +192,37 @@ export const ProductsPage: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Open Add Product Modal
-  const handleOpenAddModal = () => {
+  const handleOpenAddModal = useCallback(() => {
     setEditingProduct(null);
     setFormData({
-      ...initialFormState,
+      name: '',
+      sku: `GOF-${Math.floor(100 + Math.random() * 900)}`,
       categoryId: categories[0]?.id || '',
       categoryName: categories[0]?.name || '',
-      sku: `GOF-${Math.floor(100 + Math.random() * 900)}`,
+      description: '',
+      price: '',
+      compareAtPrice: '',
+      stock: '',
+      unit: '1 kg',
+      status: 'Active' as ProductStatus,
+      featured: false,
+      imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80',
+      secondaryImageUrl: '',
+      harvestLocation: 'Godavari Basin Farms',
     });
     setFormErrors({});
     setIsFormModalOpen(true);
-  };
+  }, [categories]);
 
   // Check URL query action=new
   useEffect(() => {
     if (searchParams.get('action') === 'new') {
       handleOpenAddModal();
-      searchParams.delete('action');
-      setSearchParams(searchParams, { replace: true });
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('action');
+      setSearchParams(nextParams, { replace: true });
     }
-  }, [searchParams]);
+  }, [searchParams, handleOpenAddModal, setSearchParams]);
 
   // Open Edit Product Modal
   const handleOpenEditModal = (product: Product) => {
