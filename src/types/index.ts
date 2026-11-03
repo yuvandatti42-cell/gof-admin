@@ -62,7 +62,8 @@ export interface Order {
   deliveryCharge: number;
   discount: number;
   total: number;
-  paymentMethod: 'UPI / Google Pay' | 'Net Banking' | 'Credit / Debit Card' | 'Cash on Delivery';
+  paymentMethod: string;
+  paymentId?: string;
   paymentStatus: PaymentStatus;
   orderStatus: OrderStatus;
   shippingAddress: {

@@ -392,6 +392,11 @@ export const OrdersPage: React.FC = () => {
                   <span className="font-semibold">{selectedOrder.shippingAddress.pincode}</span>
                 </p>
                 <p className="text-[11px] text-[#5a6e54] mt-1">Payment: {selectedOrder.paymentMethod}</p>
+                {selectedOrder.paymentId && (
+                  <p className="text-[11px] font-mono font-semibold text-[#18542a] mt-0.5 bg-[#e8f5ec] px-2 py-0.5 rounded w-fit">
+                    Txn ID: {selectedOrder.paymentId}
+                  </p>
+                )}
               </div>
             </div>
 
