@@ -7,11 +7,11 @@ import type { ProductStatus } from '../../types';
 import { Plus, UploadCloud, Sparkles } from 'lucide-react';
 
 const PRESET_IMAGES = [
-  { label: 'Rice & Grains', url: '/products/rice/01_Organic_Red_Rice_Product.png' },
-  { label: 'Cold-Pressed Oils', url: '/products/oils/01_Cold_Pressed_Groundnut_Oil.png' },
-  { label: 'Millets & Superfoods', url: '/products/millets/01_Foxtail_Millet_Korralu_Product.png' },
-  { label: 'Organic Spices', url: '/categories/spices.png' },
-  { label: 'Desi Cow Ghee', url: '/categories/desi_cow_ghee.jpg' },
+  { label: 'Rice & Grains', url: '/products/rice/01_Organic_Red_Rice_Product.webp' },
+  { label: 'Cold-Pressed Oils', url: '/products/oils/01_Cold_Pressed_Groundnut_Oil.webp' },
+  { label: 'Millets & Superfoods', url: '/products/millets/01_Foxtail_Millet_Korralu_Product.webp' },
+  { label: 'Organic Spices', url: '/categories/spices.webp' },
+  { label: 'Desi Cow Ghee', url: '/categories/desi_cow_ghee.webp' },
   { label: 'Pure Forest Honey', url: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=600&q=80' },
 ];
 

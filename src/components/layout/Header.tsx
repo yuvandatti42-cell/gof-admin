@@ -93,7 +93,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
 
         <div className="md:hidden w-9 h-9 rounded-full bg-white border border-[#dfd5bf] shadow-2xs flex items-center justify-center shrink-0 p-0.5 overflow-hidden">
           <img
-            src="/logo.png"
+            src="/logo.webp"
             alt="Godavari Organics"
             className="w-full h-full object-contain"
           />

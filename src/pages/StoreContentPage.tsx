@@ -36,10 +36,10 @@ const PRESET_BANNERS = [
 ];
 
 const PRESET_CATEGORY_IMAGES = [
-  { name: 'Pure Wood Oils', url: '/categories/oil.png' },
-  { name: 'Organic Rice', url: '/categories/rice.png' },
-  { name: 'Native Millets', url: '/categories/millet.png' },
-  { name: 'Stone-Ground Spices', url: '/categories/spices.png' },
+  { name: 'Pure Wood Oils', url: '/categories/oil.webp' },
+  { name: 'Organic Rice', url: '/categories/rice.webp' },
+  { name: 'Native Millets', url: '/categories/millet.webp' },
+  { name: 'Stone-Ground Spices', url: '/categories/spices.webp' },
   { name: 'Natural Honey & Jaggery', url: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=600&q=80' },
   { name: 'A2 Vedic Ghee', url: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=600&q=80' },
 ];
@@ -244,10 +244,10 @@ export const StoreContentPage: React.FC = () => {
   // -------------------------------------------------------------
   const handleUpdateBrandAsset = (key: keyof BrandAssets, newUrl: string) => {
     const current = storeContent.brandAssets || {
-      primaryLogoUrl: '/logo.png',
-      headerLogoUrl: '/logo.png',
-      footerLogoUrl: '/logo.png',
-      faviconUrl: '/logo.png',
+      primaryLogoUrl: '/logo.webp',
+      headerLogoUrl: '/logo.webp',
+      footerLogoUrl: '/logo.webp',
+      faviconUrl: '/logo.webp',
     };
     updateStoreContent({ brandAssets: { ...current, [key]: newUrl } });
     showToast(`Brand asset (${key}) updated successfully!`, 'success');
@@ -747,28 +747,28 @@ export const StoreContentPage: React.FC = () => {
                 key: 'primaryLogoUrl' as const,
                 title: 'Primary Logo (Transparent)',
                 desc: 'Main brand seal used in sidebar & invoices',
-                url: storeContent.brandAssets?.primaryLogoUrl || '/logo.png',
+                url: storeContent.brandAssets?.primaryLogoUrl || '/logo.webp',
                 darkBg: false,
               },
               {
                 key: 'headerLogoUrl' as const,
                 title: 'Header Navigation Logo',
                 desc: 'Shown on the top organic navbar',
-                url: storeContent.brandAssets?.headerLogoUrl || '/logo.png',
+                url: storeContent.brandAssets?.headerLogoUrl || '/logo.webp',
                 darkBg: false,
               },
               {
                 key: 'footerLogoUrl' as const,
                 title: 'Footer Inverted Logo',
                 desc: 'Displayed on the dark green footer',
-                url: storeContent.brandAssets?.footerLogoUrl || '/logo.png',
+                url: storeContent.brandAssets?.footerLogoUrl || '/logo.webp',
                 darkBg: true,
               },
               {
                 key: 'faviconUrl' as const,
                 title: 'Website Favicon / App Icon',
                 desc: 'Square/round 64x64px browser tab icon',
-                url: storeContent.brandAssets?.faviconUrl || '/logo.png',
+                url: storeContent.brandAssets?.faviconUrl || '/logo.webp',
                 darkBg: false,
               },
             ].map((asset) => (
@@ -1016,7 +1016,7 @@ export const StoreContentPage: React.FC = () => {
                 type="text"
                 value={categoryImageUrl}
                 onChange={(e) => setCategoryImageUrl(e.target.value)}
-                placeholder="/categories/oil.png or https://..."
+                placeholder="/categories/oil.webp or https://..."
                 className="flex-1 text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
               />
               <label className="px-3 py-2 rounded-xl bg-[#18542a] text-white text-xs font-bold hover:bg-[#103b1d] cursor-pointer flex items-center gap-1.5 shrink-0">

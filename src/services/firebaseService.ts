@@ -70,7 +70,7 @@ export function subscribeToProducts(
         list.push({
           ...data,
           id: docSnap.id,
-          imageUrl: data.imageUrl || (data as any).image || '/categories/oil.png',
+          imageUrl: data.imageUrl || (data as any).image || '/categories/oil.webp',
           categoryName: data.categoryName || (data as any).category || 'General',
           compareAtPrice: data.compareAtPrice ?? (data as any).originalPrice ?? data.price,
         });

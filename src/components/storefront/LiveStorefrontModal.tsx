@@ -210,7 +210,7 @@ export const LiveStorefrontModal: React.FC = () => {
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full overflow-hidden bg-white border border-[#dfd5bf] shadow-xs flex items-center justify-center p-0.5 shrink-0">
                 <img
-                  src="/logo.png"
+                  src="/logo.webp"
                   alt="Godavari Organics Logo"
                   className="w-full h-full object-contain"
                 />
@@ -331,7 +331,7 @@ export const LiveStorefrontModal: React.FC = () => {
                 >
                   <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#f3e8cc]/60 border border-[#dfd5bf] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
                     <img
-                      src="/categories/oil.png"
+                      src="/categories/oil.webp"
                       alt="Oils"
                       className="w-full h-full object-contain"
                     />
@@ -348,7 +348,7 @@ export const LiveStorefrontModal: React.FC = () => {
                 >
                   <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#f3e8cc]/60 border border-[#dfd5bf] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
                     <img
-                      src="/categories/rice.png"
+                      src="/categories/rice.webp"
                       alt="Organic Rice"
                       className="w-full h-full object-contain"
                     />
@@ -365,7 +365,7 @@ export const LiveStorefrontModal: React.FC = () => {
                 >
                   <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#f3e8cc]/60 border border-[#dfd5bf] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
                     <img
-                      src="/categories/millet.png"
+                      src="/categories/millet.webp"
                       alt="Organic Millets"
                       className="w-full h-full object-contain"
                     />
@@ -382,7 +382,7 @@ export const LiveStorefrontModal: React.FC = () => {
                 >
                   <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#f3e8cc]/60 border border-[#dfd5bf] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
                     <img
-                      src="/categories/spices.png"
+                      src="/categories/spices.webp"
                       alt="Organic Spices"
                       className="w-full h-full object-contain"
                     />

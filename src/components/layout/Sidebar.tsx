@@ -113,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick, onClose, isMobileD
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-11 h-11 rounded-full bg-white border border-[#dfd5bf] shadow-2xs flex items-center justify-center shrink-0 p-0.5 overflow-hidden">
               <img
-                src="/logo.png"
+                src="/logo.webp"
                 alt="Godavari Organics Logo"
                 className="w-full h-full object-contain"
               />

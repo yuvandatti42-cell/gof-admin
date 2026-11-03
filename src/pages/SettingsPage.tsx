@@ -331,7 +331,7 @@ export const SettingsPage: React.FC = () => {
               <div className="p-4 rounded-xl border border-[#dfd5bf] bg-[#faf5ea] inline-flex items-center gap-3">
                 <div className="w-14 h-14 rounded-full overflow-hidden bg-white border border-[#dfd5bf] shadow-xs flex items-center justify-center p-0.5 shrink-0">
                   <img
-                    src="/logo.png"
+                    src="/logo.webp"
                     alt="Godavari Organics Logo"
                     className="w-full h-full object-contain"
                   />

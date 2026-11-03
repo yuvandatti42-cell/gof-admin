@@ -484,7 +484,7 @@ export const CategoriesPage: React.FC = () => {
                   type="text"
                   value={formData.imageUrl}
                   onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="/categories/oil.png or https://..."
+                  placeholder="/categories/oil.webp or https://..."
                   className="w-full text-xs px-3 py-1.5 rounded-lg border border-[#dfd5bf] bg-white"
                 />
                 <div className="flex items-center gap-2">
@@ -503,10 +503,10 @@ export const CategoriesPage: React.FC = () => {
             {/* Quick Category Image Presets */}
             <div className="pt-1 flex flex-wrap gap-1.5">
               {[
-                { name: 'Oils', url: '/categories/oil.png' },
-                { name: 'Rice', url: '/categories/rice.png' },
-                { name: 'Millets', url: '/categories/millet.png' },
-                { name: 'Spices', url: '/categories/spices.png' },
+                { name: 'Oils', url: '/categories/oil.webp' },
+                { name: 'Rice', url: '/categories/rice.webp' },
+                { name: 'Millets', url: '/categories/millet.webp' },
+                { name: 'Spices', url: '/categories/spices.webp' },
               ].map((p) => (
                 <button
                   type="button"
