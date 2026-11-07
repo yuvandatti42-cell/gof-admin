@@ -5,9 +5,7 @@ import {
   Search,
   Bell,
   Menu,
-  Sparkles,
   ExternalLink,
-  RotateCcw,
   Sliders,
   LogOut,
   ChevronDown,
@@ -27,17 +25,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
   const {
     setMobileNavOpen,
     notifications,
-    resetToDemoData,
     setLiveStorefrontOpen,
-    firebaseConnected,
-    isFirebaseSyncing,
   } = useAdmin();
   const { showToast } = useToast();
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isSignoutModalOpen, setIsSignoutModalOpen] = useState(false);
-  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
   const profileRef = useRef<HTMLDivElement>(null);
 
@@ -134,24 +128,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           <span className="hidden xs:inline">Live Store</span>
         </button>
 
-        {/* Firebase Live Cloud Connection Indicator */}
-        {isFirebaseSyncing ? (
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#fef3c7] border border-[#fde68a] text-[11px] font-bold text-[#92400e]">
-            <span className="w-2 h-2 rounded-full bg-[#f59e0b] animate-pulse" />
-            <span>Syncing Cloud...</span>
-          </div>
-        ) : firebaseConnected ? (
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#e8f5ec] border border-[#a3d9b1] text-[11px] font-bold text-[#18542a] shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-[#18542a] animate-pulse" />
-            <span>Live Cloud Connected</span>
-          </div>
-        ) : (
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f3e8cc] border border-[#dfd5bf] text-[11px] font-bold text-[#5a6e54]">
-            <Sparkles className="w-3.5 h-3.5 text-[#f96015]" />
-            <span>Local Cache</span>
-          </div>
-        )}
-
         {/* Notification Bell */}
         <div className="relative">
           <button
@@ -215,16 +191,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                   <ExternalLink className="w-4 h-4 text-[#5a6e54]" />
                   Storefront Content
                 </button>
-                <button
-                  onClick={() => {
-                    setIsResetModalOpen(true);
-                    setIsProfileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#fff8e1] text-[#946200] transition-colors text-left cursor-pointer"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  Reset Demo Data
-                </button>
               </div>
               <div className="p-1 border-t border-[#dfd5bf] text-xs">
                 <button
@@ -242,20 +208,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           )}
         </div>
       </div>
-
-      {/* Confirmation Dialog for Demo Data Reset */}
-      <ConfirmDialog
-        isOpen={isResetModalOpen}
-        onClose={() => setIsResetModalOpen(false)}
-        onConfirm={() => {
-          resetToDemoData();
-          showToast('Sample dataset restored to initial state.', 'info', 'Data Reset');
-        }}
-        title="Reset All Demo Data?"
-        message="This will reset all modified products, categories, orders, promotions, and settings back to their original mock values. LocalStorage data will be refreshed."
-        confirmText="Reset to Initial Data"
-        variant="warning"
-      />
 
       {/* Mock Sign Out Dialog */}
       <ConfirmDialog

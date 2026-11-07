@@ -403,16 +403,31 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Product Actions
   const addProduct = useCallback(
     (data: Omit<Product, 'id' | 'updatedAt' | 'salesCount'>): Product => {
+      const isFeatured = data.featured ?? true;
       const newProduct: Product = {
         ...data,
         id: `prod-${Date.now()}`,
         updatedAt: new Date().toISOString(),
         salesCount: 0,
+        featured: isFeatured,
       };
       setProducts((prev) => [newProduct, ...prev]);
       addProductToFirestore(newProduct).catch((err) =>
         console.error('Failed to save product to Firestore:', err)
       );
+
+      // Auto-publish to customer storefront so product is immediately visible in user dashboard & store
+      setStoreContent((prev) => {
+        const updated = {
+          ...prev,
+          featuredProductIds: [newProduct.id, ...prev.featuredProductIds.filter((id) => id !== newProduct.id)],
+        };
+        saveStoreContentToFirestore(updated).catch((err) =>
+          console.error('Failed to save store content to Firestore:', err)
+        );
+        return updated;
+      });
+
       return newProduct;
     },
     []
@@ -495,12 +510,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Storefront Product Helpers
   const isProductOnStorefront = useCallback(
     (productId: string) => {
-      return storeContent.featuredProductIds.includes(productId);
+      if (storeContent.featuredProductIds.includes(productId)) return true;
+      const target = products.find((p) => p.id === productId);
+      return !!target?.featured;
     },
-    [storeContent.featuredProductIds]
+    [storeContent.featuredProductIds, products]
   );
 
   const addProductToStorefront = useCallback((productId: string) => {
+    // 1. Update storefront list
     setStoreContent((prev) => {
       if (prev.featuredProductIds.includes(productId)) return prev;
       const updated = {
@@ -512,9 +530,18 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       );
       return updated;
     });
+
+    // 2. Mark product as featured in catalog & Firestore
+    setProducts((prev) =>
+      prev.map((p) => (p.id === productId ? { ...p, featured: true } : p))
+    );
+    updateProductInFirestore(productId, { featured: true }).catch((err) =>
+      console.error('Failed to update product featured status in Firestore:', err)
+    );
   }, []);
 
   const removeProductFromStorefront = useCallback((productId: string) => {
+    // 1. Remove from storefront list
     setStoreContent((prev) => {
       const updated = {
         ...prev,
@@ -525,11 +552,22 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       );
       return updated;
     });
+
+    // 2. Unmark product featured in catalog & Firestore
+    setProducts((prev) =>
+      prev.map((p) => (p.id === productId ? { ...p, featured: false } : p))
+    );
+    updateProductInFirestore(productId, { featured: false }).catch((err) =>
+      console.error('Failed to update product featured status in Firestore:', err)
+    );
   }, []);
 
   const toggleProductOnStorefront = useCallback((productId: string) => {
+    let nextFeaturedState = false;
+
     setStoreContent((prev) => {
       const exists = prev.featuredProductIds.includes(productId);
+      nextFeaturedState = !exists;
       const updated = {
         ...prev,
         featuredProductIds: exists
@@ -541,6 +579,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       );
       return updated;
     });
+
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === productId ? { ...p, featured: nextFeaturedState } : p
+      )
+    );
+    updateProductInFirestore(productId, { featured: nextFeaturedState }).catch((err) =>
+      console.error('Failed to toggle product featured in Firestore:', err)
+    );
   }, []);
 
   const addMultipleProductsToStorefront = useCallback((productIds: string[]) => {
@@ -556,6 +603,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       );
       return updated;
     });
+
+    setProducts((prev) =>
+      prev.map((p) => (productIds.includes(p.id) ? { ...p, featured: true } : p))
+    );
+    bulkUpdateProductsInFirestore(productIds, { featured: true }).catch((err) =>
+      console.error('Failed to bulk update products in Firestore:', err)
+    );
   }, []);
 
   const removeMultipleProductsFromStorefront = useCallback((productIds: string[]) => {
@@ -569,6 +623,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       );
       return updated;
     });
+
+    setProducts((prev) =>
+      prev.map((p) => (productIds.includes(p.id) ? { ...p, featured: false } : p))
+    );
+    bulkUpdateProductsInFirestore(productIds, { featured: false }).catch((err) =>
+      console.error('Failed to bulk update products in Firestore:', err)
+    );
   }, []);
 
   const syncToStorefront = useCallback(async (): Promise<void> => {

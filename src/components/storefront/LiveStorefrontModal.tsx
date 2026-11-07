@@ -42,8 +42,8 @@ export const LiveStorefrontModal: React.FC = () => {
     activeSlides.length > 0 ? activeSlides[currentSlideIndex % activeSlides.length] : null;
 
   // Active products on storefront
-  const activeProducts = products.filter((p) =>
-    storeContent.featuredProductIds.includes(p.id)
+  const activeProducts = products.filter(
+    (p) => storeContent.featuredProductIds.includes(p.id) || p.featured
   );
 
   const handleRemoveFromStore = (productId: string, productName: string, e: React.MouseEvent) => {

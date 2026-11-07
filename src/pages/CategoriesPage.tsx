@@ -272,13 +272,15 @@ export const CategoriesPage: React.FC = () => {
                 padding="none"
                 className="overflow-hidden flex flex-col group hover:border-[#9abc05] transition-colors"
               >
-                {/* Image Header */}
-                <div className="relative h-36 bg-[#faf5ea] overflow-hidden">
-                  <img
-                    src={cat.imageUrl}
-                    alt={cat.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                {/* Image Header - formatted like user dashboard with full contain & soft circle preview */}
+                <div className="relative h-40 bg-gradient-to-b from-[#faf5ea] to-[#f4ede0]/50 p-4 flex items-center justify-center overflow-hidden border-b border-[#dfd5bf]/60">
+                  <div className="w-24 h-24 rounded-full bg-white/90 border border-[#dfd5bf] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform duration-300">
+                    <img
+                      src={cat.imageUrl}
+                      alt={cat.name}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
                   <div className="absolute top-2.5 right-2.5">
                     <Badge variant={cat.visibility === 'Visible' ? 'success' : 'neutral'} size="sm">
                       {cat.visibility}
@@ -348,11 +350,13 @@ export const CategoriesPage: React.FC = () => {
                   return (
                     <tr key={cat.id} className="hover:bg-[#faf5ea]/70 transition-colors">
                       <td className="py-3 px-4">
-                        <img
-                          src={cat.imageUrl}
-                          alt={cat.name}
-                          className="w-10 h-10 rounded-xl object-cover border border-[#dfd5bf]"
-                        />
+                        <div className="w-11 h-11 rounded-full bg-[#f4ede0]/70 border border-[#dfd5bf] p-1.5 flex items-center justify-center">
+                          <img
+                            src={cat.imageUrl}
+                            alt={cat.name}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
                       </td>
                       <td className="py-3 px-4">
                         <p className="font-semibold text-[#103b1d]">{cat.name}</p>

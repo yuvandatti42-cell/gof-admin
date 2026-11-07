@@ -47,7 +47,6 @@ export const DashboardPage: React.FC = () => {
     updateOrderInternalNote,
     setQuickAddModalOpen,
     setStorefrontPickerOpen,
-    setLiveStorefrontOpen,
     removeProductFromStorefront,
     toggleProductOnStorefront,
     syncToStorefront,
@@ -61,7 +60,7 @@ export const DashboardPage: React.FC = () => {
 
   // Storefront active products
   const storefrontProducts = useMemo(() => {
-    return products.filter((p) => storeContent.featuredProductIds.includes(p.id));
+    return products.filter((p) => storeContent.featuredProductIds.includes(p.id) || p.featured);
   }, [products, storeContent.featuredProductIds]);
 
   const handleSync = async () => {
@@ -175,77 +174,38 @@ export const DashboardPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Controls & Quick Actions */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Date Range Selector */}
-          <div className="inline-flex rounded-xl bg-[#faf5ea] p-1 border border-[#dfd5bf] text-xs font-semibold">
-            <button
-              onClick={() => setDateRange('7d')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                dateRange === '7d'
-                  ? 'bg-white text-[#103b1d] font-bold shadow-xs'
-                  : 'text-[#5a6e54] hover:text-[#103b1d]'
-              }`}
-            >
-              7 Days
-            </button>
-            <button
-              onClick={() => setDateRange('30d')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                dateRange === '30d'
-                  ? 'bg-white text-[#103b1d] font-bold shadow-xs'
-                  : 'text-[#5a6e54] hover:text-[#103b1d]'
-              }`}
-            >
-              30 Days
-            </button>
-            <button
-              onClick={() => setDateRange('90d')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                dateRange === '90d'
-                  ? 'bg-white text-[#103b1d] font-bold shadow-xs'
-                  : 'text-[#5a6e54] hover:text-[#103b1d]'
-              }`}
-            >
-              90 Days
-            </button>
-          </div>
-
-          <Button
-            variant="sunshine"
-            size="sm"
-            onClick={() => setLiveStorefrontOpen(true)}
-            icon={<Eye className="w-4 h-4 stroke-[2.5]" />}
+        {/* Date Range Selector */}
+        <div className="inline-flex rounded-xl bg-[#faf5ea] p-1 border border-[#dfd5bf] text-xs font-semibold self-start md:self-center">
+          <button
+            onClick={() => setDateRange('7d')}
+            className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              dateRange === '7d'
+                ? 'bg-white text-[#103b1d] font-bold shadow-xs'
+                : 'text-[#5a6e54] hover:text-[#103b1d]'
+            }`}
           >
-            Live Store
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setStorefrontPickerOpen(true)}
-            icon={<Sprout className="w-4 h-4 text-[#18542a]" />}
+            7 Days
+          </button>
+          <button
+            onClick={() => setDateRange('30d')}
+            className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              dateRange === '30d'
+                ? 'bg-white text-[#103b1d] font-bold shadow-xs'
+                : 'text-[#5a6e54] hover:text-[#103b1d]'
+            }`}
           >
-            Manage Storefront
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => navigate('/orders')}
-            icon={<ShoppingBag className="w-4 h-4 text-[#18542a]" />}
+            30 Days
+          </button>
+          <button
+            onClick={() => setDateRange('90d')}
+            className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              dateRange === '90d'
+                ? 'bg-white text-[#103b1d] font-bold shadow-xs'
+                : 'text-[#5a6e54] hover:text-[#103b1d]'
+            }`}
           >
-            Orders
-          </Button>
-
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setQuickAddModalOpen(true)}
-            icon={<Plus className="w-4 h-4" />}
-          >
-            Add Product
-          </Button>
+            90 Days
+          </button>
         </div>
       </div>
 
@@ -344,152 +304,6 @@ export const DashboardPage: React.FC = () => {
           </div>
         </Card>
       </div>
-
-      {/* Storefront Merchandising Card (Directly controls what products appear on the webpage) */}
-      <Card className="border-[#c0d6c8] bg-gradient-to-b from-[#faf5ea] to-white shadow-xs">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-[#dfd5bf]">
-          <div>
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-[#18542a] text-[#ffc926] flex items-center justify-center shadow-xs">
-                <Sprout className="w-5 h-5 stroke-[2.5]" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="text-base sm:text-lg font-extrabold text-[#103b1d] font-heading">
-                    Storefront Products (Featured Harvest)
-                  </h3>
-                  <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-[#ffc926] text-[#103b1d] border border-[#e5b31f]">
-                    {storefrontProducts.length} Active on Webpage
-                  </span>
-                  <span className="text-[10px] text-[#5a6e54] hidden sm:inline">• Live sync connected</span>
-                </div>
-                <p className="text-xs text-[#5a6e54] mt-0.5">
-                  These items are actively published on the customer-facing Godavari Organics store homepage.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => setStorefrontPickerOpen(true)}
-              icon={<Plus className="w-3.5 h-3.5" />}
-            >
-              + Add to Storefront
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setQuickAddModalOpen(true)}
-              icon={<Plus className="w-3.5 h-3.5 text-[#18542a]" />}
-            >
-              New Product
-            </Button>
-            <Button
-              variant="sunshine"
-              size="sm"
-              onClick={() => setLiveStorefrontOpen(true)}
-              icon={<Eye className="w-3.5 h-3.5 stroke-[2.5]" />}
-            >
-              Live Store
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={isSyncing}
-              onClick={handleSync}
-              icon={
-                <RefreshCw
-                  className={`w-3.5 h-3.5 text-[#18542a] ${
-                    isSyncing ? 'animate-spin' : ''
-                  }`}
-                />
-              }
-            >
-              {isSyncing ? 'Syncing...' : 'Sync to Webpage'}
-            </Button>
-          </div>
-        </div>
-
-        {/* Storefront Products Cards Grid */}
-        {storefrontProducts.length === 0 ? (
-          <div className="p-8 text-center bg-white rounded-2xl border border-dashed border-[#c0d6c8] my-4">
-            <p className="text-xs text-[#5a6e54] mb-3">
-              No products are currently published to the customer storefront.
-            </p>
-            <Button
-              size="sm"
-              variant="primary"
-              onClick={() => setStorefrontPickerOpen(true)}
-              icon={<Plus className="w-4 h-4" />}
-            >
-              Add Products to Storefront
-            </Button>
-          </div>
-        ) : (
-          <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
-            {storefrontProducts.map((p) => (
-              <div
-                key={p.id}
-                className="group relative rounded-2xl border border-[#dfd5bf] bg-white p-3 hover:border-[#18542a]/50 hover:shadow-md transition-all flex flex-col justify-between text-left"
-              >
-                <div>
-                  <div className="relative h-28 w-full rounded-xl bg-gradient-to-b from-[#faf6ee] to-[#f4ede0]/60 p-2 overflow-hidden mb-2 border border-[#dfd5bf]/60 flex items-center justify-center">
-                    <img
-                      src={p.imageUrl}
-                      alt={p.name}
-                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-sm"
-                    />
-                    <span className="absolute top-1.5 left-1.5 text-[9px] font-black px-1.5 py-0.5 rounded bg-[#18542a] text-white shadow-2xs">
-                      Live on Store
-                    </span>
-                    <span className="absolute bottom-1.5 right-1.5 text-[9px] font-mono px-1 rounded bg-black/60 text-white">
-                      {p.unit}
-                    </span>
-                  </div>
-
-                  <span className="text-[10px] font-bold text-[#5a6e54] uppercase tracking-wider block">
-                    {p.categoryName}
-                  </span>
-                  <h4 className="text-xs font-bold text-[#103b1d] line-clamp-2 mt-0.5" title={p.name}>
-                    {p.name}
-                  </h4>
-                  <div className="flex items-center justify-between mt-2 text-xs">
-                    <span className="font-extrabold text-[#103b1d] tabular-nums">
-                      {formatINR(p.price)}
-                    </span>
-                    <span className={`text-[10px] font-bold ${p.stock <= 15 ? 'text-[#f96015]' : 'text-[#18542a]'}`}>
-                      {p.stock} in stock
-                    </span>
-                  </div>
-                </div>
-
-                {/* Remove from Storefront Button */}
-                <div className="mt-3 pt-2 border-t border-[#dfd5bf]/60">
-                  <button
-                    onClick={() => {
-                      removeProductFromStorefront(p.id);
-                      showToast(
-                        `Removed "${p.name}" from live customer storefront.`,
-                        'info',
-                        'Removed from Store'
-                      );
-                    }}
-                    className="w-full py-1.5 px-2 rounded-lg bg-[#fdeeed] hover:bg-[#fad8d6] text-[#d52518] text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                    title="Remove product from customer storefront"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                    <span>Remove from Storefront</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
 
       {/* Analytics Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -774,6 +588,144 @@ export const DashboardPage: React.FC = () => {
           </div>
         </Card>
       </div>
+
+      {/* Admin Added Products & Storefront Merchandising Card (Displayed at bottom of dashboard) */}
+      <Card className="border-[#c0d6c8] bg-gradient-to-b from-[#faf5ea] to-white shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-[#dfd5bf]">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-xl bg-[#18542a] text-[#ffc926] flex items-center justify-center shadow-xs">
+                <Sprout className="w-5 h-5 stroke-[2.5]" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-base sm:text-lg font-extrabold text-[#103b1d] font-heading">
+                    Admin Added Products & Storefront
+                  </h3>
+                  <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-[#ffc926] text-[#103b1d] border border-[#e5b31f]">
+                    {storefrontProducts.length} Active on Webpage
+                  </span>
+                  <span className="text-[10px] text-[#5a6e54] hidden sm:inline">• Live sync connected</span>
+                </div>
+                <p className="text-xs text-[#5a6e54] mt-0.5">
+                  These items are actively published on the customer-facing Godavari Organics store homepage and user dashboard.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setStorefrontPickerOpen(true)}
+              icon={<Plus className="w-3.5 h-3.5" />}
+            >
+              + Add to Storefront
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setQuickAddModalOpen(true)}
+              icon={<Plus className="w-3.5 h-3.5 text-[#18542a]" />}
+            >
+              New Product
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={isSyncing}
+              onClick={handleSync}
+              icon={
+                <RefreshCw
+                  className={`w-3.5 h-3.5 text-[#18542a] ${
+                    isSyncing ? 'animate-spin' : ''
+                  }`}
+                />
+              }
+            >
+              {isSyncing ? 'Syncing...' : 'Sync to Webpage'}
+            </Button>
+          </div>
+        </div>
+
+        {/* Storefront Products Cards Grid */}
+        {storefrontProducts.length === 0 ? (
+          <div className="p-8 text-center bg-white rounded-2xl border border-dashed border-[#c0d6c8] my-4">
+            <p className="text-xs text-[#5a6e54] mb-3">
+              No products are currently published to the customer storefront.
+            </p>
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => setStorefrontPickerOpen(true)}
+              icon={<Plus className="w-4 h-4" />}
+            >
+              Add Products to Storefront
+            </Button>
+          </div>
+        ) : (
+          <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
+            {storefrontProducts.map((p) => (
+              <div
+                key={p.id}
+                className="group relative rounded-2xl border border-[#dfd5bf] bg-white p-3 hover:border-[#18542a]/50 hover:shadow-md transition-all flex flex-col justify-between text-left"
+              >
+                <div>
+                  <div className="relative h-28 w-full rounded-xl bg-gradient-to-b from-[#faf6ee] to-[#f4ede0]/60 p-2 overflow-hidden mb-2 border border-[#dfd5bf]/60 flex items-center justify-center">
+                    <img
+                      src={p.imageUrl}
+                      alt={p.name}
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-sm"
+                    />
+                    <span className="absolute top-1.5 left-1.5 text-[9px] font-black px-1.5 py-0.5 rounded bg-[#18542a] text-white shadow-2xs">
+                      Live on Store
+                    </span>
+                    <span className="absolute bottom-1.5 right-1.5 text-[9px] font-mono px-1 rounded bg-black/60 text-white">
+                      {p.unit}
+                    </span>
+                  </div>
+
+                  <span className="text-[10px] font-bold text-[#5a6e54] uppercase tracking-wider block">
+                    {p.categoryName}
+                  </span>
+                  <h4 className="text-xs font-bold text-[#103b1d] line-clamp-2 mt-0.5" title={p.name}>
+                    {p.name}
+                  </h4>
+                  <div className="flex items-center justify-between mt-2 text-xs">
+                    <span className="font-extrabold text-[#103b1d] tabular-nums">
+                      {formatINR(p.price)}
+                    </span>
+                    <span className={`text-[10px] font-bold ${p.stock <= 15 ? 'text-[#f96015]' : 'text-[#18542a]'}`}>
+                      {p.stock} in stock
+                    </span>
+                  </div>
+                </div>
+
+                {/* Remove from Storefront Button */}
+                <div className="mt-3 pt-2 border-t border-[#dfd5bf]/60">
+                  <button
+                    onClick={() => {
+                      removeProductFromStorefront(p.id);
+                      showToast(
+                        `Removed "${p.name}" from live customer storefront.`,
+                        'info',
+                        'Removed from Store'
+                      );
+                    }}
+                    className="w-full py-1.5 px-2 rounded-lg bg-[#fdeeed] hover:bg-[#fad8d6] text-[#d52518] text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    title="Remove product from customer storefront"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Remove from Storefront</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
 
       {/* Order Details Drawer */}
       {selectedOrder && (

@@ -43,7 +43,6 @@ export const ProductsPage: React.FC = () => {
     removeProductFromStorefront,
     addMultipleProductsToStorefront,
     removeMultipleProductsFromStorefront,
-    setLiveStorefrontOpen,
     setStorefrontPickerOpen,
   } = useAdmin();
 
@@ -328,7 +327,7 @@ export const ProductsPage: React.FC = () => {
       });
       showToast(`"${formData.name}" was updated successfully.`, 'success', 'Product Updated');
     } else {
-      addProduct({
+      const createdProd = addProduct({
         name: formData.name.trim(),
         sku: formData.sku.trim(),
         categoryId: formData.categoryId,
@@ -344,7 +343,10 @@ export const ProductsPage: React.FC = () => {
         secondaryImageUrl: formData.secondaryImageUrl,
         harvestLocation: formData.harvestLocation,
       });
-      showToast(`"${formData.name}" added to catalog.`, 'success', 'Product Created');
+      if (formData.featured || autoStatus === 'Active') {
+        addProductToStorefront(createdProd.id);
+      }
+      showToast(`"${formData.name}" added to catalog and published to storefront.`, 'success', 'Product Created');
     }
 
     setIsFormModalOpen(false);
@@ -509,18 +511,11 @@ export const ProductsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile secondary actions (Live Store & Storefront) */}
+        {/* Mobile secondary actions (Storefront) */}
         <div className="flex sm:hidden items-center gap-2 text-xs">
           <button
-            onClick={() => setLiveStorefrontOpen(true)}
-            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl bg-white border border-[#dfd5bf] text-[#103b1d] font-semibold text-xs hover:bg-[#faf5ea]"
-          >
-            <Eye className="w-3.5 h-3.5 text-[#18542a]" />
-            <span>Live Store</span>
-          </button>
-          <button
             onClick={() => setStorefrontPickerOpen(true)}
-            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl bg-[#E8F0EB] border border-[#C0D6C8] text-[#18542a] font-semibold text-xs hover:bg-[#D5E6DA]"
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl bg-[#E8F0EB] border border-[#C0D6C8] text-[#18542a] font-semibold text-xs hover:bg-[#D5E6DA]"
           >
             <Sprout className="w-3.5 h-3.5 text-[#18542a]" />
             <span>Storefront ({storeContent.featuredProductIds.length})</span>
@@ -529,15 +524,6 @@ export const ProductsPage: React.FC = () => {
 
         {/* Desktop / Tablet Action Buttons */}
         <div className="hidden sm:flex items-center gap-2 flex-wrap">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setLiveStorefrontOpen(true)}
-            icon={<Eye className="w-4 h-4 text-[#18542a]" />}
-          >
-            Live Store
-          </Button>
-
           <Button
             variant="secondary"
             size="sm"

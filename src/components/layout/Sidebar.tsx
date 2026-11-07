@@ -12,7 +12,6 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  RotateCcw,
   X,
 } from 'lucide-react';
 
@@ -31,7 +30,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick, onClose, isMobileD
     orders,
     customers,
     promotions,
-    resetToDemoData,
   } = useAdmin();
 
   const collapsed = isMobileDrawer ? false : isSidebarCollapsed;
@@ -205,31 +203,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick, onClose, isMobileD
         </nav>
       </div>
 
-      {/* Bottom Area: User profile & demo notices */}
+      {/* Bottom Area: User profile & status */}
       <div className="p-3 border-t border-[#dfd5bf] bg-[#faf5ea] space-y-2">
-        {/* Frontend Demo Notice Badge */}
+        {/* Store Active Status Badge */}
         {!collapsed ? (
-          <div className="px-3 py-2 rounded-xl bg-[#f3e8cc] border border-[#dfd5bf] text-[11px] text-[#18542a] flex items-center justify-between font-bold">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#18542a] animate-pulse" />
-              Demo Data Mode
-            </span>
-            <button
-              onClick={() => {
-                if (window.confirm('Reset all sample data back to default initial state?')) {
-                  resetToDemoData();
-                }
-              }}
-              title="Reset sample data"
-              className="text-[#18542a] hover:text-[#103b1d] hover:bg-white/80 p-1 rounded-md transition-colors cursor-pointer"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
+          <div className="px-3 py-1.5 rounded-xl bg-[#e8f0eb] border border-[#c0d6c8] text-[11px] text-[#18542a] flex items-center gap-1.5 font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#18542a] animate-pulse" />
+            <span>Store Portal Active</span>
           </div>
         ) : (
           <div className="flex justify-center">
             <span
-              title="Demo Data Mode"
+              title="Store Portal Active"
               className="w-2.5 h-2.5 rounded-full bg-[#18542a]"
             />
           </div>

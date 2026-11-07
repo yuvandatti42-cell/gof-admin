@@ -3,25 +3,20 @@ import { useAdmin } from '../context/AdminContext';
 import { useToast } from '../context/ToastContext';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
-import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import {
   Store,
-  Palette,
   Bell,
   User,
   Sliders,
-  RotateCcw,
   Save,
   Info,
 } from 'lucide-react';
 
-
 export const SettingsPage: React.FC = () => {
-  const { settings, updateSettings, resetToDemoData } = useAdmin();
+  const { settings, updateSettings } = useAdmin();
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'store' | 'appearance' | 'notifications' | 'admin' | 'preferences'>('store');
-  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'store' | 'notifications' | 'admin' | 'preferences'>('store');
 
   // Local draft state
   const [storeName, setStoreName] = useState(settings.storeProfile.storeName);
@@ -33,9 +28,6 @@ export const SettingsPage: React.FC = () => {
   const [pincode, setPincode] = useState(settings.storeProfile.pincode);
   const [gstNumber, setGstNumber] = useState(settings.storeProfile.gstNumber);
   const [fssaiLicense, setFssaiLicense] = useState(settings.storeProfile.fssaiLicense);
-
-  const [primaryAccent, setPrimaryAccent] = useState(settings.appearance.primaryAccent);
-  const [tagline, setTagline] = useState(settings.appearance.tagline);
 
   const [orderAlerts, setOrderAlerts] = useState(settings.notifications.orderAlerts);
   const [lowStockAlerts, setLowStockAlerts] = useState(settings.notifications.lowStockAlerts);
@@ -67,8 +59,6 @@ export const SettingsPage: React.FC = () => {
       },
       appearance: {
         ...settings.appearance,
-        primaryAccent,
-        tagline,
       },
       notifications: {
         orderAlerts,
@@ -90,7 +80,7 @@ export const SettingsPage: React.FC = () => {
       },
     });
 
-    showToast('Settings saved to local prototype storage.', 'success', 'Settings Saved');
+    showToast('Settings saved successfully.', 'success', 'Settings Saved');
   };
 
   return (
@@ -108,14 +98,6 @@ export const SettingsPage: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <Button
-            variant="secondary"
-            onClick={() => setIsResetConfirmOpen(true)}
-            icon={<RotateCcw className="w-4 h-4 text-[#f96015]" />}
-          >
-            Reset Demo Data
-          </Button>
-
-          <Button
             variant="primary"
             onClick={handleSaveSettings}
             icon={<Save className="w-4 h-4" />}
@@ -130,9 +112,9 @@ export const SettingsPage: React.FC = () => {
         <Info className="w-5 h-5 text-[#18542a] shrink-0 mt-0.5" />
         <div className="text-xs text-[#103b1d]">
           <span className="font-semibold text-[#103b1d] block mb-0.5">
-            Frontend Preview Configuration
+            Frontend Configuration
           </span>
-          All preferences, business profile data, and appearance variables are saved in your browser's local state. No real backend servers or API secrets are connected in this phase.
+          All preferences, business profile data, and settings are saved securely.
         </div>
       </div>
 
@@ -140,7 +122,6 @@ export const SettingsPage: React.FC = () => {
       <div className="flex overflow-x-auto border-b border-[#dfd5bf] gap-2 pb-px text-xs font-semibold">
         {[
           { key: 'store', label: 'Store Profile & Legal', icon: Store },
-          { key: 'appearance', label: 'Appearance & Brand', icon: Palette },
           { key: 'notifications', label: 'Alerts & Notifications', icon: Bell },
           { key: 'admin', label: 'Admin Account', icon: User },
           { key: 'preferences', label: 'UI Preferences', icon: Sliders },
@@ -271,82 +252,7 @@ export const SettingsPage: React.FC = () => {
         </Card>
       )}
 
-      {/* Tab 2: Appearance & Brand */}
-      {activeTab === 'appearance' && (
-        <Card className="space-y-5">
-          <div className="border-b border-[#dfd5bf] pb-3">
-            <h3 className="text-base font-semibold text-[#103b1d]">
-              Store Appearance & Brand Identity
-            </h3>
-            <p className="text-xs text-[#5a6e54]">
-              Color accents strictly curated to preserve the organic forest aesthetic.
-            </p>
-          </div>
-
-          <div className="space-y-4 text-xs">
-            <div>
-              <label className="block font-semibold text-[#103b1d] mb-2">
-                Brand Primary Accent (Restricted Palette)
-              </label>
-              <div className="flex flex-wrap items-center gap-3">
-                {[
-                  { name: 'Forest Green (Primary)', hex: '#18542a' },
-                  { name: 'Deep Organic Green', hex: '#103b1d' },
-                  { name: 'Leaf Accent Green', hex: '#9abc05' },
-                ].map((color) => (
-                  <button
-                    key={color.hex}
-                    type="button"
-                    onClick={() => setPrimaryAccent(color.hex)}
-                    className={`flex items-center gap-2 p-2 rounded-xl border transition-all cursor-pointer ${
-                      primaryAccent === color.hex
-                        ? 'border-[#18542a] ring-2 ring-[#18542a]/20 bg-white shadow-2xs'
-                        : 'border-[#dfd5bf] bg-[#faf5ea] hover:bg-white'
-                    }`}
-                  >
-                    <span
-                      className="w-5 h-5 rounded-lg shrink-0 border border-black/10"
-                      style={{ backgroundColor: color.hex }}
-                    />
-                    <span className="font-semibold text-[#103b1d]">{color.name}</span>
-                    <span className="font-mono text-[#5a6e54]">{color.hex}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block font-semibold text-[#103b1d] mb-1">Brand Tagline</label>
-              <input
-                type="text"
-                value={tagline}
-                onChange={(e) => setTagline(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white sm:max-w-md"
-              />
-            </div>
-
-            {/* Logo Preview */}
-            <div className="pt-3 border-t border-[#dfd5bf]">
-              <span className="block font-semibold text-[#103b1d] mb-2">Store Brandmark Preview</span>
-              <div className="p-4 rounded-xl border border-[#dfd5bf] bg-[#faf5ea] inline-flex items-center gap-3">
-                <div className="w-14 h-14 rounded-full overflow-hidden bg-white border border-[#dfd5bf] shadow-xs flex items-center justify-center p-0.5 shrink-0">
-                  <img
-                    src="/logo.webp"
-                    alt="Godavari Organics Logo"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-[#103b1d]">Godavari Organic Foods</h4>
-                  <p className="text-[11px] text-[#5a6e54]">{tagline}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* Tab 3: Notifications */}
+      {/* Tab 2: Notifications */}
       {activeTab === 'notifications' && (
         <Card className="space-y-5">
           <div className="border-b border-[#dfd5bf] pb-3">
@@ -533,20 +439,6 @@ export const SettingsPage: React.FC = () => {
           </div>
         </Card>
       )}
-
-      {/* Demo Data Reset Confirmation */}
-      <ConfirmDialog
-        isOpen={isResetConfirmOpen}
-        onClose={() => setIsResetConfirmOpen(false)}
-        onConfirm={() => {
-          resetToDemoData();
-          showToast('All demo records reset to pristine initial state.', 'info', 'Data Reset');
-        }}
-        title="Reset Entire Mock Dataset?"
-        message="This will reset all modified products, categories, orders, customers, and settings back to their original mock state and wipe local changes."
-        confirmText="Reset to Initial Data"
-        variant="warning"
-      />
     </div>
   );
 };

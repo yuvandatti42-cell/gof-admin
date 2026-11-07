@@ -281,8 +281,7 @@ export const CustomersPage: React.FC = () => {
             >
               <option value="all">All Tiers</option>
               <option value="VIP">VIP Patrons</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              <option value="Active">Active Customers</option>
             </select>
           </div>
         </div>
@@ -532,7 +531,6 @@ export const CustomersPage: React.FC = () => {
                 >
                   <option value="Active">Active</option>
                   <option value="VIP">VIP</option>
-                  <option value="Inactive">Inactive</option>
                 </select>
               </div>
             </div>
