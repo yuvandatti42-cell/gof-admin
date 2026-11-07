@@ -1118,6 +1118,12 @@ export const INITIAL_SETTINGS: StoreSettings = {
     dateFormat: 'DD/MM/YYYY',
     tableDensity: 'comfortable',
   },
+  payment: {
+    razorpayKeyId: '',
+    razorpayMode: 'live',
+    razorpayEnabled: true,
+    merchantName: 'Godavari Organic Foods',
+  },
 };
 
 export const INITIAL_NOTIFICATIONS: NotificationItem[] = [

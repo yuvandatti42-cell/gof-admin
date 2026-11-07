@@ -888,6 +888,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         notifications: { ...prev.notifications, ...updates.notifications },
         adminProfile: { ...prev.adminProfile, ...updates.adminProfile },
         preferences: { ...prev.preferences, ...updates.preferences },
+        payment: {
+          razorpayKeyId: updates.payment?.razorpayKeyId ?? prev.payment?.razorpayKeyId ?? '',
+          razorpayMode: updates.payment?.razorpayMode ?? prev.payment?.razorpayMode ?? 'live',
+          razorpayEnabled: updates.payment?.razorpayEnabled ?? prev.payment?.razorpayEnabled ?? true,
+          merchantName: updates.payment?.merchantName ?? prev.payment?.merchantName ?? 'Godavari Organic Foods',
+        },
       };
       saveSettingsToFirestore(updated).catch((err) =>
         console.error('Failed to save settings to Firestore:', err)

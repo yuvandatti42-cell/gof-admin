@@ -246,6 +246,12 @@ export interface StoreSettings {
     dateFormat?: string;
     tableDensity?: 'compact' | 'comfortable';
   };
+  payment?: {
+    razorpayKeyId?: string;
+    razorpayMode?: 'live' | 'test';
+    razorpayEnabled?: boolean;
+    merchantName?: string;
+  };
 }
 
 export interface NotificationItem {
