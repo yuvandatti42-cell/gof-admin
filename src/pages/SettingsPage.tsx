@@ -12,7 +12,6 @@ import {
   Save,
   Info,
   CheckCircle2,
-  Sparkles,
 } from 'lucide-react';
 
 interface SettingsPageProps {
@@ -58,6 +57,24 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(
     (settings.shipping?.freeShippingThreshold ?? 1000).toString()
   );
+  const [isShippingSaved, setIsShippingSaved] = useState(false);
+
+  // Dedicated Save Shipping Threshold
+  const handleSaveShippingOnly = () => {
+    const thresholdNum = Number(freeShippingThreshold) > 0 ? Number(freeShippingThreshold) : 1000;
+    updateSettings({
+      shipping: {
+        freeShippingThreshold: thresholdNum,
+      },
+    });
+    setIsShippingSaved(true);
+    showToast(
+      `Free shipping order threshold set to ₹${thresholdNum.toLocaleString('en-IN')}. Connected to customer storefront in real time.`,
+      'success',
+      'Free Shipping Saved'
+    );
+    setTimeout(() => setIsShippingSaved(false), 4000);
+  };
 
   // Local draft state - Notifications
   const [orderAlerts, setOrderAlerts] = useState(settings.notifications?.orderAlerts ?? true);
@@ -186,19 +203,25 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
               <div>
                 <h3 className="text-base font-semibold text-[#103b1d] flex items-center gap-2">
                   <Truck className="w-5 h-5 text-[#18542a]" />
-                  Customizable Free Shipping Rules
+                  Customizable Free Shipping Price
                 </h3>
                 <p className="text-xs text-[#5a6e54] mt-0.5">
-                  Set the minimum order value required for free shipping. The customer storefront dynamically checks cart value and prompts customers to unlock free delivery.
+                  Set the exact minimum order value required for free delivery. Once confirmed and saved, this price instantly updates on the customer storefront.
                 </p>
               </div>
             </div>
 
             <div className="max-w-xl text-xs space-y-4">
-              <div className="bg-[#FAF5EA] p-5 rounded-2xl border border-[#dfd5bf]/80 space-y-3">
-                <label className="block font-bold text-[#103b1d] text-sm">
-                  Free Shipping Minimum Order Value (₹)
-                </label>
+              <div className="bg-[#FAF5EA] p-5 rounded-2xl border border-[#dfd5bf]/80 space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="block font-bold text-[#103b1d] text-sm">
+                    Free Shipping Minimum Order Value (₹)
+                  </label>
+                  <span className="text-[11px] font-semibold text-[#18542a] bg-[#e8f0eb] px-2.5 py-0.5 rounded-full border border-[#c0d6c8]">
+                    Live Connected
+                  </span>
+                </div>
+
                 <div className="relative">
                   <span className="absolute left-3.5 top-2.5 text-base font-bold text-[#18542a]">₹</span>
                   <input
@@ -206,80 +229,36 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
                     min="0"
                     step="50"
                     value={freeShippingThreshold}
-                    onChange={(e) => setFreeShippingThreshold(e.target.value)}
+                    onChange={(e) => {
+                      setFreeShippingThreshold(e.target.value);
+                      setIsShippingSaved(false);
+                    }}
                     placeholder="e.g. 1000 or 1500"
                     className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-[#dfd5bf] bg-white text-base font-extrabold text-[#103b1d] focus:outline-none focus:ring-2 focus:ring-[#18542a]"
                   />
                 </div>
+
                 <p className="text-[11px] text-[#5a6e54] leading-relaxed">
-                  Orders totaling <strong className="text-[#18542a]">₹{parsedThreshold.toLocaleString('en-IN')}</strong> or higher automatically receive <strong className="text-emerald-700 font-bold">100% Free Delivery</strong>. Set to your desired amount (e.g. ₹1,000, ₹1,500).
+                  Customer orders totaling <strong className="text-[#18542a]">₹{parsedThreshold.toLocaleString('en-IN')}</strong> or higher automatically qualify for <strong className="text-emerald-700 font-bold">100% Free Shipping</strong>. When the cart is below this amount, customers are notified how much more to add to unlock free delivery.
                 </p>
-              </div>
-            </div>
-          </Card>
 
-          {/* Real-time Customer View Simulator / Explanation */}
-          <Card className="bg-[#FAF5EA] border border-[#dfd5bf] space-y-4">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#18542a]" />
-              <h4 className="text-xs font-bold text-[#103b1d] uppercase tracking-wide">
-                Live Storefront Customer Notification Preview
-              </h4>
-            </div>
+                {/* Confirm & Save Button */}
+                <div className="pt-2 flex flex-wrap items-center gap-3">
+                  <Button
+                    variant="primary"
+                    onClick={handleSaveShippingOnly}
+                    icon={<Save className="w-4 h-4" />}
+                    className="px-5 py-2.5 font-bold text-xs shadow-xs"
+                  >
+                    Confirm & Save Free Shipping Price (₹{parsedThreshold.toLocaleString('en-IN')})
+                  </Button>
 
-            <p className="text-xs text-[#5a6e54]">
-              Below is how customer cart notifications dynamically appear based on your configured threshold of <strong className="text-[#18542a]">₹{parsedThreshold.toLocaleString('en-IN')}</strong>:
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              {/* Scenario 1: Cart below threshold */}
-              <div className="p-4 rounded-xl bg-white border border-[#dfd5bf] space-y-2.5 shadow-2xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#103b1d]">Scenario A: User Cart Below Threshold</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">
-                    Below Threshold
-                  </span>
-                </div>
-                <div className="p-3 rounded-lg bg-[#FAF5EA] border border-[#dfd5bf] text-[#103b1d] space-y-1.5">
-                  <div className="flex items-center gap-2 font-bold text-xs">
-                    <Truck className="w-3.5 h-3.5 text-[#18542a]" />
-                    <span>
-                      Add <span className="text-emerald-700">₹{Math.max(0, parsedThreshold - 750).toLocaleString('en-IN')}</span> more to get FREE shipping!
+                  {isShippingSaved && (
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      Saved & connected to customer page!
                     </span>
-                  </div>
-                  <div className="w-full bg-stone-200 h-1.5 rounded-full overflow-hidden">
-                    <div
-                      className="bg-[#18542a] h-full rounded-full"
-                      style={{ width: `${Math.min(100, Math.round((750 / parsedThreshold) * 100))}%` }}
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-between text-[11px] text-[#5a6e54]">
-                  <span>Delivery Status: Free above ₹{parsedThreshold.toLocaleString('en-IN')}</span>
-                  <span>Items: ₹750</span>
-                </div>
-              </div>
-
-              {/* Scenario 2: Cart meets or exceeds threshold */}
-              <div className="p-4 rounded-xl bg-white border border-emerald-200 space-y-2.5 shadow-2xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#103b1d]">Scenario B: User Cart = ₹{parsedThreshold.toLocaleString('en-IN')}</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">
-                    Threshold Reached!
-                  </span>
-                </div>
-                <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-1.5">
-                  <div className="flex items-center gap-2 font-bold text-xs text-emerald-800">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>🎉 Congratulations! You have unlocked FREE Delivery!</span>
-                  </div>
-                  <div className="w-full bg-stone-200 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-emerald-600 h-full rounded-full w-full" />
-                  </div>
-                </div>
-                <div className="flex justify-between text-[11px] text-emerald-800 font-semibold">
-                  <span>Shipping Fee: <strong className="uppercase">FREE (₹0)</strong></span>
-                  <span>Total: ₹{parsedThreshold.toLocaleString('en-IN')}</span>
+                  )}
                 </div>
               </div>
             </div>
