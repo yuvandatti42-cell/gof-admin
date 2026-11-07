@@ -6,7 +6,7 @@ import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 import { Modal } from '../components/common/Modal';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
-import type { HeroSlide, BrandAssets, Category } from '../types';
+import type { HeroSlide, TrustBadge, TestimonialItem } from '../types';
 import {
   Image as ImageIcon,
   Plus,
@@ -16,13 +16,10 @@ import {
   ArrowDown,
   UploadCloud,
   CheckCircle2,
-  Sparkles,
-  Layers,
   Award,
-  Tag,
-  Sprout,
   MessageSquare,
   Monitor,
+  Star,
 } from 'lucide-react';
 
 // Preset sample banner images for instant 1-click testing
@@ -34,13 +31,18 @@ const PRESET_BANNERS = [
   { name: 'Organic Spices Banner', url: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=1200&q=80' },
 ];
 
-const PRESET_CATEGORY_IMAGES = [
-  { name: 'Pure Wood Oils', url: '/categories/oil.webp' },
-  { name: 'Organic Rice', url: '/categories/rice.webp' },
-  { name: 'Native Millets', url: '/categories/millet.webp' },
-  { name: 'Stone-Ground Spices', url: '/categories/spices.webp' },
-  { name: 'Natural Honey & Jaggery', url: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=600&q=80' },
-  { name: 'A2 Vedic Ghee', url: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=600&q=80' },
+const PRESET_BADGE_SEALS = [
+  { name: 'FSSAI Organic Seal', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80' },
+  { name: 'USDA 100% Organic', url: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=300&q=80' },
+  { name: 'SGS Lab Tested Pure', url: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80' },
+  { name: 'APEDA India Organic', url: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=300&q=80' },
+];
+
+const PRESET_AVATARS = [
+  { name: 'Dr. Ramana', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' },
+  { name: 'Srinivas V.', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80' },
+  { name: 'Ananya S.', url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80' },
+  { name: 'Kiran Rao', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80' },
 ];
 
 export const StoreContentPage: React.FC = () => {
@@ -51,16 +53,12 @@ export const StoreContentPage: React.FC = () => {
     deleteHeroSlide,
     reorderHeroSlides,
     toggleHeroSlideStatus,
-    categories,
-    updateCategory,
   } = useAdmin();
 
   const { showToast } = useToast();
 
-  // Active Main Tab
-  const [activeTab, setActiveTab] = useState<
-    'hero' | 'categories' | 'badges' | 'offers' | 'stories' | 'testimonials' | 'branding'
-  >('hero');
+  // Active Main Tab: ONLY hero, badges, testimonials
+  const [activeTab, setActiveTab] = useState<'hero' | 'badges' | 'testimonials'>('hero');
 
   // Hero Slide Form / Modal state
   const [isSlideModalOpen, setIsSlideModalOpen] = useState(false);
@@ -70,37 +68,50 @@ export const StoreContentPage: React.FC = () => {
     mobileImageUrl: '',
     title: '',
     subtitle: '',
-    badgeText: '',
+    badgeText: '100% Organic',
     ctaText: 'Shop Now',
     ctaLink: '/collections/all-products',
     active: true,
   });
 
-  // Category Image Edit Modal state
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [categoryImageUrl, setCategoryImageUrl] = useState('');
-
-  // Universal Single Item Image Edit Modal (for Badges, Stories, Offers, Testimonials)
-  const [imageModalConfig, setImageModalConfig] = useState<{
-    isOpen: boolean;
-    title: string;
-    description: string;
-    currentUrl: string;
-    onSave: (newUrl: string) => void;
-  }>({
-    isOpen: false,
-    title: '',
-    description: '',
-    currentUrl: '',
-    onSave: () => {},
+  // Trust Badge Form / Modal state
+  const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
+  const [editingBadgeId, setEditingBadgeId] = useState<string | null>(null);
+  const [badgeFormData, setBadgeFormData] = useState<Omit<TrustBadge, 'id'>>({
+    name: '',
+    subtitle: '',
+    imageUrl: PRESET_BADGE_SEALS[0].url,
+    active: true,
   });
-  const [tempImageUrl, setTempImageUrl] = useState('');
+
+  // Testimonial Form / Modal state
+  const [isTestimonialModalOpen, setIsTestimonialModalOpen] = useState(false);
+  const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
+  const [testimonialFormData, setTestimonialFormData] = useState<Omit<TestimonialItem, 'id'>>({
+    name: '',
+    location: '',
+    comment: '',
+    rating: 5,
+    avatarUrl: PRESET_AVATARS[0].url,
+    verified: true,
+  });
 
   // Delete Confirm Dialog state
-  const [deleteSlideId, setDeleteSlideId] = useState<string | null>(null);
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    type: 'hero' | 'badge' | 'testimonial';
+    id: string;
+    title: string;
+    message: string;
+  }>({
+    isOpen: false,
+    type: 'hero',
+    id: '',
+    title: '',
+    message: '',
+  });
 
-  // File Upload Helper
-
+  // Local File Upload Helper
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, onSuccess: (dataUrl: string) => void) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -182,73 +193,141 @@ export const StoreContentPage: React.FC = () => {
   };
 
   // -------------------------------------------------------------
-  // CATEGORY IMAGE HANDLERS
+  // TRUST BADGE HANDLERS (ADD / EDIT / DELETE)
   // -------------------------------------------------------------
-  const handleOpenEditCategory = (cat: Category) => {
-    setEditingCategory(cat);
-    setCategoryImageUrl(cat.imageUrl || '');
+  const handleOpenAddBadge = () => {
+    setEditingBadgeId(null);
+    setBadgeFormData({
+      name: '',
+      subtitle: '',
+      imageUrl: PRESET_BADGE_SEALS[0].url,
+      active: true,
+    });
+    setIsBadgeModalOpen(true);
   };
 
-  const handleSaveCategory = () => {
-    if (editingCategory) {
-      updateCategory(editingCategory.id, { imageUrl: categoryImageUrl });
-      showToast(`Updated image for category "${editingCategory.name}".`, 'success');
-      setEditingCategory(null);
+  const handleOpenEditBadge = (badge: TrustBadge) => {
+    setEditingBadgeId(badge.id);
+    setBadgeFormData({
+      name: badge.name,
+      subtitle: badge.subtitle || '',
+      imageUrl: badge.imageUrl,
+      active: badge.active ?? true,
+    });
+    setIsBadgeModalOpen(true);
+  };
+
+  const handleSaveBadge = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!badgeFormData.name.trim()) {
+      showToast('Please enter a name for the trust badge / certification.', 'error');
+      return;
     }
+    if (!badgeFormData.imageUrl.trim()) {
+      showToast('Please provide a seal image URL or upload an image.', 'error');
+      return;
+    }
+
+    const currentBadges = [...(storeContent.trustBadges || [])];
+
+    if (editingBadgeId) {
+      const updated = currentBadges.map((b) =>
+        b.id === editingBadgeId ? { ...b, ...badgeFormData } : b
+      );
+      updateStoreContent({ trustBadges: updated });
+      showToast(`Updated certification: ${badgeFormData.name}`, 'success');
+    } else {
+      const newBadge: TrustBadge = {
+        id: `badge-${Date.now()}`,
+        ...badgeFormData,
+      };
+      updateStoreContent({ trustBadges: [...currentBadges, newBadge] });
+      showToast(`Added new certification: ${badgeFormData.name}`, 'success');
+    }
+    setIsBadgeModalOpen(false);
   };
 
   // -------------------------------------------------------------
-  // TRUST BADGES HANDLERS
+  // TESTIMONIAL HANDLERS (ADD / EDIT / DELETE)
   // -------------------------------------------------------------
-  const handleUpdateBadgeImage = (badgeId: string, newUrl: string) => {
-    const currentBadges = storeContent.trustBadges || [];
-    const updated = currentBadges.map((b) => (b.id === badgeId ? { ...b, imageUrl: newUrl } : b));
-    updateStoreContent({ trustBadges: updated });
-    showToast('Quality certification badge image updated!', 'success');
+  const handleOpenAddTestimonial = () => {
+    setEditingTestimonialId(null);
+    setTestimonialFormData({
+      name: '',
+      location: '',
+      comment: '',
+      rating: 5,
+      avatarUrl: PRESET_AVATARS[0].url,
+      verified: true,
+    });
+    setIsTestimonialModalOpen(true);
+  };
+
+  const handleOpenEditTestimonial = (item: TestimonialItem) => {
+    setEditingTestimonialId(item.id);
+    setTestimonialFormData({
+      name: item.name,
+      location: item.location || '',
+      comment: item.comment || '',
+      rating: item.rating || 5,
+      avatarUrl: item.avatarUrl,
+      verified: item.verified ?? true,
+    });
+    setIsTestimonialModalOpen(true);
+  };
+
+  const handleSaveTestimonial = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testimonialFormData.name.trim()) {
+      showToast('Please enter the customer name.', 'error');
+      return;
+    }
+    if (!testimonialFormData.comment.trim()) {
+      showToast('Please enter the review comment text.', 'error');
+      return;
+    }
+    if (!testimonialFormData.avatarUrl.trim()) {
+      showToast('Please provide an avatar photo URL or upload an image.', 'error');
+      return;
+    }
+
+    const currentTests = [...(storeContent.testimonials || [])];
+
+    if (editingTestimonialId) {
+      const updated = currentTests.map((t) =>
+        t.id === editingTestimonialId ? { ...t, ...testimonialFormData } : t
+      );
+      updateStoreContent({ testimonials: updated });
+      showToast(`Updated review from ${testimonialFormData.name}`, 'success');
+    } else {
+      const newTest: TestimonialItem = {
+        id: `test-${Date.now()}`,
+        ...testimonialFormData,
+      };
+      updateStoreContent({ testimonials: [...currentTests, newTest] });
+      showToast(`Added new review photo from ${testimonialFormData.name}`, 'success');
+    }
+    setIsTestimonialModalOpen(false);
   };
 
   // -------------------------------------------------------------
-  // STORY IMAGES HANDLERS
+  // CONFIRM DELETE DISPATCHER
   // -------------------------------------------------------------
-  const handleUpdateStoryImage = (storyId: string, newUrl: string) => {
-    const currentStories = storeContent.storyImages || [];
-    const updated = currentStories.map((s) => (s.id === storyId ? { ...s, imageUrl: newUrl } : s));
-    updateStoreContent({ storyImages: updated });
-    showToast('Farm story process image updated!', 'success');
-  };
-
-  // -------------------------------------------------------------
-  // OFFER BANNERS HANDLERS
-  // -------------------------------------------------------------
-  const handleUpdateOfferImage = (offerId: string, newUrl: string) => {
-    const currentOffers = storeContent.offerBanners || [];
-    const updated = currentOffers.map((o) => (o.id === offerId ? { ...o, imageUrl: newUrl } : o));
-    updateStoreContent({ offerBanners: updated });
-    showToast('Promotional deal banner image updated!', 'success');
-  };
-
-  // -------------------------------------------------------------
-  // TESTIMONIAL AVATARS HANDLERS
-  // -------------------------------------------------------------
-  const handleUpdateTestimonialAvatar = (testId: string, newUrl: string) => {
-    const currentTests = storeContent.testimonials || [];
-    const updated = currentTests.map((t) => (t.id === testId ? { ...t, avatarUrl: newUrl } : t));
-    updateStoreContent({ testimonials: updated });
-    showToast('Customer review avatar updated!', 'success');
-  };
-
-  // -------------------------------------------------------------
-  // BRAND ASSETS HANDLERS
-  // -------------------------------------------------------------
-  const handleUpdateBrandAsset = (key: keyof BrandAssets, newUrl: string) => {
-    const current = storeContent.brandAssets || {
-      primaryLogoUrl: '/logo.webp',
-      headerLogoUrl: '/logo.webp',
-      footerLogoUrl: '/logo.webp',
-      faviconUrl: '/logo.webp',
-    };
-    updateStoreContent({ brandAssets: { ...current, [key]: newUrl } });
-    showToast(`Brand asset (${key}) updated successfully!`, 'success');
+  const handleConfirmDelete = () => {
+    const { type, id } = deleteDialog;
+    if (type === 'hero') {
+      deleteHeroSlide(id);
+      showToast('Hero banner deleted.', 'info');
+    } else if (type === 'badge') {
+      const updated = (storeContent.trustBadges || []).filter((b) => b.id !== id);
+      updateStoreContent({ trustBadges: updated });
+      showToast('Certification badge removed.', 'info');
+    } else if (type === 'testimonial') {
+      const updated = (storeContent.testimonials || []).filter((t) => t.id !== id);
+      updateStoreContent({ testimonials: updated });
+      showToast('Customer review removed.', 'info');
+    }
+    setDeleteDialog({ isOpen: false, type: 'hero', id: '', title: '', message: '' });
   };
 
   return (
@@ -261,21 +340,17 @@ export const StoreContentPage: React.FC = () => {
             Store Visuals & Image Manager
           </h1>
           <p className="text-xs sm:text-sm text-[#5a6e54] mt-0.5">
-            Full visual command center: edit, replace, or upload every single banner, category photo, certification seal, and logo on the customer website.
+            Manage top hero carousel banners, verified quality certifications & trust seals, and real customer review photos.
           </p>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 border-b border-[#dfd5bf]">
+      {/* Navigation Tabs (Only 3 tabs kept) */}
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 border-b border-[#dfd5bf]">
         {[
           { id: 'hero', label: 'Hero Banners', icon: Monitor, count: (storeContent.heroSlides || []).length },
-          { id: 'categories', label: 'Category Images', icon: Layers, count: categories.length },
           { id: 'badges', label: 'Trust & Certifications', icon: Award, count: (storeContent.trustBadges || []).length },
-          { id: 'offers', label: 'Offer Banners', icon: Tag, count: (storeContent.offerBanners || []).length },
-          { id: 'stories', label: 'Farm Story Visuals', icon: Sprout, count: (storeContent.storyImages || []).length },
           { id: 'testimonials', label: 'Review Photos', icon: MessageSquare, count: (storeContent.testimonials || []).length },
-          { id: 'branding', label: 'Brand Logos', icon: Sparkles, count: 4 },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -283,7 +358,7 @@ export const StoreContentPage: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${
                 isActive
                   ? 'bg-[#18542a] text-white shadow-xs'
                   : 'text-[#5a6e54] hover:text-[#103b1d] hover:bg-[#f3e8cc]'
@@ -292,7 +367,7 @@ export const StoreContentPage: React.FC = () => {
               <Icon className="w-4 h-4 shrink-0" />
               <span>{tab.label}</span>
               <span
-                className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                   isActive ? 'bg-white/20 text-white' : 'bg-[#f3e8cc] text-[#5a6e54]'
                 }`}
               >
@@ -315,94 +390,127 @@ export const StoreContentPage: React.FC = () => {
                 Top Hero Slider Banners
               </h2>
               <p className="text-xs text-[#5a6e54] mt-0.5">
-                Controls the large promotional carousel on the customer homepage. Supports both desktop and mobile image aspect ratios.
+                Controls the large promotional carousel on the customer homepage. Supports reordering and toggling active visibility.
               </p>
             </div>
-            <Button variant="primary" onClick={handleOpenAddSlide} icon={<Plus className="w-4 h-4" />}>
-              Add Hero Slide
+
+            <Button
+              variant="primary"
+              onClick={handleOpenAddSlide}
+              icon={<Plus className="w-4 h-4" />}
+            >
+              Add Hero Banner
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             {(storeContent.heroSlides || []).map((slide, index) => (
-              <Card key={slide.id} padding="none" className="overflow-hidden flex flex-col group border border-[#dfd5bf]">
-                {/* Image Frame with gradient overlay */}
-                <div className="relative aspect-[16/9] bg-[#f3e8cc] overflow-hidden">
-                  <img
-                    src={slide.imageUrl}
-                    alt={slide.title || 'Hero Slide'}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
+              <Card
+                key={slide.id}
+                padding="none"
+                className={`overflow-hidden border transition-all ${
+                  slide.active ? 'border-[#dfd5bf] bg-white' : 'border-dashed border-stone-300 bg-stone-50/70 opacity-75'
+                }`}
+              >
+                <div className="flex flex-col md:flex-row md:items-center gap-4 p-4">
+                  {/* Banner Preview Thumbnail */}
+                  <div className="relative w-full md:w-56 aspect-[16/9] rounded-xl overflow-hidden bg-[#f3e8cc] shrink-0 border border-[#dfd5bf]">
+                    <img
+                      src={slide.imageUrl}
+                      alt={slide.title || 'Banner'}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2 left-2">
+                      <span className="px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold">
+                        Slide #{index + 1}
+                      </span>
+                    </div>
+                  </div>
 
-                  {/* Top Badges */}
-                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
-                    <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-xs text-white text-[11px] font-bold">
-                      Slide #{index + 1}
-                    </span>
+                  {/* Banner Content Details */}
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {slide.badgeText && (
+                        <span className="px-2 py-0.5 rounded-full bg-[#18542a]/10 text-[#18542a] text-[10px] font-bold uppercase">
+                          {slide.badgeText}
+                        </span>
+                      )}
+                      <Badge variant={slide.active ? 'success' : 'neutral'}>
+                        {slide.active ? 'Active on Homepage' : 'Hidden'}
+                      </Badge>
+                    </div>
+
+                    <h3 className="font-bold text-[#103b1d] text-base truncate">
+                      {slide.title || 'Untitled Banner Slide'}
+                    </h3>
+
+                    {slide.subtitle && (
+                      <p className="text-xs text-[#5a6e54] line-clamp-1">
+                        {slide.subtitle}
+                      </p>
+                    )}
+
+                    <div className="pt-1 flex items-center gap-2 text-xs text-[#5a6e54]">
+                      <span className="font-semibold text-[#18542a]">Button:</span>
+                      <span className="bg-[#faf5ea] px-2 py-0.5 rounded border border-[#dfd5bf]">
+                        {slide.ctaText || 'Shop Now'} → {slide.ctaLink || '/collections/all-products'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1.5 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-[#dfd5bf]">
+                    {/* Reorder Buttons */}
+                    <div className="flex md:flex-col gap-1 mr-2">
+                      <button
+                        onClick={() => handleMoveSlide(index, 'up')}
+                        disabled={index === 0}
+                        className="p-1.5 rounded-lg border border-[#dfd5bf] text-[#5a6e54] hover:bg-[#faf5ea] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                        title="Move slide up"
+                      >
+                        <ArrowUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleMoveSlide(index, 'down')}
+                        disabled={index === (storeContent.heroSlides || []).length - 1}
+                        className="p-1.5 rounded-lg border border-[#dfd5bf] text-[#5a6e54] hover:bg-[#faf5ea] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                        title="Move slide down"
+                      >
+                        <ArrowDown className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
                     <button
                       onClick={() => toggleHeroSlideStatus(slide.id)}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all shadow-xs cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
                         slide.active
-                          ? 'bg-[#18542a] text-white hover:bg-[#25633b]'
-                          : 'bg-[#d52518] text-white hover:bg-[#96342c]'
+                          ? 'bg-[#faf5ea] text-[#5a6e54] border-[#dfd5bf] hover:bg-stone-200'
+                          : 'bg-[#18542a] text-white border-[#18542a]'
                       }`}
                     >
-                      {slide.active ? '● Active' : '○ Inactive'}
+                      {slide.active ? 'Hide' : 'Activate'}
                     </button>
-                  </div>
 
-                  {/* Bottom Text Over Slide */}
-                  <div className="absolute bottom-3 left-3 right-3 text-white z-10">
-                    {slide.badgeText && (
-                      <span className="inline-block text-[10px] font-extrabold uppercase tracking-wider text-[#ffc926] mb-1">
-                        {slide.badgeText}
-                      </span>
-                    )}
-                    <h3 className="text-base font-bold leading-tight drop-shadow-xs line-clamp-1">
-                      {slide.title || 'Untitled Banner'}
-                    </h3>
-                    {slide.subtitle && (
-                      <p className="text-xs text-white/80 line-clamp-1 mt-0.5">{slide.subtitle}</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Controls Footer */}
-                <div className="p-3 bg-white flex items-center justify-between gap-2 border-t border-[#dfd5bf]">
-                  <div className="flex items-center gap-1">
-                    <button
-                      disabled={index === 0}
-                      onClick={() => handleMoveSlide(index, 'up')}
-                      className="p-1.5 rounded-lg border border-[#dfd5bf] text-[#5a6e54] hover:text-[#103b1d] hover:bg-[#faf5ea] disabled:opacity-30 disabled:cursor-not-allowed"
-                      title="Move slide left/up"
-                    >
-                      <ArrowUp className="w-4 h-4" />
-                    </button>
-                    <button
-                      disabled={index === (storeContent.heroSlides || []).length - 1}
-                      onClick={() => handleMoveSlide(index, 'down')}
-                      className="p-1.5 rounded-lg border border-[#dfd5bf] text-[#5a6e54] hover:text-[#103b1d] hover:bg-[#faf5ea] disabled:opacity-30 disabled:cursor-not-allowed"
-                      title="Move slide right/down"
-                    >
-                      <ArrowDown className="w-4 h-4" />
-                    </button>
-                    <span className="text-xs font-semibold text-[#5a6e54] ml-2 truncate max-w-[140px]">
-                      CTA: {slide.ctaText || 'Shop Now'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => handleOpenEditSlide(slide)}
-                      className="px-2.5 py-1.5 rounded-lg bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center gap-1 transition-colors cursor-pointer"
+                      className="p-2 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] border border-[#dfd5bf] transition-colors cursor-pointer"
+                      title="Edit banner details"
                     >
-                      <Edit2 className="w-3.5 h-3.5" /> Edit Banner
+                      <Edit2 className="w-4 h-4" />
                     </button>
+
                     <button
-                      onClick={() => setDeleteSlideId(slide.id)}
-                      className="p-1.5 rounded-lg text-[#d52518] hover:bg-[#FDEEED] transition-colors"
-                      title="Delete Slide"
+                      onClick={() =>
+                        setDeleteDialog({
+                          isOpen: true,
+                          type: 'hero',
+                          id: slide.id,
+                          title: 'Delete Hero Banner Slide?',
+                          message: `Are you sure you want to remove slide "${slide.title || 'Untitled'}" from rotation?`,
+                        })
+                      }
+                      className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-colors cursor-pointer"
+                      title="Delete banner"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -415,108 +523,75 @@ export const StoreContentPage: React.FC = () => {
       )}
 
       {/* ============================================================= */}
-      {/* TAB 2: CATEGORY CARD IMAGES */}
-      {/* ============================================================= */}
-      {activeTab === 'categories' && (
-        <div className="space-y-6">
-          <div className="bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
-            <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#18542a]" />
-              Storefront Category Cards
-            </h2>
-            <p className="text-xs text-[#5a6e54] mt-0.5">
-              These images appear in the "Our Harvest Categories" grid on the homepage and in the top category navigation bar.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {categories.map((cat) => (
-              <Card key={cat.id} padding="none" className="overflow-hidden flex flex-col border border-[#dfd5bf] group hover:shadow-md transition-all">
-                <div className="relative aspect-square bg-[#FAF5EA] flex items-center justify-center p-4 overflow-hidden border-b border-[#dfd5bf]">
-                  <img
-                    src={cat.imageUrl}
-                    alt={cat.name}
-                    className="w-full h-full object-contain filter drop-shadow-md group-hover:scale-106 transition-transform duration-300"
-                  />
-                  <div className="absolute top-2.5 right-2.5">
-                    <Badge variant={cat.visibility === 'Visible' ? 'success' : 'neutral'} size="sm">
-                      {cat.visibility}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="p-3.5 flex flex-col flex-1 justify-between gap-3 bg-white">
-                  <div>
-                    <h3 className="font-bold text-[#103b1d] text-sm leading-tight">{cat.name}</h3>
-                    <p className="text-[11px] font-mono text-[#5a6e54] mt-0.5">/{cat.slug}</p>
-                    <p className="text-xs text-[#5a6e54] line-clamp-2 mt-1">{cat.description}</p>
-                  </div>
-
-                  <button
-                    onClick={() => handleOpenEditCategory(cat)}
-                    className="w-full py-2 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
-                  >
-                    <UploadCloud className="w-3.5 h-3.5" />
-                    Replace Image
-                  </button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* TAB 3: TRUST & QUALITY BADGES */}
+      {/* TAB 2: TRUST & CERTIFICATIONS (WITH ADD OPTION) */}
       {/* ============================================================= */}
       {activeTab === 'badges' && (
         <div className="space-y-6">
-          <div className="bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
-            <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
-              <Award className="w-4 h-4 text-[#18542a]" />
-              Certified Quality Standards & Trust Badges
-            </h2>
-            <p className="text-xs text-[#5a6e54] mt-0.5">
-              Displayed in the verified quality banner strip below the hero slider (FSSAI, USDA Organic, SGS Bio-Verified, APEDA Pure).
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
+            <div>
+              <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
+                <Award className="w-4 h-4 text-[#18542a]" />
+                Certified Quality Standards & Trust Badges
+              </h2>
+              <p className="text-xs text-[#5a6e54] mt-0.5">
+                Official quality certification seals (FSSAI, USDA Organic, SGS Bio-Verified, APEDA) displayed under the hero slider on the customer storefront.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              onClick={handleOpenAddBadge}
+              icon={<Plus className="w-4 h-4" />}
+            >
+              Add Certification
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {(storeContent.trustBadges || []).map((badge) => (
               <Card key={badge.id} padding="none" className="overflow-hidden flex flex-col border border-[#dfd5bf] bg-white hover:shadow-md transition-all">
-                <div className="h-28 bg-[#faf5ea] flex items-center justify-center p-3 border-b border-[#dfd5bf] relative">
+                <div className="h-32 bg-[#faf5ea] flex items-center justify-center p-3 border-b border-[#dfd5bf] relative group">
                   <img
                     src={badge.imageUrl}
                     alt={badge.name}
-                    className="max-h-16 max-w-full object-contain filter drop-shadow-sm"
+                    className="max-h-20 max-w-full object-contain filter drop-shadow-sm group-hover:scale-105 transition-transform"
                   />
-                  <div className="absolute top-2 right-2">
-                    <span className="w-2 h-2 rounded-full bg-[#18542a]" />
+                  <div className="absolute top-2.5 right-2.5 flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#18542a]" title="Active" />
                   </div>
                 </div>
 
-                <div className="p-3.5 flex flex-col flex-1 justify-between gap-3">
+                <div className="p-4 flex flex-col flex-1 justify-between gap-3">
                   <div>
-                    <h3 className="font-bold text-[#103b1d] text-sm">{badge.name}</h3>
-                    <p className="text-xs text-[#5a6e54] mt-0.5">{badge.subtitle}</p>
+                    <h3 className="font-bold text-[#103b1d] text-sm leading-snug">{badge.name}</h3>
+                    <p className="text-xs text-[#5a6e54] mt-0.5 line-clamp-2">{badge.subtitle}</p>
                   </div>
 
-                  <button
-                    onClick={() => {
-                      setImageModalConfig({
-                        isOpen: true,
-                        title: `Replace ${badge.name} Seal Image`,
-                        description: 'Upload a clean transparent PNG/GIF/WEBP badge seal or enter an image URL.',
-                        currentUrl: badge.imageUrl,
-                        onSave: (url) => handleUpdateBadgeImage(badge.id, url),
-                      });
-                      setTempImageUrl(badge.imageUrl);
-                    }}
-                    className="w-full py-1.5 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <UploadCloud className="w-3.5 h-3.5" />
-                    Replace Seal Image
-                  </button>
+                  <div className="flex items-center gap-2 pt-2 border-t border-[#dfd5bf]/60">
+                    <button
+                      onClick={() => handleOpenEditBadge(badge)}
+                      className="flex-1 py-1.5 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        setDeleteDialog({
+                          isOpen: true,
+                          type: 'badge',
+                          id: badge.id,
+                          title: 'Remove Certification Badge?',
+                          message: `Are you sure you want to remove the "${badge.name}" certification seal from the website?`,
+                        })
+                      }
+                      className="p-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-colors cursor-pointer"
+                      title="Delete badge"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </Card>
             ))}
@@ -525,275 +600,85 @@ export const StoreContentPage: React.FC = () => {
       )}
 
       {/* ============================================================= */}
-      {/* TAB 4: PROMOTIONAL & OFFER BANNERS */}
-      {/* ============================================================= */}
-      {activeTab === 'offers' && (
-        <div className="space-y-6">
-          <div className="bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
-            <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
-              <Tag className="w-4 h-4 text-[#18542a]" />
-              Promotional Deal Banners & Strip Cards
-            </h2>
-            <p className="text-xs text-[#5a6e54] mt-0.5">
-              Mid-page marketing callouts, festive season discounts, and combo offer banners.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {(storeContent.offerBanners || []).map((offer) => (
-              <Card key={offer.id} padding="none" className="overflow-hidden flex flex-col border border-[#dfd5bf] bg-white group">
-                <div className="relative aspect-[16/8] bg-[#f3e8cc] overflow-hidden">
-                  <img
-                    src={offer.imageUrl}
-                    alt={offer.title}
-                    className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent pointer-events-none" />
-
-                  <div className="absolute top-3 left-3">
-                    {offer.badge && (
-                      <span className="px-2.5 py-1 rounded-full bg-[#ffc926] text-[#18542a] text-[10px] font-extrabold uppercase shadow-xs">
-                        {offer.badge}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="absolute bottom-3 left-3 right-3 text-white">
-                    <h3 className="font-bold text-base sm:text-lg leading-tight drop-shadow-xs">{offer.title}</h3>
-                    <p className="text-xs text-white/80 line-clamp-1 mt-0.5">{offer.subtitle}</p>
-                  </div>
-                </div>
-
-                <div className="p-3.5 bg-white flex items-center justify-between gap-3 border-t border-[#dfd5bf]">
-                  <span className="text-xs text-[#5a6e54] font-semibold">
-                    Target: <code className="text-[#18542a] font-mono">{offer.ctaLink}</code>
-                  </span>
-
-                  <button
-                    onClick={() => {
-                      setImageModalConfig({
-                        isOpen: true,
-                        title: `Edit Offer Banner: ${offer.title}`,
-                        description: 'Upload a promotional horizontal banner image (recommended 1200x500px).',
-                        currentUrl: offer.imageUrl,
-                        onSave: (url) => handleUpdateOfferImage(offer.id, url),
-                      });
-                      setTempImageUrl(offer.imageUrl);
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <UploadCloud className="w-3.5 h-3.5" />
-                    Replace Banner
-                  </button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* TAB 5: FARM & STORY VISUALS */}
-      {/* ============================================================= */}
-      {activeTab === 'stories' && (
-        <div className="space-y-6">
-          <div className="bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
-            <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
-              <Sprout className="w-4 h-4 text-[#18542a]" />
-              Farm Story & Heritage Processing Photos
-            </h2>
-            <p className="text-xs text-[#5a6e54] mt-0.5">
-              Displayed in the "Why Choose Arma" and "Our Godavari Heritage" storytelling sections to communicate authentic organic processing.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {(storeContent.storyImages || []).map((story) => (
-              <Card key={story.id} padding="none" className="overflow-hidden flex flex-col border border-[#dfd5bf] bg-white group">
-                <div className="relative aspect-[4/3] bg-[#f3e8cc] overflow-hidden">
-                  <img
-                    src={story.imageUrl}
-                    alt={story.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-2.5 left-2.5">
-                    <span className="px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold">
-                      {story.tag}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-3.5 flex flex-col flex-1 justify-between gap-3">
-                  <div>
-                    <h3 className="font-bold text-[#103b1d] text-sm leading-snug">{story.title}</h3>
-                    <p className="text-xs text-[#5a6e54] mt-1 line-clamp-2">{story.description}</p>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setImageModalConfig({
-                        isOpen: true,
-                        title: `Update Story Photo: ${story.title}`,
-                        description: 'Upload authentic high-resolution processing or farm field photograph.',
-                        currentUrl: story.imageUrl,
-                        onSave: (url) => handleUpdateStoryImage(story.id, url),
-                      });
-                      setTempImageUrl(story.imageUrl);
-                    }}
-                    className="w-full py-1.5 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <UploadCloud className="w-3.5 h-3.5" />
-                    Replace Photo
-                  </button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* TAB 6: CUSTOMER REVIEW PHOTOS */}
+      {/* TAB 3: CUSTOMER REVIEW PHOTOS (WITH ADD OPTION) */}
       {/* ============================================================= */}
       {activeTab === 'testimonials' && (
         <div className="space-y-6">
-          <div className="bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
-            <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-[#18542a]" />
-              Customer Testimonial Avatars & Reviews
-            </h2>
-            <p className="text-xs text-[#5a6e54] mt-0.5">
-              Customer review cards with authentic user avatars shown in the homepage social proof section.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
+            <div>
+              <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-[#18542a]" />
+                Customer Testimonials & Review Photos
+              </h2>
+              <p className="text-xs text-[#5a6e54] mt-0.5">
+                Authentic buyer review cards with portrait photos shown in the customer homepage social proof section.
+              </p>
+            </div>
+
+            <Button
+              variant="primary"
+              onClick={handleOpenAddTestimonial}
+              icon={<Plus className="w-4 h-4" />}
+            >
+              Add Review Photo
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {(storeContent.testimonials || []).map((t) => (
-              <Card key={t.id} className="border border-[#dfd5bf] flex flex-col justify-between gap-4">
+              <Card key={t.id} className="border border-[#dfd5bf] flex flex-col justify-between gap-4 bg-white hover:shadow-md transition-all">
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={t.avatarUrl}
-                      alt={t.name}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-[#18542a]/30 shrink-0 shadow-xs"
-                    />
-                    <div>
-                      <h4 className="font-bold text-[#103b1d] text-sm flex items-center gap-1">
-                        {t.name}
-                        {t.verified && <CheckCircle2 className="w-3.5 h-3.5 text-[#18542a]" />}
-                      </h4>
-                      <p className="text-[11px] text-[#5a6e54]">{t.location}</p>
-                      <div className="flex text-[#ffc926] text-xs mt-0.5">{'★'.repeat(t.rating)}</div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={t.avatarUrl}
+                        alt={t.name}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-[#18542a]/30 shrink-0 shadow-xs"
+                      />
+                      <div>
+                        <h4 className="font-bold text-[#103b1d] text-sm flex items-center gap-1">
+                          {t.name}
+                          {t.verified && <CheckCircle2 className="w-3.5 h-3.5 text-[#18542a]" />}
+                        </h4>
+                        <p className="text-[11px] text-[#5a6e54]">{t.location}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex text-[#ffc926] text-xs">
+                      {Array.from({ length: t.rating || 5 }).map((_, i) => (
+                        <Star key={i} className="w-3.5 h-3.5 fill-[#ffc926] text-[#ffc926]" />
+                      ))}
                     </div>
                   </div>
 
-                  <p className="text-xs text-[#5a6e54] italic bg-[#faf5ea] p-2.5 rounded-xl border border-[#dfd5bf]/60">
+                  <p className="text-xs text-[#5a6e54] italic bg-[#faf5ea] p-3 rounded-xl border border-[#dfd5bf]/60 leading-relaxed">
                     "{t.comment}"
                   </p>
                 </div>
 
-                <button
-                  onClick={() => {
-                    setImageModalConfig({
-                      isOpen: true,
-                      title: `Replace Avatar for ${t.name}`,
-                      description: 'Upload a circular customer portrait or avatar image.',
-                      currentUrl: t.avatarUrl,
-                      onSave: (url) => handleUpdateTestimonialAvatar(t.id, url),
-                    });
-                    setTempImageUrl(t.avatarUrl);
-                  }}
-                  className="w-full py-1.5 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <UploadCloud className="w-3.5 h-3.5" />
-                  Replace Avatar Photo
-                </button>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* TAB 7: BRAND ASSETS & LOGOS */}
-      {/* ============================================================= */}
-      {activeTab === 'branding' && (
-        <div className="space-y-6">
-          <div className="bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
-            <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#18542a]" />
-              Brand Identity & Logo Assets
-            </h2>
-            <p className="text-xs text-[#5a6e54] mt-0.5">
-              Manage the official store logo across desktop header, mobile sticky bar, footer, and browser favicon.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
-            {[
-              {
-                key: 'primaryLogoUrl' as const,
-                title: 'Primary Logo (Transparent)',
-                desc: 'Main brand seal used in sidebar & invoices',
-                url: storeContent.brandAssets?.primaryLogoUrl || '/logo.webp',
-                darkBg: false,
-              },
-              {
-                key: 'headerLogoUrl' as const,
-                title: 'Header Navigation Logo',
-                desc: 'Shown on the top organic navbar',
-                url: storeContent.brandAssets?.headerLogoUrl || '/logo.webp',
-                darkBg: false,
-              },
-              {
-                key: 'footerLogoUrl' as const,
-                title: 'Footer Inverted Logo',
-                desc: 'Displayed on the dark green footer',
-                url: storeContent.brandAssets?.footerLogoUrl || '/logo.webp',
-                darkBg: true,
-              },
-              {
-                key: 'faviconUrl' as const,
-                title: 'Website Favicon / App Icon',
-                desc: 'Square/round 64x64px browser tab icon',
-                url: storeContent.brandAssets?.faviconUrl || '/logo.webp',
-                darkBg: false,
-              },
-            ].map((asset) => (
-              <Card key={asset.key} padding="none" className="overflow-hidden flex flex-col border border-[#dfd5bf] bg-white">
-                <div
-                  className={`h-36 flex items-center justify-center p-4 border-b border-[#dfd5bf] ${
-                    asset.darkBg ? 'bg-[#18542a]' : 'bg-[#FAF5EA]'
-                  }`}
-                >
-                  <img
-                    src={asset.url}
-                    alt={asset.title}
-                    className="max-h-20 max-w-[80%] object-contain filter drop-shadow-sm"
-                  />
-                </div>
-
-                <div className="p-3.5 flex flex-col flex-1 justify-between gap-3">
-                  <div>
-                    <h3 className="font-bold text-[#103b1d] text-sm">{asset.title}</h3>
-                    <p className="text-xs text-[#5a6e54] mt-0.5">{asset.desc}</p>
-                  </div>
+                <div className="flex items-center gap-2 pt-2 border-t border-[#dfd5bf]/60">
+                  <button
+                    onClick={() => handleOpenEditTestimonial(t)}
+                    className="flex-1 py-1.5 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                    Edit Review
+                  </button>
 
                   <button
-                    onClick={() => {
-                      setImageModalConfig({
+                    onClick={() =>
+                      setDeleteDialog({
                         isOpen: true,
-                        title: `Update ${asset.title}`,
-                        description: 'Upload PNG with transparent background or SVG logo file.',
-                        currentUrl: asset.url,
-                        onSave: (url) => handleUpdateBrandAsset(asset.key, url),
-                      });
-                      setTempImageUrl(asset.url);
-                    }}
-                    className="w-full py-1.5 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        type: 'testimonial',
+                        id: t.id,
+                        title: 'Delete Customer Review?',
+                        message: `Are you sure you want to remove the review from "${t.name}"?`,
+                      })
+                    }
+                    className="p-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-colors cursor-pointer"
+                    title="Delete review"
                   >
-                    <UploadCloud className="w-3.5 h-3.5" />
-                    Replace Logo File
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </Card>
@@ -821,10 +706,9 @@ export const StoreContentPage: React.FC = () => {
         }
       >
         <form onSubmit={handleSaveSlide} className="space-y-4">
-          {/* Banner Preview */}
           <div>
             <label className="block text-xs font-semibold text-[#103b1d] mb-1.5">
-              Banner Preview (Desktop 16:9 / 16:10)
+              Banner Preview (16:9 Aspect Ratio)
             </label>
             <div className="relative aspect-[16/9] rounded-2xl bg-[#f3e8cc] overflow-hidden border border-[#dfd5bf] shadow-xs">
               <img
@@ -845,7 +729,6 @@ export const StoreContentPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Image Upload & URL input */}
           <div className="space-y-2">
             <label className="block text-xs font-semibold text-[#103b1d]">
               Banner Image Source
@@ -860,7 +743,7 @@ export const StoreContentPage: React.FC = () => {
               />
               <label className="px-3 py-2 rounded-xl bg-[#18542a] text-white text-xs font-bold hover:bg-[#103b1d] cursor-pointer flex items-center gap-1.5 shrink-0 transition-colors">
                 <UploadCloud className="w-4 h-4" />
-                <span>Upload Local</span>
+                <span>Upload</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -872,10 +755,9 @@ export const StoreContentPage: React.FC = () => {
               </label>
             </div>
 
-            {/* Quick Preset Selector */}
             <div className="pt-1">
               <span className="text-[11px] font-semibold text-[#5a6e54] block mb-1">
-                Or select 1-click organic product preset:
+                Or select 1-click organic banner preset:
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {PRESET_BANNERS.map((preset) => (
@@ -896,7 +778,6 @@ export const StoreContentPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Title & Badge */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-[#103b1d] mb-1">
@@ -924,7 +805,6 @@ export const StoreContentPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Subtitle */}
           <div>
             <label className="block text-xs font-semibold text-[#103b1d] mb-1">
               Subtitle / Description
@@ -938,7 +818,6 @@ export const StoreContentPage: React.FC = () => {
             />
           </div>
 
-          {/* CTA Button Text & Link */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-[#103b1d] mb-1">
@@ -960,7 +839,7 @@ export const StoreContentPage: React.FC = () => {
                 type="text"
                 value={slideFormData.ctaLink}
                 onChange={(e) => setSlideFormData({ ...slideFormData, ctaLink: e.target.value })}
-                placeholder="/collections/oils"
+                placeholder="/collections/all-products"
                 className="w-full text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
               />
             </div>
@@ -969,161 +848,279 @@ export const StoreContentPage: React.FC = () => {
       </Modal>
 
       {/* ============================================================= */}
-      {/* MODAL 2: REPLACE CATEGORY IMAGE */}
+      {/* MODAL 2: ADD / EDIT TRUST BADGE */}
       {/* ============================================================= */}
       <Modal
-        isOpen={!!editingCategory}
-        onClose={() => setEditingCategory(null)}
-        title={`Replace Image for "${editingCategory?.name}"`}
+        isOpen={isBadgeModalOpen}
+        onClose={() => setIsBadgeModalOpen(false)}
+        title={editingBadgeId ? 'Edit Quality Certification' : 'Add New Certification / Trust Badge'}
         footer={
           <>
-            <Button variant="secondary" onClick={() => setEditingCategory(null)}>
+            <Button variant="secondary" onClick={() => setIsBadgeModalOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSaveCategory}>
-              Save Category Image
+            <Button variant="primary" onClick={handleSaveBadge}>
+              {editingBadgeId ? 'Update Certification' : 'Add Certification'}
             </Button>
           </>
         }
       >
-        <div className="space-y-4">
-          <div className="flex items-center justify-center p-4 rounded-2xl bg-[#FAF5EA] border border-[#dfd5bf]">
+        <form onSubmit={handleSaveBadge} className="space-y-4">
+          {/* Badge Seal Preview */}
+          <div className="h-32 rounded-2xl bg-[#faf5ea] border border-[#dfd5bf] flex items-center justify-center p-3 overflow-hidden">
             <img
-              src={categoryImageUrl}
-              alt="Category Preview"
-              className="w-32 h-32 object-contain filter drop-shadow-md"
+              src={badgeFormData.imageUrl}
+              alt="Seal Preview"
+              className="max-h-24 max-w-full object-contain filter drop-shadow-sm"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-[#103b1d] mb-1">
-              Category Image URL
+              Certification / Badge Name
+            </label>
+            <input
+              type="text"
+              value={badgeFormData.name}
+              onChange={(e) => setBadgeFormData({ ...badgeFormData, name: e.target.value })}
+              placeholder="e.g. FSSAI Organic Certified or USDA 100% Organic"
+              className="w-full text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white font-medium"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#103b1d] mb-1">
+              Subtitle / Verification Tagline
+            </label>
+            <input
+              type="text"
+              value={badgeFormData.subtitle}
+              onChange={(e) => setBadgeFormData({ ...badgeFormData, subtitle: e.target.value })}
+              placeholder="e.g. Govt. Reg #10123028000419 or Zero Pesticide Guarantee"
+              className="w-full text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold text-[#103b1d]">
+              Seal Image Source
             </label>
             <div className="flex gap-2">
               <input
                 type="text"
-                value={categoryImageUrl}
-                onChange={(e) => setCategoryImageUrl(e.target.value)}
-                placeholder="/categories/oil.webp or https://..."
+                value={badgeFormData.imageUrl}
+                onChange={(e) => setBadgeFormData({ ...badgeFormData, imageUrl: e.target.value })}
+                placeholder="https://... or upload transparent seal PNG/WEBP"
                 className="flex-1 text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
               />
-              <label className="px-3 py-2 rounded-xl bg-[#18542a] text-white text-xs font-bold hover:bg-[#103b1d] cursor-pointer flex items-center gap-1.5 shrink-0">
+              <label className="px-3 py-2 rounded-xl bg-[#18542a] text-white text-xs font-bold hover:bg-[#103b1d] cursor-pointer flex items-center gap-1.5 shrink-0 transition-colors">
                 <UploadCloud className="w-4 h-4" />
                 <span>Upload</span>
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileUpload(e, (url) => setCategoryImageUrl(url))}
+                  onChange={(e) =>
+                    handleFileUpload(e, (dataUrl) => setBadgeFormData({ ...badgeFormData, imageUrl: dataUrl }))
+                  }
                   className="hidden"
                 />
               </label>
             </div>
-          </div>
 
-          <div>
-            <span className="text-[11px] font-semibold text-[#5a6e54] block mb-1">
-              Or pick an organic category asset preset:
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {PRESET_CATEGORY_IMAGES.map((preset) => (
-                <button
-                  type="button"
-                  key={preset.name}
-                  onClick={() => setCategoryImageUrl(preset.url)}
-                  className={`text-[10px] px-2 py-1 rounded-lg border font-medium transition-colors cursor-pointer ${
-                    categoryImageUrl === preset.url
-                      ? 'bg-[#18542a] text-white border-[#18542a]'
-                      : 'bg-[#faf5ea] text-[#5a6e54] border-[#dfd5bf] hover:border-[#18542a]'
-                  }`}
-                >
-                  {preset.name}
-                </button>
-              ))}
+            <div>
+              <span className="text-[11px] font-semibold text-[#5a6e54] block mb-1">
+                Or pick a standard organic certification seal:
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {PRESET_BADGE_SEALS.map((preset) => (
+                  <button
+                    type="button"
+                    key={preset.name}
+                    onClick={() => setBadgeFormData({ ...badgeFormData, imageUrl: preset.url, name: badgeFormData.name || preset.name })}
+                    className={`text-[10px] px-2 py-1 rounded-lg border font-medium transition-colors cursor-pointer ${
+                      badgeFormData.imageUrl === preset.url
+                        ? 'bg-[#18542a] text-white border-[#18542a]'
+                        : 'bg-[#faf5ea] text-[#5a6e54] border-[#dfd5bf] hover:border-[#18542a]'
+                    }`}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        </form>
       </Modal>
 
       {/* ============================================================= */}
-      {/* MODAL 3: UNIVERSAL IMAGE REPLACER (Seals, Stories, Offers, Testimonials, Logos) */}
+      {/* MODAL 3: ADD / EDIT TESTIMONIAL & REVIEW PHOTO */}
       {/* ============================================================= */}
       <Modal
-        isOpen={imageModalConfig.isOpen}
-        onClose={() => setImageModalConfig({ ...imageModalConfig, isOpen: false })}
-        title={imageModalConfig.title}
+        isOpen={isTestimonialModalOpen}
+        onClose={() => setIsTestimonialModalOpen(false)}
+        title={editingTestimonialId ? 'Edit Customer Review' : 'Add New Customer Review Photo'}
         footer={
           <>
-            <Button
-              variant="secondary"
-              onClick={() => setImageModalConfig({ ...imageModalConfig, isOpen: false })}
-            >
+            <Button variant="secondary" onClick={() => setIsTestimonialModalOpen(false)}>
               Cancel
             </Button>
-            <Button
-              variant="primary"
-              onClick={() => {
-                imageModalConfig.onSave(tempImageUrl);
-                setImageModalConfig({ ...imageModalConfig, isOpen: false });
-              }}
-            >
-              Apply Image
+            <Button variant="primary" onClick={handleSaveTestimonial}>
+              {editingTestimonialId ? 'Update Review' : 'Add Review'}
             </Button>
           </>
         }
       >
-        <div className="space-y-4">
-          <p className="text-xs text-[#5a6e54]">{imageModalConfig.description}</p>
-
-          {/* Live Preview Frame */}
-          <div className="h-44 rounded-2xl bg-[#faf5ea] border border-[#dfd5bf] flex items-center justify-center p-3 overflow-hidden">
+        <form onSubmit={handleSaveTestimonial} className="space-y-4">
+          {/* Avatar Preview */}
+          <div className="flex items-center gap-3 p-3 bg-[#faf5ea] rounded-xl border border-[#dfd5bf]">
             <img
-              src={tempImageUrl}
-              alt="Preview"
-              className="max-h-full max-w-full object-contain filter drop-shadow-sm"
+              src={testimonialFormData.avatarUrl}
+              alt="Avatar Preview"
+              className="w-14 h-14 rounded-full object-cover border-2 border-[#18542a]/30 shrink-0 shadow-xs"
             />
+            <div>
+              <p className="font-bold text-sm text-[#103b1d]">
+                {testimonialFormData.name || 'Customer Name'}
+              </p>
+              <p className="text-xs text-[#5a6e54]">
+                {testimonialFormData.location || 'Location'}
+              </p>
+              <div className="flex text-[#ffc926] text-xs mt-0.5">
+                {'★'.repeat(testimonialFormData.rating || 5)}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-[#103b1d] mb-1">
+                Customer Name
+              </label>
+              <input
+                type="text"
+                value={testimonialFormData.name}
+                onChange={(e) => setTestimonialFormData({ ...testimonialFormData, name: e.target.value })}
+                placeholder="e.g. Dr. Ramana Murthy"
+                className="w-full text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white font-medium"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#103b1d] mb-1">
+                Customer Location / City
+              </label>
+              <input
+                type="text"
+                value={testimonialFormData.location}
+                onChange={(e) => setTestimonialFormData({ ...testimonialFormData, location: e.target.value })}
+                placeholder="e.g. Hyderabad, Telangana"
+                className="w-full text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-[#103b1d] mb-1">
+                Star Rating (1 - 5)
+              </label>
+              <select
+                value={testimonialFormData.rating}
+                onChange={(e) => setTestimonialFormData({ ...testimonialFormData, rating: Number(e.target.value) })}
+                className="w-full text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
+              >
+                <option value={5}>★★★★★ (5 Stars - Excellent)</option>
+                <option value={4}>★★★★☆ (4 Stars - Very Good)</option>
+                <option value={3}>★★★☆☆ (3 Stars - Good)</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2 pt-6">
+              <input
+                type="checkbox"
+                id="verifiedCheck"
+                checked={testimonialFormData.verified}
+                onChange={(e) => setTestimonialFormData({ ...testimonialFormData, verified: e.target.checked })}
+                className="rounded border-[#dfd5bf] text-[#18542a] focus:ring-[#18542a] w-4 h-4 cursor-pointer"
+              />
+              <label htmlFor="verifiedCheck" className="text-xs font-semibold text-[#103b1d] cursor-pointer">
+                Verified Customer Purchase
+              </label>
+            </div>
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-[#103b1d] mb-1">
-              Image Source URL
+              Customer Feedback / Review Comment
+            </label>
+            <textarea
+              rows={3}
+              value={testimonialFormData.comment}
+              onChange={(e) => setTestimonialFormData({ ...testimonialFormData, comment: e.target.value })}
+              placeholder="e.g. The cold-pressed sesame oil reminds me of my grandmother's traditional farm oil. Unbelievable aroma and purity!"
+              className="w-full text-xs p-3 rounded-xl border border-[#dfd5bf] bg-white"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold text-[#103b1d]">
+              Customer Portrait / Avatar Photo Source
             </label>
             <div className="flex gap-2">
               <input
                 type="text"
-                value={tempImageUrl}
-                onChange={(e) => setTempImageUrl(e.target.value)}
-                placeholder="https://... or upload local file"
-                className="flex-1 text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white focus:ring-1 focus:ring-[#18542a]"
+                value={testimonialFormData.avatarUrl}
+                onChange={(e) => setTestimonialFormData({ ...testimonialFormData, avatarUrl: e.target.value })}
+                placeholder="https://... or upload local portrait"
+                className="flex-1 text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
               />
               <label className="px-3 py-2 rounded-xl bg-[#18542a] text-white text-xs font-bold hover:bg-[#103b1d] cursor-pointer flex items-center gap-1.5 shrink-0 transition-colors">
                 <UploadCloud className="w-4 h-4" />
-                <span>Upload File</span>
+                <span>Upload</span>
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileUpload(e, (url) => setTempImageUrl(url))}
+                  onChange={(e) =>
+                    handleFileUpload(e, (dataUrl) => setTestimonialFormData({ ...testimonialFormData, avatarUrl: dataUrl }))
+                  }
                   className="hidden"
                 />
               </label>
             </div>
+
+            <div>
+              <span className="text-[11px] font-semibold text-[#5a6e54] block mb-1">
+                Or select an avatar photo preset:
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {PRESET_AVATARS.map((preset) => (
+                  <button
+                    type="button"
+                    key={preset.name}
+                    onClick={() => setTestimonialFormData({ ...testimonialFormData, avatarUrl: preset.url })}
+                    className={`text-[10px] px-2 py-1 rounded-lg border font-medium transition-colors cursor-pointer ${
+                      testimonialFormData.avatarUrl === preset.url
+                        ? 'bg-[#18542a] text-white border-[#18542a]'
+                        : 'bg-[#faf5ea] text-[#5a6e54] border-[#dfd5bf] hover:border-[#18542a]'
+                    }`}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        </form>
       </Modal>
 
-      {/* Delete Confirmation */}
+      {/* Delete Confirmation Dialog */}
       <ConfirmDialog
-        isOpen={!!deleteSlideId}
-        onClose={() => setDeleteSlideId(null)}
-        onConfirm={() => {
-          if (deleteSlideId) {
-            deleteHeroSlide(deleteSlideId);
-            showToast('Hero banner deleted.', 'info');
-            setDeleteSlideId(null);
-          }
-        }}
-        title="Delete Hero Banner Slide?"
-        message="Are you sure you want to remove this hero slide from the homepage rotation?"
-        confirmText="Delete Slide"
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, type: 'hero', id: '', title: '', message: '' })}
+        onConfirm={handleConfirmDelete}
+        title={deleteDialog.title}
+        message={deleteDialog.message}
+        confirmText="Yes, Delete"
         variant="danger"
       />
     </div>

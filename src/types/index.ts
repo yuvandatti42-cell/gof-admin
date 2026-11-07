@@ -202,6 +202,11 @@ export interface StoreContent {
   offerBanners?: OfferBanner[];
   testimonials?: TestimonialItem[];
   brandAssets?: BrandAssets;
+  shipping?: {
+    freeShippingThreshold: number;
+    standardDeliveryCharge: number;
+    estimatedDays?: string;
+  };
 }
 
 export interface StoreSettings {
@@ -222,6 +227,11 @@ export interface StoreSettings {
     tagline: string;
     bannerNotice: string;
   };
+  shipping: {
+    freeShippingThreshold: number;
+    standardDeliveryCharge: number;
+    estimatedDays?: string;
+  };
   notifications: {
     orderAlerts: boolean;
     lowStockAlerts: boolean;
@@ -235,10 +245,10 @@ export interface StoreSettings {
     role: string;
     phone: string;
   };
-  preferences: {
-    currency: string;
-    dateFormat: string;
-    tableDensity: 'compact' | 'comfortable';
+  preferences?: {
+    currency?: string;
+    dateFormat?: string;
+    tableDensity?: 'compact' | 'comfortable';
   };
 }
 

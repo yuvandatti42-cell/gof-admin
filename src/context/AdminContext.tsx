@@ -882,6 +882,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         ...updates,
         storeProfile: { ...prev.storeProfile, ...updates.storeProfile },
         appearance: { ...prev.appearance, ...updates.appearance },
+        shipping: {
+          freeShippingThreshold: updates.shipping?.freeShippingThreshold ?? prev.shipping?.freeShippingThreshold ?? 1500,
+          standardDeliveryCharge: updates.shipping?.standardDeliveryCharge ?? prev.shipping?.standardDeliveryCharge ?? 50,
+          estimatedDays: updates.shipping?.estimatedDays || prev.shipping?.estimatedDays || '2 - 4 Business Days',
+        },
         notifications: { ...prev.notifications, ...updates.notifications },
         adminProfile: { ...prev.adminProfile, ...updates.adminProfile },
         preferences: { ...prev.preferences, ...updates.preferences },
@@ -889,6 +894,21 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       saveSettingsToFirestore(updated).catch((err) =>
         console.error('Failed to save settings to Firestore:', err)
       );
+
+      // Also mirror shipping settings to storeContent so both collections provide the dynamic free shipping threshold
+      if (updated.shipping) {
+        setStoreContent((prevContent) => {
+          const contentWithShipping = {
+            ...prevContent,
+            shipping: updated.shipping,
+          };
+          saveStoreContentToFirestore(contentWithShipping).catch((err) =>
+            console.error('Failed to mirror shipping to storeContent in Firestore:', err)
+          );
+          return contentWithShipping;
+        });
+      }
+
       return updated;
     });
   }, []);

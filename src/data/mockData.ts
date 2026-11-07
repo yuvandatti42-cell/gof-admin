@@ -1074,6 +1074,11 @@ export const INITIAL_STORE_CONTENT: StoreContent = {
       icon: 'CheckCircle2',
     },
   ],
+  shipping: {
+    freeShippingThreshold: 1500,
+    standardDeliveryCharge: 50,
+    estimatedDays: '2 - 4 Business Days',
+  },
 };
 
 export const INITIAL_SETTINGS: StoreSettings = {
@@ -1093,6 +1098,11 @@ export const INITIAL_SETTINGS: StoreSettings = {
     logoText: 'Godavari Organic Foods',
     tagline: 'Pure Andhra Natural Farm Goodness',
     bannerNotice: 'Demo preview mode active',
+  },
+  shipping: {
+    freeShippingThreshold: 1500,
+    standardDeliveryCharge: 50,
+    estimatedDays: '2 - 4 Business Days',
   },
   notifications: {
     orderAlerts: true,
