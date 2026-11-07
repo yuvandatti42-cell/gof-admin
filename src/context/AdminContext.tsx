@@ -109,6 +109,7 @@ interface AdminContextType {
   updateOrderStatus: (orderId: string, status: OrderStatus, note?: string) => void;
   updatePaymentStatus: (orderId: string, status: PaymentStatus) => void;
   updateOrderInternalNote: (orderId: string, note: string) => void;
+  updateOrder: (orderId: string, updates: Partial<Order>) => void;
 
   // Customer actions
   updateCustomerStatus: (id: string, status: CustomerStatus) => void;
@@ -731,6 +732,21 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
   }, []);
 
+  const updateOrder = useCallback((orderId: string, updates: Partial<Order>) => {
+    setOrders((prev) =>
+      prev.map((order) => {
+        if (order.id === orderId) {
+          const updated = { ...order, ...updates };
+          updateOrderInFirestore(orderId, updates).catch((err) =>
+            console.error('Failed to update order in Firestore:', err)
+          );
+          return updated;
+        }
+        return order;
+      })
+    );
+  }, []);
+
   // Customer Actions
   const updateCustomerStatus = useCallback((id: string, status: CustomerStatus) => {
     setCustomers((prev) =>
@@ -1008,6 +1024,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateOrderStatus,
         updatePaymentStatus,
         updateOrderInternalNote,
+        updateOrder,
         updateCustomerStatus,
         addPromotion,
         updatePromotion,

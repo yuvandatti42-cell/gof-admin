@@ -74,6 +74,12 @@ export interface Order {
   };
   timeline: OrderTimeline[];
   internalNote?: string;
+  shiprocketOrderId?: number;
+  shiprocketShipmentId?: number;
+  shiprocketAwb?: string;
+  shiprocketCourierName?: string;
+  shiprocketLabelUrl?: string;
+  shiprocketStatus?: string;
 }
 
 export type CustomerStatus = 'Active' | 'VIP' | 'Inactive';
@@ -251,6 +257,12 @@ export interface StoreSettings {
     razorpayMode?: 'live' | 'test';
     razorpayEnabled?: boolean;
     merchantName?: string;
+  };
+  shiprocket?: {
+    enabled?: boolean;
+    email?: string;
+    password?: string;
+    pickupLocation?: string;
   };
 }
 

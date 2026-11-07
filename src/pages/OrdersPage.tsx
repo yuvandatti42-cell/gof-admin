@@ -15,11 +15,25 @@ import {
   Eye,
   Printer,
   Sparkles,
+  Truck,
+  Package,
+  ExternalLink,
+  FileText,
+  CheckCircle2,
+  Copy,
+  Check,
+  RefreshCw,
 } from 'lucide-react';
+import {
+  createShiprocketOrder,
+  assignShiprocketAWB,
+  generateShiprocketLabel,
+  getShiprocketTrackingUrl,
+} from '../services/shiprocketService';
 
 
 export const OrdersPage: React.FC = () => {
-  const { orders, updateOrderStatus, updatePaymentStatus, updateOrderInternalNote } = useAdmin();
+  const { orders, updateOrderStatus, updatePaymentStatus, updateOrderInternalNote, updateOrder } = useAdmin();
   const { showToast } = useToast();
 
   // Search & filter
@@ -31,6 +45,104 @@ export const OrdersPage: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [internalNoteDraft, setInternalNoteDraft] = useState('');
   const [cancelOrderTargetId, setCancelOrderTargetId] = useState<string | null>(null);
+
+  // Shiprocket states
+  const [isShippingWithShiprocket, setIsShippingWithShiprocket] = useState(false);
+  const [isGeneratingLabel, setIsGeneratingLabel] = useState(false);
+  const [copiedAwb, setCopiedAwb] = useState(false);
+
+  // Ship order via Shiprocket
+  const handleShipWithShiprocket = async (order: Order) => {
+    setIsShippingWithShiprocket(true);
+    try {
+      // 1. Create adhoc order on Shiprocket
+      const created = await createShiprocketOrder(order);
+      const shipmentId = created.shipment_id;
+      const shiprocketOrderId = created.order_id;
+
+      // 2. Assign courier & generate AWB
+      let awbCode = created.awb_code || '';
+      let courierName = created.courier_name || 'Shiprocket Delivery';
+
+      if (!awbCode && shipmentId) {
+        try {
+          const awbRes = await assignShiprocketAWB(shipmentId);
+          awbCode = awbRes.awbCode;
+          courierName = awbRes.courierName;
+        } catch (awbErr: any) {
+          console.warn('Shiprocket AWB assignment deferred:', awbErr);
+        }
+      }
+
+      const newTimeline = [
+        ...order.timeline,
+        {
+          status: 'Dispatched via Shiprocket',
+          timestamp: new Date().toISOString(),
+          note: awbCode
+            ? `Dispatched with ${courierName}. AWB Tracking #${awbCode}`
+            : `Shiprocket order #${shiprocketOrderId} created. AWB generation in progress.`,
+        },
+      ];
+
+      const updates: Partial<Order> = {
+        orderStatus: 'Shipped',
+        shiprocketOrderId,
+        shiprocketShipmentId: shipmentId,
+        shiprocketAwb: awbCode,
+        shiprocketCourierName: courierName,
+        timeline: newTimeline,
+      };
+
+      updateOrder(order.id, updates);
+      if (selectedOrder && selectedOrder.id === order.id) {
+        setSelectedOrder((prev) => (prev ? { ...prev, ...updates } : null));
+      }
+
+      showToast(
+        awbCode
+          ? `Order #${order.id} shipped via ${courierName}! AWB: ${awbCode}`
+          : `Order #${order.id} sent to Shiprocket (#${shiprocketOrderId}).`,
+        'success',
+        'Shiprocket Dispatched'
+      );
+    } catch (err: any) {
+      console.error('Shiprocket shipment error:', err);
+      showToast(
+        err.message || 'Failed to dispatch shipment via Shiprocket. Check connection.',
+        'error',
+        'Shiprocket Error'
+      );
+    } finally {
+      setIsShippingWithShiprocket(false);
+    }
+  };
+
+  // Generate / Download Shiprocket Printable Label
+  const handleDownloadLabel = async (shipmentId?: number) => {
+    if (!shipmentId) {
+      showToast('Shipment ID is missing from Shiprocket records.', 'error');
+      return;
+    }
+    setIsGeneratingLabel(true);
+    try {
+      const labelUrl = await generateShiprocketLabel(shipmentId);
+      window.open(labelUrl, '_blank');
+      showToast('Shiprocket shipping label opened in new tab.', 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Could not fetch label from Shiprocket.', 'error');
+    } finally {
+      setIsGeneratingLabel(false);
+    }
+  };
+
+  // Copy AWB code to clipboard
+  const handleCopyAwb = (awb: string) => {
+    navigator.clipboard.writeText(awb);
+    setCopiedAwb(true);
+    showToast(`AWB #${awb} copied to clipboard!`, 'info');
+    setTimeout(() => setCopiedAwb(false), 2000);
+  };
 
   // Status counts for summary strip
   const statusCounts = useMemo(() => {
@@ -272,9 +384,17 @@ export const OrdersPage: React.FC = () => {
                       </Badge>
                     </td>
                     <td className="py-3.5 px-4 whitespace-nowrap">
-                      <Badge status={order.orderStatus} size="sm">
-                        {order.orderStatus}
-                      </Badge>
+                      <div className="flex flex-col gap-1 items-start">
+                        <Badge status={order.orderStatus} size="sm">
+                          {order.orderStatus}
+                        </Badge>
+                        {order.shiprocketAwb && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold text-[#18542a] bg-[#e8f5ec] px-1.5 py-0.5 rounded border border-[#c2e4cc]">
+                            <Truck className="w-2.5 h-2.5" />
+                            {order.shiprocketAwb}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-3.5 px-4 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">
@@ -398,6 +518,119 @@ export const OrdersPage: React.FC = () => {
                   </p>
                 )}
               </div>
+            </div>
+
+            {/* Shiprocket Automated Fulfillment */}
+            <div className="p-4 rounded-xl border border-[#dfd5bf] bg-[#FAF5EA]/80 space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-[#18542a] text-white">
+                    <Truck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-[#103b1d]">Shiprocket Logistics & Shipping</h4>
+                    <p className="text-[11px] text-[#5a6e54]">Automated courier assignment, live AWB, & packing labels</p>
+                  </div>
+                </div>
+
+                {selectedOrder.shiprocketAwb ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    AWB Active
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#dfd5bf]/60 text-[#5a6e54]">
+                    Ready to Ship
+                  </span>
+                )}
+              </div>
+
+              {selectedOrder.shiprocketAwb ? (
+                <div className="bg-white p-3.5 rounded-xl border border-[#dfd5bf] space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-[#5a6e54] block">AWB Tracking Number</span>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="font-mono text-sm font-extrabold text-[#18542a]">
+                          {selectedOrder.shiprocketAwb}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyAwb(selectedOrder.shiprocketAwb!)}
+                          className="p-1 text-[#5a6e54] hover:text-[#18542a] transition-colors rounded"
+                          title="Copy AWB"
+                        >
+                          {copiedAwb ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="text-left sm:text-right">
+                      <span className="text-[10px] uppercase font-bold text-[#5a6e54] block">Courier Partner</span>
+                      <span className="font-semibold text-xs text-[#103b1d]">
+                        {selectedOrder.shiprocketCourierName || 'Shiprocket Express'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-[#dfd5bf]/60 flex flex-wrap items-center gap-2">
+                    <a
+                      href={getShiprocketTrackingUrl(selectedOrder.shiprocketAwb)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#18542a] text-white font-bold text-xs hover:bg-[#124220] transition-colors shadow-xs"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      Track on Shiprocket
+                    </a>
+
+                    {selectedOrder.shiprocketShipmentId && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => handleDownloadLabel(selectedOrder.shiprocketShipmentId)}
+                        disabled={isGeneratingLabel}
+                        icon={<FileText className="w-3.5 h-3.5 text-[#18542a]" />}
+                        className="text-xs font-semibold py-1.5"
+                      >
+                        {isGeneratingLabel ? 'Generating Label...' : 'Download Shipping Label'}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white p-3.5 rounded-xl border border-[#dfd5bf] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-0.5">
+                    <p className="font-semibold text-[#103b1d]">Dispatch from Warehouse (NR Peta, Eluru)</p>
+                    <p className="text-[11px] text-[#5a6e54]">
+                      Transfers recipient address ({selectedOrder.shippingAddress.city} - {selectedOrder.shippingAddress.pincode}) and order items to Shiprocket.
+                    </p>
+                  </div>
+
+                  {selectedOrder.orderStatus !== 'Cancelled' ? (
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      onClick={() => handleShipWithShiprocket(selectedOrder)}
+                      disabled={isShippingWithShiprocket}
+                      icon={
+                        isShippingWithShiprocket ? (
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Package className="w-3.5 h-3.5" />
+                        )
+                      }
+                      className="whitespace-nowrap font-bold text-xs px-4 py-2 self-start sm:self-auto shadow-xs"
+                    >
+                      {isShippingWithShiprocket ? 'Creating Shipment...' : 'Ship via Shiprocket'}
+                    </Button>
+                  ) : (
+                    <span className="text-[11px] text-red-600 font-semibold">
+                      Order is cancelled
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Ordered Items Table */}
