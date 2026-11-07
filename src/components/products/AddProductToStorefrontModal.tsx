@@ -4,7 +4,7 @@ import { useToast } from '../../context/ToastContext';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
 import { formatINR } from '../../utils/formatters';
-import { Search, Plus, Eye, Trash2, Sprout } from 'lucide-react';
+import { Search, Plus, Trash2, Sprout } from 'lucide-react';
 
 export const AddProductToStorefrontModal: React.FC = () => {
   const {
@@ -16,7 +16,6 @@ export const AddProductToStorefrontModal: React.FC = () => {
     addProductToStorefront,
     removeProductFromStorefront,
     addMultipleProductsToStorefront,
-    setLiveStorefrontOpen,
   } = useAdmin();
 
   const { showToast } = useToast();
@@ -98,17 +97,6 @@ export const AddProductToStorefrontModal: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <Button
-              variant="sunshine"
-              size="sm"
-              onClick={() => {
-                setStorefrontPickerOpen(false);
-                setLiveStorefrontOpen(true);
-              }}
-              icon={<Eye className="w-4 h-4 stroke-[2.5]" />}
-            >
-              View Live Store
-            </Button>
             <Button
               variant="primary"
               size="sm"

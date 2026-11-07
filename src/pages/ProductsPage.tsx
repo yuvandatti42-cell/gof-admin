@@ -343,10 +343,12 @@ export const ProductsPage: React.FC = () => {
         secondaryImageUrl: formData.secondaryImageUrl,
         harvestLocation: formData.harvestLocation,
       });
-      if (formData.featured || autoStatus === 'Active') {
+      if (formData.featured) {
         addProductToStorefront(createdProd.id);
+        showToast(`"${formData.name}" added to catalog and published to storefront.`, 'success', 'Product Created');
+      } else {
+        showToast(`"${formData.name}" added to catalog. Click "Add to Store" to publish to customer website.`, 'success', 'Product Created');
       }
-      showToast(`"${formData.name}" added to catalog and published to storefront.`, 'success', 'Product Created');
     }
 
     setIsFormModalOpen(false);

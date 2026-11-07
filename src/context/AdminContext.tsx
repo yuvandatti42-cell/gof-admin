@@ -403,7 +403,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Product Actions
   const addProduct = useCallback(
     (data: Omit<Product, 'id' | 'updatedAt' | 'salesCount'>): Product => {
-      const isFeatured = data.featured ?? true;
+      const isFeatured = Boolean(data.featured);
       const newProduct: Product = {
         ...data,
         id: `prod-${Date.now()}`,
@@ -416,17 +416,18 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         console.error('Failed to save product to Firestore:', err)
       );
 
-      // Auto-publish to customer storefront so product is immediately visible in user dashboard & store
-      setStoreContent((prev) => {
-        const updated = {
-          ...prev,
-          featuredProductIds: [newProduct.id, ...prev.featuredProductIds.filter((id) => id !== newProduct.id)],
-        };
-        saveStoreContentToFirestore(updated).catch((err) =>
-          console.error('Failed to save store content to Firestore:', err)
-        );
-        return updated;
-      });
+      if (isFeatured) {
+        setStoreContent((prev) => {
+          const updated = {
+            ...prev,
+            featuredProductIds: [newProduct.id, ...prev.featuredProductIds.filter((id) => id !== newProduct.id)],
+          };
+          saveStoreContentToFirestore(updated).catch((err) =>
+            console.error('Failed to save store content to Firestore:', err)
+          );
+          return updated;
+        });
+      }
 
       return newProduct;
     },

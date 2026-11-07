@@ -241,6 +241,7 @@ export function subscribeToNotifications(
 
 // Products
 export async function addProductToFirestore(product: Product): Promise<void> {
+  const isFeatured = product.featured ?? false;
   const sanitized = sanitizeForFirestore({
     ...product,
     // Add dual fields so customer website and user dashboard also understand directly
@@ -250,7 +251,9 @@ export async function addProductToFirestore(product: Product): Promise<void> {
     weight: product.unit,
     originalPrice: product.compareAtPrice ?? product.price,
     inStock: product.stock > 0 && product.status === 'Active',
-    featured: product.featured ?? true,
+    featured: isFeatured,
+    onStore: isFeatured,
+    isLiveOnStore: isFeatured,
     rating: 4.8,
     reviewsCount: 15,
   });
@@ -267,7 +270,11 @@ export async function updateProductInFirestore(id: string, updates: Partial<Prod
   if (updates.stock !== undefined || updates.status !== undefined) {
     if (updates.stock !== undefined) docUpdates.inStock = updates.stock > 0;
   }
-  if (updates.featured !== undefined) docUpdates.featured = updates.featured;
+  if (updates.featured !== undefined) {
+    docUpdates.featured = updates.featured;
+    docUpdates.onStore = updates.featured;
+    docUpdates.isLiveOnStore = updates.featured;
+  }
   const sanitized = sanitizeForFirestore(docUpdates);
   await updateDoc(doc(db, COLLECTIONS.PRODUCTS, id), sanitized);
 }
@@ -281,7 +288,12 @@ export async function bulkUpdateProductsInFirestore(
   updates: Partial<Product>
 ): Promise<void> {
   const batch = writeBatch(db);
-  const sanitized = sanitizeForFirestore(updates);
+  const docUpdates: any = { ...updates };
+  if (updates.featured !== undefined) {
+    docUpdates.onStore = updates.featured;
+    docUpdates.isLiveOnStore = updates.featured;
+  }
+  const sanitized = sanitizeForFirestore(docUpdates);
   ids.forEach((id) => {
     batch.update(doc(db, COLLECTIONS.PRODUCTS, id), sanitized);
   });

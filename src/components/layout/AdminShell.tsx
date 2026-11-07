@@ -4,7 +4,6 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { MobileBottomNav } from './MobileBottomNav';
 import { GlobalSearchModal } from './GlobalSearchModal';
-import { LiveStorefrontModal } from '../storefront/LiveStorefrontModal';
 import { AddProductToStorefrontModal } from '../products/AddProductToStorefrontModal';
 import { QuickAddProductModal } from '../products/QuickAddProductModal';
 import { useAdmin } from '../../context/AdminContext';
@@ -58,7 +57,6 @@ export const AdminShell: React.FC = () => {
         isOpen={isSearchModalOpen}
         onClose={() => setIsSearchModalOpen(false)}
       />
-      <LiveStorefrontModal />
       <AddProductToStorefrontModal />
       <QuickAddProductModal />
     </div>

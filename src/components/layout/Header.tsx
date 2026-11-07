@@ -9,7 +9,6 @@ import {
   Sliders,
   LogOut,
   ChevronDown,
-  Eye,
 } from 'lucide-react';
 import { NotificationsPopover } from './NotificationsPopover';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -25,7 +24,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
   const {
     setMobileNavOpen,
     notifications,
-    setLiveStorefrontOpen,
   } = useAdmin();
   const { showToast } = useToast();
 
@@ -116,16 +114,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           <kbd className="hidden sm:inline-flex ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#faf5ea] border border-[#dfd5bf] text-[#5a6e54]">
             ⌘K
           </kbd>
-        </button>
-
-        {/* Live Storefront Preview Button */}
-        <button
-          onClick={() => setLiveStorefrontOpen(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#ffc926] text-[#103b1d] hover:bg-[#f2be1d] border border-[#e5b31f] text-xs font-black transition-all shadow-xs cursor-pointer shrink-0"
-          title="Open Godavari Organics live mobile store preview"
-        >
-          <Eye className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span className="hidden xs:inline">Live Store</span>
         </button>
 
         {/* Notification Bell */}

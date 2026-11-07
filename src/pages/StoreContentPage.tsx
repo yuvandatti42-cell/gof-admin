@@ -22,7 +22,6 @@ import {
   Tag,
   Sprout,
   MessageSquare,
-  Eye,
   Monitor,
 } from 'lucide-react';
 
@@ -54,7 +53,6 @@ export const StoreContentPage: React.FC = () => {
     toggleHeroSlideStatus,
     categories,
     updateCategory,
-    setLiveStorefrontOpen,
   } = useAdmin();
 
   const { showToast } = useToast();
@@ -265,16 +263,6 @@ export const StoreContentPage: React.FC = () => {
           <p className="text-xs sm:text-sm text-[#5a6e54] mt-0.5">
             Full visual command center: edit, replace, or upload every single banner, category photo, certification seal, and logo on the customer website.
           </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <Button
-            variant="secondary"
-            onClick={() => setLiveStorefrontOpen(true)}
-            icon={<Eye className="w-4 h-4" />}
-          >
-            Preview Live Store
-          </Button>
         </div>
       </div>
 
