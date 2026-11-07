@@ -12,14 +12,10 @@ import {
   Save,
   Info,
   CheckCircle2,
-  CreditCard,
-  ShieldCheck,
-  Key,
-  ExternalLink,
 } from 'lucide-react';
 
 interface SettingsPageProps {
-  defaultTab?: 'store' | 'shipping' | 'payment' | 'notifications' | 'admin';
+  defaultTab?: 'store' | 'shipping' | 'notifications' | 'admin';
 }
 
 export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
@@ -27,12 +23,12 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
   const { showToast } = useToast();
   const [searchParams] = useSearchParams();
 
-  const queryTab = searchParams.get('tab') as 'store' | 'shipping' | 'payment' | 'notifications' | 'admin' | null;
-  const initialTab = (queryTab && ['store', 'shipping', 'payment', 'notifications', 'admin'].includes(queryTab))
+  const queryTab = searchParams.get('tab') as 'store' | 'shipping' | 'notifications' | 'admin' | null;
+  const initialTab = (queryTab && ['store', 'shipping', 'notifications', 'admin'].includes(queryTab))
     ? queryTab
     : (defaultTab || 'shipping');
 
-  const [activeTab, setActiveTab] = useState<'store' | 'shipping' | 'payment' | 'notifications' | 'admin'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'store' | 'shipping' | 'notifications' | 'admin'>(initialTab);
 
   useEffect(() => {
     if (defaultTab) {
@@ -41,7 +37,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
   }, [defaultTab]);
 
   useEffect(() => {
-    if (queryTab && ['store', 'shipping', 'payment', 'notifications', 'admin'].includes(queryTab)) {
+    if (queryTab && ['store', 'shipping', 'notifications', 'admin'].includes(queryTab)) {
       setActiveTab(queryTab);
     }
   }, [queryTab]);
@@ -95,34 +91,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
   const [adminPhone, setAdminPhone] = useState(settings.adminProfile?.phone || '+91 94401 22849');
   const [adminRole, setAdminRole] = useState(settings.adminProfile?.role || 'Store Operations Director');
 
-  // Local draft state - Payment Gateway (Razorpay)
-  const [razorpayKeyId, setRazorpayKeyId] = useState(settings.payment?.razorpayKeyId || '');
-  const [razorpayMode, setRazorpayMode] = useState<'live' | 'test'>(settings.payment?.razorpayMode || 'live');
-  const [razorpayEnabled, setRazorpayEnabled] = useState(settings.payment?.razorpayEnabled ?? true);
-  const [merchantName, setMerchantName] = useState(settings.payment?.merchantName || 'Godavari Organic Foods');
-  const [isPaymentSaved, setIsPaymentSaved] = useState(false);
-
-  // Dedicated Save Razorpay Settings
-  const handleSavePayment = () => {
-    updateSettings({
-      payment: {
-        razorpayKeyId: razorpayKeyId.trim(),
-        razorpayMode,
-        razorpayEnabled,
-        merchantName: merchantName.trim() || 'Godavari Organic Foods',
-      },
-    });
-    setIsPaymentSaved(true);
-    showToast(
-      razorpayKeyId.trim().startsWith('rzp_live_')
-        ? 'Live Razorpay Gateway activated and saved!'
-        : 'Razorpay configuration saved successfully!',
-      'success',
-      'Razorpay Saved'
-    );
-    setTimeout(() => setIsPaymentSaved(false), 4000);
-  };
-
   // Save changes
   const handleSaveSettings = () => {
     const thresholdNum = Number(freeShippingThreshold) > 0 ? Number(freeShippingThreshold) : 1000;
@@ -157,12 +125,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
         email: adminEmail,
         phone: adminPhone,
         role: adminRole,
-      },
-      payment: {
-        razorpayKeyId: razorpayKeyId.trim(),
-        razorpayMode,
-        razorpayEnabled,
-        merchantName: merchantName.trim() || 'Godavari Organic Foods',
       },
     });
 
@@ -210,7 +172,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
       <div className="flex overflow-x-auto border-b border-[#dfd5bf] gap-2 pb-px text-xs font-semibold">
         {[
           { key: 'shipping', label: 'Shipping & Free Delivery', icon: Truck },
-          { key: 'payment', label: 'Payment Gateway (Razorpay)', icon: CreditCard },
           { key: 'store', label: 'Store Profile & Legal', icon: Store },
           { key: 'notifications', label: 'Alerts & Notifications', icon: Bell },
           { key: 'admin', label: 'Admin Account', icon: User },
@@ -299,186 +260,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
                     </span>
                   )}
                 </div>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
-
-      {/* Tab: Razorpay Payment Gateway */}
-      {activeTab === 'payment' && (
-        <div className="space-y-6">
-          <Card className="space-y-5">
-            <div className="border-b border-[#dfd5bf] pb-3 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h3 className="text-base font-semibold text-[#103b1d] flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-[#18542a]" />
-                  Razorpay Payment Gateway (Live / Production)
-                </h3>
-                <p className="text-xs text-[#5a6e54] mt-0.5">
-                  Configure live Razorpay payments. Customers can pay directly via UPI (Google Pay, PhonePe, Paytm, BHIM, QR code), Credit/Debit Cards, and Net Banking.
-                </p>
-              </div>
-
-              {/* Status Badge */}
-              <div>
-                {razorpayKeyId.trim().startsWith('rzp_live_') ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
-                    <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-                    Live Production Gateway Active
-                  </span>
-                ) : razorpayKeyId.trim().startsWith('rzp_test_') ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
-                    <span className="w-2 h-2 rounded-full bg-amber-600" />
-                    Test / Sandbox Mode
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-stone-100 text-stone-700 border border-stone-300">
-                    <Key className="w-3.5 h-3.5 text-stone-500" />
-                    Live Key Required
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="max-w-xl text-xs space-y-4">
-              {/* Razorpay Key ID Input */}
-              <div className="bg-[#FAF5EA] p-5 rounded-2xl border border-[#dfd5bf]/80 space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="block font-bold text-[#103b1d] text-sm">
-                    Razorpay Key ID <span className="text-red-500">*</span>
-                  </label>
-                  <a
-                    href="https://dashboard.razorpay.com/#/app/keys"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-[#18542a] hover:underline cursor-pointer"
-                  >
-                    <span>Razorpay Dashboard</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
-
-                <div className="relative">
-                  <span className="absolute left-3.5 top-2.5 text-stone-400">
-                    <Key className="w-4 h-4 text-[#18542a]" />
-                  </span>
-                  <input
-                    type="text"
-                    value={razorpayKeyId}
-                    onChange={(e) => {
-                      setRazorpayKeyId(e.target.value);
-                      setIsPaymentSaved(false);
-                    }}
-                    placeholder="e.g. rzp_live_xxxxxxxxxxxxxx or rzp_test_xxxxxxxxxxxxxx"
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#dfd5bf] bg-white text-xs sm:text-sm font-mono text-[#103b1d] focus:outline-none focus:ring-2 focus:ring-[#18542a]"
-                  />
-                </div>
-
-                {razorpayKeyId.trim().startsWith('rzp_live_') ? (
-                  <p className="text-[11px] font-semibold text-emerald-700 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    Production Ready: Real customer payments will be deposited directly to your bank account.
-                  </p>
-                ) : razorpayKeyId.trim().startsWith('rzp_test_') ? (
-                  <p className="text-[11px] font-semibold text-amber-700 flex items-center gap-1.5">
-                    <Info className="w-3.5 h-3.5" />
-                    Sandbox Mode: Using Razorpay test keys for simulated checkout testing.
-                  </p>
-                ) : (
-                  <p className="text-[11px] text-[#5a6e54]">
-                    Paste your <strong>Live Key ID</strong> from the Razorpay Dashboard (<code className="text-[#18542a] font-mono">rzp_live_...</code>) to accept real customer orders.
-                  </p>
-                )}
-              </div>
-
-              {/* Online Payment Enabled Toggle */}
-              <div className="p-4 rounded-xl border border-[#dfd5bf] bg-white flex items-center justify-between">
-                <div>
-                  <span className="block font-bold text-[#103b1d]">Enable Razorpay Online Checkout</span>
-                  <p className="text-[11px] text-[#5a6e54]">Accept UPI, Cards, Net Banking on customer checkout</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={razorpayEnabled}
-                  onChange={(e) => {
-                    setRazorpayEnabled(e.target.checked);
-                    setIsPaymentSaved(false);
-                  }}
-                  className="w-5 h-5 rounded text-[#18542a] focus:ring-[#18542a] cursor-pointer"
-                />
-              </div>
-
-              {/* Gateway Mode Switch */}
-              <div className="p-4 rounded-xl border border-[#dfd5bf] bg-white space-y-2">
-                <label className="block font-bold text-[#103b1d]">Transaction Environment</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setRazorpayMode('live');
-                      setIsPaymentSaved(false);
-                    }}
-                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                      razorpayMode === 'live'
-                        ? 'bg-[#18542a] text-white border-[#18542a] shadow-xs'
-                        : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
-                    }`}
-                  >
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>Live Mode (Real Money)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setRazorpayMode('test');
-                      setIsPaymentSaved(false);
-                    }}
-                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                      razorpayMode === 'test'
-                        ? 'bg-[#946200] text-white border-[#946200] shadow-xs'
-                        : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
-                    }`}
-                  >
-                    <span>Sandbox Test Mode</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Merchant Display Name */}
-              <div className="p-4 rounded-xl border border-[#dfd5bf] bg-white space-y-1.5">
-                <label className="block font-bold text-[#103b1d]">
-                  Merchant Business Name (Shown on Payment Popup)
-                </label>
-                <input
-                  type="text"
-                  value={merchantName}
-                  onChange={(e) => {
-                    setMerchantName(e.target.value);
-                    setIsPaymentSaved(false);
-                  }}
-                  placeholder="Godavari Organic Foods"
-                  className="w-full px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white text-xs sm:text-sm font-semibold text-[#103b1d]"
-                />
-              </div>
-
-              {/* Confirm & Save Button */}
-              <div className="pt-2 flex flex-wrap items-center gap-3">
-                <Button
-                  variant="primary"
-                  onClick={handleSavePayment}
-                  icon={<Save className="w-4 h-4" />}
-                  className="px-6 py-2.5 font-bold text-xs shadow-xs"
-                >
-                  Confirm & Save Razorpay Gateway
-                </Button>
-
-                {isPaymentSaved && (
-                  <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    Razorpay settings saved & connected to storefront!
-                  </span>
-                )}
               </div>
             </div>
           </Card>
