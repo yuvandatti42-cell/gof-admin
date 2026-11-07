@@ -1075,9 +1075,7 @@ export const INITIAL_STORE_CONTENT: StoreContent = {
     },
   ],
   shipping: {
-    freeShippingThreshold: 1500,
-    standardDeliveryCharge: 50,
-    estimatedDays: '2 - 4 Business Days',
+    freeShippingThreshold: 1000,
   },
 };
 
@@ -1100,9 +1098,7 @@ export const INITIAL_SETTINGS: StoreSettings = {
     bannerNotice: 'Demo preview mode active',
   },
   shipping: {
-    freeShippingThreshold: 1500,
-    standardDeliveryCharge: 50,
-    estimatedDays: '2 - 4 Business Days',
+    freeShippingThreshold: 1000,
   },
   notifications: {
     orderAlerts: true,

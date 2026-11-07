@@ -883,9 +883,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         storeProfile: { ...prev.storeProfile, ...updates.storeProfile },
         appearance: { ...prev.appearance, ...updates.appearance },
         shipping: {
-          freeShippingThreshold: updates.shipping?.freeShippingThreshold ?? prev.shipping?.freeShippingThreshold ?? 1500,
-          standardDeliveryCharge: updates.shipping?.standardDeliveryCharge ?? prev.shipping?.standardDeliveryCharge ?? 50,
-          estimatedDays: updates.shipping?.estimatedDays || prev.shipping?.estimatedDays || '2 - 4 Business Days',
+          freeShippingThreshold: updates.shipping?.freeShippingThreshold ?? prev.shipping?.freeShippingThreshold ?? 1000,
         },
         notifications: { ...prev.notifications, ...updates.notifications },
         adminProfile: { ...prev.adminProfile, ...updates.adminProfile },

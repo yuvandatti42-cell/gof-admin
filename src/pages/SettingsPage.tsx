@@ -31,15 +31,9 @@ export const SettingsPage: React.FC = () => {
   const [gstNumber, setGstNumber] = useState(settings.storeProfile?.gstNumber || '37AAACG1984Q1Z7');
   const [fssaiLicense, setFssaiLicense] = useState(settings.storeProfile?.fssaiLicense || '10123028000419');
 
-  // Local draft state - Shipping & Delivery (Customizable Threshold)
+  // Local draft state - Shipping & Delivery (Customizable Free Shipping Threshold)
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(
-    (settings.shipping?.freeShippingThreshold ?? 1500).toString()
-  );
-  const [standardDeliveryCharge, setStandardDeliveryCharge] = useState(
-    (settings.shipping?.standardDeliveryCharge ?? 50).toString()
-  );
-  const [estimatedDays, setEstimatedDays] = useState(
-    settings.shipping?.estimatedDays || '2 - 4 Business Days'
+    (settings.shipping?.freeShippingThreshold ?? 1000).toString()
   );
 
   // Local draft state - Notifications
@@ -59,8 +53,7 @@ export const SettingsPage: React.FC = () => {
 
   // Save changes
   const handleSaveSettings = () => {
-    const thresholdNum = Number(freeShippingThreshold) > 0 ? Number(freeShippingThreshold) : 1500;
-    const deliveryFeeNum = Number(standardDeliveryCharge) >= 0 ? Number(standardDeliveryCharge) : 50;
+    const thresholdNum = Number(freeShippingThreshold) > 0 ? Number(freeShippingThreshold) : 1000;
 
     updateSettings({
       storeProfile: {
@@ -79,8 +72,6 @@ export const SettingsPage: React.FC = () => {
       },
       shipping: {
         freeShippingThreshold: thresholdNum,
-        standardDeliveryCharge: deliveryFeeNum,
-        estimatedDays,
       },
       notifications: {
         orderAlerts,
@@ -100,8 +91,7 @@ export const SettingsPage: React.FC = () => {
     showToast('Settings saved successfully! Storefront will update dynamically.', 'success', 'Settings Saved');
   };
 
-  const parsedThreshold = Number(freeShippingThreshold) || 1500;
-  const parsedFee = Number(standardDeliveryCharge) || 50;
+  const parsedThreshold = Number(freeShippingThreshold) || 1000;
 
   return (
     <div className="space-y-6">
@@ -165,7 +155,7 @@ export const SettingsPage: React.FC = () => {
         })}
       </div>
 
-      {/* Tab: Shipping & Free Delivery (New & Customizable) */}
+      {/* Tab: Shipping & Free Delivery (Customizable Free Threshold Only) */}
       {activeTab === 'shipping' && (
         <div className="space-y-6">
           <Card className="space-y-5">
@@ -173,16 +163,16 @@ export const SettingsPage: React.FC = () => {
               <div>
                 <h3 className="text-base font-semibold text-[#103b1d] flex items-center gap-2">
                   <Truck className="w-5 h-5 text-[#18542a]" />
-                  Customizable Free Shipping & Delivery Rules
+                  Customizable Free Shipping Rules
                 </h3>
                 <p className="text-xs text-[#5a6e54] mt-0.5">
-                  Set the minimum order value required for free shipping. The storefront dynamically calculates remaining amounts and shows a live progress bar to the customer.
+                  Set the minimum order value required for free shipping. The customer storefront dynamically checks cart value and prompts customers to unlock free delivery.
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs">
-              <div className="bg-[#FAF5EA] p-4 rounded-2xl border border-[#dfd5bf]/80 space-y-3">
+            <div className="max-w-xl text-xs space-y-4">
+              <div className="bg-[#FAF5EA] p-5 rounded-2xl border border-[#dfd5bf]/80 space-y-3">
                 <label className="block font-bold text-[#103b1d] text-sm">
                   Free Shipping Minimum Order Value (₹)
                 </label>
@@ -194,47 +184,13 @@ export const SettingsPage: React.FC = () => {
                     step="50"
                     value={freeShippingThreshold}
                     onChange={(e) => setFreeShippingThreshold(e.target.value)}
-                    placeholder="e.g. 1500 or 12000"
+                    placeholder="e.g. 1000 or 1500"
                     className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-[#dfd5bf] bg-white text-base font-extrabold text-[#103b1d] focus:outline-none focus:ring-2 focus:ring-[#18542a]"
                   />
                 </div>
-                <p className="text-[11px] text-[#5a6e54]">
-                  Orders totaling <strong className="text-[#18542a]">₹{parsedThreshold.toLocaleString('en-IN')}</strong> or higher automatically receive 100% Free Shipping. Set to any value (e.g. ₹1,500, ₹12,000).
+                <p className="text-[11px] text-[#5a6e54] leading-relaxed">
+                  Orders totaling <strong className="text-[#18542a]">₹{parsedThreshold.toLocaleString('en-IN')}</strong> or higher automatically receive <strong className="text-emerald-700 font-bold">100% Free Delivery</strong>. Set to your desired amount (e.g. ₹1,000, ₹1,500).
                 </p>
-              </div>
-
-              <div className="bg-[#FAF5EA] p-4 rounded-2xl border border-[#dfd5bf]/80 space-y-3">
-                <label className="block font-bold text-[#103b1d] text-sm">
-                  Standard Delivery Fee (₹)
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-2.5 text-base font-bold text-[#18542a]">₹</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="10"
-                    value={standardDeliveryCharge}
-                    onChange={(e) => setStandardDeliveryCharge(e.target.value)}
-                    placeholder="e.g. 50"
-                    className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-[#dfd5bf] bg-white text-base font-extrabold text-[#103b1d] focus:outline-none focus:ring-2 focus:ring-[#18542a]"
-                  />
-                </div>
-                <p className="text-[11px] text-[#5a6e54]">
-                  Charged when customer's cart subtotal is strictly below the free shipping threshold.
-                </p>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="block font-semibold text-[#103b1d] mb-1">
-                  Estimated Delivery Window
-                </label>
-                <input
-                  type="text"
-                  value={estimatedDays}
-                  onChange={(e) => setEstimatedDays(e.target.value)}
-                  placeholder="e.g. 2 - 4 Business Days"
-                  className="w-full px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white text-xs"
-                />
               </div>
             </div>
           </Card>
@@ -249,14 +205,14 @@ export const SettingsPage: React.FC = () => {
             </div>
 
             <p className="text-xs text-[#5a6e54]">
-              Below is exactly how customer cart notifications dynamically appear based on your configured threshold of <strong className="text-[#18542a]">₹{parsedThreshold.toLocaleString('en-IN')}</strong>:
+              Below is how customer cart notifications dynamically appear based on your configured threshold of <strong className="text-[#18542a]">₹{parsedThreshold.toLocaleString('en-IN')}</strong>:
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              {/* Scenario 1: Cart is ₹1,000 (below threshold) */}
+              {/* Scenario 1: Cart below threshold */}
               <div className="p-4 rounded-xl bg-white border border-[#dfd5bf] space-y-2.5 shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#103b1d]">Scenario A: User Cart = ₹1,000</span>
+                  <span className="font-bold text-[#103b1d]">Scenario A: User Cart Below Threshold</span>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">
                     Below Threshold
                   </span>
@@ -265,19 +221,19 @@ export const SettingsPage: React.FC = () => {
                   <div className="flex items-center gap-2 font-bold text-xs">
                     <Truck className="w-3.5 h-3.5 text-[#18542a]" />
                     <span>
-                      Add <span className="text-emerald-700">₹{Math.max(0, parsedThreshold - 1000).toLocaleString('en-IN')}</span> more to get FREE shipping!
+                      Add <span className="text-emerald-700">₹{Math.max(0, parsedThreshold - 750).toLocaleString('en-IN')}</span> more to get FREE shipping!
                     </span>
                   </div>
                   <div className="w-full bg-stone-200 h-1.5 rounded-full overflow-hidden">
                     <div
                       className="bg-[#18542a] h-full rounded-full"
-                      style={{ width: `${Math.min(100, Math.round((1000 / parsedThreshold) * 100))}%` }}
+                      style={{ width: `${Math.min(100, Math.round((750 / parsedThreshold) * 100))}%` }}
                     />
                   </div>
                 </div>
                 <div className="flex justify-between text-[11px] text-[#5a6e54]">
-                  <span>Shipping Fee: ₹{parsedFee}</span>
-                  <span>Total: ₹{(1000 + parsedFee).toLocaleString('en-IN')}</span>
+                  <span>Delivery Status: Free above ₹{parsedThreshold.toLocaleString('en-IN')}</span>
+                  <span>Items: ₹750</span>
                 </div>
               </div>
 

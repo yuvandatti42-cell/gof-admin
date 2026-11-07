@@ -204,8 +204,6 @@ export interface StoreContent {
   brandAssets?: BrandAssets;
   shipping?: {
     freeShippingThreshold: number;
-    standardDeliveryCharge: number;
-    estimatedDays?: string;
   };
 }
 
@@ -229,8 +227,6 @@ export interface StoreSettings {
   };
   shipping: {
     freeShippingThreshold: number;
-    standardDeliveryCharge: number;
-    estimatedDays?: string;
   };
   notifications: {
     orderAlerts: boolean;
