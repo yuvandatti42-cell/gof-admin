@@ -39,7 +39,7 @@ export const CategoriesPage: React.FC = () => {
     name: '',
     slug: '',
     description: '',
-    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80',
+    imageUrl: '/categories/oil.webp',
     visibility: 'Visible' as CategoryVisibility,
   };
   const [formData, setFormData] = useState(initialForm);
@@ -272,13 +272,13 @@ export const CategoriesPage: React.FC = () => {
                 padding="none"
                 className="overflow-hidden flex flex-col group hover:border-[#9abc05] transition-colors"
               >
-                {/* Image Header - formatted like user dashboard with full contain & soft circle preview */}
-                <div className="relative h-40 bg-gradient-to-b from-[#faf5ea] to-[#f4ede0]/50 p-4 flex items-center justify-center overflow-hidden border-b border-[#dfd5bf]/60">
-                  <div className="w-24 h-24 rounded-full bg-white/90 border border-[#dfd5bf] p-2 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform duration-300">
+                {/* Image Header - full rectangular display matching customer website (not round) */}
+                <div className="relative h-44 w-full bg-gradient-to-b from-[#faf5ea] to-[#f4ede0]/50 p-3 flex items-center justify-center overflow-hidden border-b border-[#dfd5bf]/60">
+                  <div className="w-full h-full rounded-xl bg-white border border-[#dfd5bf] p-2 flex items-center justify-center shadow-2xs group-hover:shadow-xs transition-all overflow-hidden">
                     <img
                       src={cat.imageUrl}
                       alt={cat.name}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain transform-gpu group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                   <div className="absolute top-2.5 right-2.5">
@@ -350,7 +350,7 @@ export const CategoriesPage: React.FC = () => {
                   return (
                     <tr key={cat.id} className="hover:bg-[#faf5ea]/70 transition-colors">
                       <td className="py-3 px-4">
-                        <div className="w-11 h-11 rounded-full bg-[#f4ede0]/70 border border-[#dfd5bf] p-1.5 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-xl bg-white border border-[#dfd5bf] p-1.5 flex items-center justify-center shrink-0 shadow-2xs">
                           <img
                             src={cat.imageUrl}
                             alt={cat.name}
@@ -511,6 +511,10 @@ export const CategoriesPage: React.FC = () => {
                 { name: 'Rice', url: '/categories/rice.webp' },
                 { name: 'Millets', url: '/categories/millet.webp' },
                 { name: 'Spices', url: '/categories/spices.webp' },
+                { name: 'Desi Cow Ghee', url: '/categories/desi_cow_ghee.webp' },
+                { name: 'Vegetables', url: '/categories/vegetables.webp' },
+                { name: 'Fruits', url: '/categories/fruits.webp' },
+                { name: 'Dairy & Bread', url: '/categories/dairy_bread.webp' },
               ].map((p) => (
                 <button
                   type="button"

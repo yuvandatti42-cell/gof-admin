@@ -310,16 +310,25 @@ export async function bulkDeleteProductsFromFirestore(ids: string[]): Promise<vo
 
 // Categories
 export async function addCategoryToFirestore(category: Category): Promise<void> {
-  const sanitized = sanitizeForFirestore(category);
-  await setDoc(doc(db, COLLECTIONS.CATEGORIES, category.id), sanitized);
+  const sanitized = sanitizeForFirestore({
+    ...category,
+    image: category.imageUrl,
+    imageUrl: category.imageUrl,
+  });
+  await setDoc(doc(db, COLLECTIONS.CATEGORIES, category.id), sanitized, { merge: true });
 }
 
 export async function updateCategoryInFirestore(
   id: string,
   updates: Partial<Category>
 ): Promise<void> {
-  const sanitized = sanitizeForFirestore(updates);
-  await updateDoc(doc(db, COLLECTIONS.CATEGORIES, id), sanitized);
+  const docUpdates: any = { ...updates };
+  if (updates.imageUrl) {
+    docUpdates.image = updates.imageUrl;
+    docUpdates.imageUrl = updates.imageUrl;
+  }
+  const sanitized = sanitizeForFirestore(docUpdates);
+  await setDoc(doc(db, COLLECTIONS.CATEGORIES, id), sanitized, { merge: true });
 }
 
 export async function deleteCategoryFromFirestore(id: string): Promise<void> {
@@ -415,8 +424,25 @@ export async function checkAndSeedFirestoreIfEmpty(defaults: {
 }): Promise<boolean> {
   try {
     const prodSnap = await getDocs(query(collection(db, COLLECTIONS.PRODUCTS), limit(1)));
+    
+    // Check if categories collection is empty and seed if so
+    const catSnap = await getDocs(query(collection(db, COLLECTIONS.CATEGORIES), limit(1)));
+    if (catSnap.empty) {
+      console.log('Categories collection empty in Firestore. Seeding default categories...');
+      const catBatch = writeBatch(db);
+      defaults.categories.forEach((c) => {
+        const docRef = doc(db, COLLECTIONS.CATEGORIES, c.id);
+        catBatch.set(docRef, sanitizeForFirestore({
+          ...c,
+          image: c.imageUrl,
+          imageUrl: c.imageUrl,
+        }));
+      });
+      await catBatch.commit();
+    }
+
     if (!prodSnap.empty) {
-      console.log('Firebase Firestore already contains products. Skipping initial seed.');
+      console.log('Firebase Firestore already contains products. Skipping initial product seed.');
       return false;
     }
 
