@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
 import { useToast } from '../context/ToastContext';
 import { Card } from '../components/common/Card';
@@ -14,11 +15,33 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-export const SettingsPage: React.FC = () => {
+interface SettingsPageProps {
+  defaultTab?: 'store' | 'shipping' | 'notifications' | 'admin';
+}
+
+export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
   const { settings, updateSettings } = useAdmin();
   const { showToast } = useToast();
+  const [searchParams] = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<'store' | 'shipping' | 'notifications' | 'admin'>('shipping');
+  const queryTab = searchParams.get('tab') as 'store' | 'shipping' | 'notifications' | 'admin' | null;
+  const initialTab = (queryTab && ['store', 'shipping', 'notifications', 'admin'].includes(queryTab))
+    ? queryTab
+    : (defaultTab || 'shipping');
+
+  const [activeTab, setActiveTab] = useState<'store' | 'shipping' | 'notifications' | 'admin'>(initialTab);
+
+  useEffect(() => {
+    if (defaultTab) {
+      setActiveTab(defaultTab);
+    }
+  }, [defaultTab]);
+
+  useEffect(() => {
+    if (queryTab && ['store', 'shipping', 'notifications', 'admin'].includes(queryTab)) {
+      setActiveTab(queryTab);
+    }
+  }, [queryTab]);
 
   // Local draft state - Store Profile
   const [storeName, setStoreName] = useState(settings.storeProfile?.storeName || 'Godavari Organic Foods');

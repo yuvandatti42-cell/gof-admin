@@ -91,11 +91,11 @@ export const OrdersPage: React.FC = () => {
       const q = searchTerm.toLowerCase().trim();
       const matchesSearch =
         !q ||
-        order.id.toLowerCase().includes(q) ||
-        order.customerName.toLowerCase().includes(q) ||
-        order.customerEmail.toLowerCase().includes(q) ||
-        order.customerPhone.includes(q) ||
-        order.shippingAddress.city.toLowerCase().includes(q);
+        (order.id || '').toLowerCase().includes(q) ||
+        (order.customerName || '').toLowerCase().includes(q) ||
+        (order.customerEmail || '').toLowerCase().includes(q) ||
+        String(order.customerPhone || '').includes(q) ||
+        (order.shippingAddress?.city || '').toLowerCase().includes(q);
 
       const matchesStatus =
         statusFilter === 'all' || order.orderStatus === statusFilter;

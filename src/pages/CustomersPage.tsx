@@ -57,9 +57,9 @@ export const CustomersPage: React.FC = () => {
       const q = searchTerm.toLowerCase().trim();
       const matchesSearch =
         !q ||
-        c.name.toLowerCase().includes(q) ||
-        c.email.toLowerCase().includes(q) ||
-        c.phone.includes(q) ||
+        (c.name || '').toLowerCase().includes(q) ||
+        (c.email || '').toLowerCase().includes(q) ||
+        String(c.phone || '').includes(q) ||
         (c.city && c.city.toLowerCase().includes(q)) ||
         (c.state && c.state.toLowerCase().includes(q));
 
@@ -82,12 +82,22 @@ export const CustomersPage: React.FC = () => {
   // Customer's orders
   const customerOrders = useMemo(() => {
     if (!selectedCustomer) return [];
-    return orders.filter(
-      (o) =>
-        (selectedCustomer.email && o.customerEmail?.toLowerCase() === selectedCustomer.email.toLowerCase()) ||
-        (selectedCustomer.phone && o.customerPhone && (o.customerPhone.includes(selectedCustomer.phone) || selectedCustomer.phone.includes(o.customerPhone))) ||
-        (selectedCustomer.recentOrderIds && selectedCustomer.recentOrderIds.includes(o.id))
-    );
+    const custEmail = (selectedCustomer.email || '').toLowerCase().trim();
+    const custPhone = String(selectedCustomer.phone || '').trim();
+    const custRecentIds = Array.isArray(selectedCustomer.recentOrderIds) ? selectedCustomer.recentOrderIds : [];
+
+    return orders.filter((o) => {
+      if (!o) return false;
+      const orderEmail = (o.customerEmail || '').toLowerCase().trim();
+      const orderPhone = String(o.customerPhone || '').trim();
+      const orderId = String(o.id || '');
+
+      const matchesEmail = custEmail && orderEmail && custEmail === orderEmail;
+      const matchesPhone = custPhone && orderPhone && (orderPhone.includes(custPhone) || custPhone.includes(orderPhone));
+      const matchesId = custRecentIds.includes(orderId);
+
+      return Boolean(matchesEmail || matchesPhone || matchesId);
+    });
   }, [orders, selectedCustomer]);
 
   return (
@@ -357,13 +367,13 @@ export const CustomersPage: React.FC = () => {
                             />
                           ) : (
                             <div className="w-9 h-9 rounded-xl bg-[#E8F0EB] text-[#18542a] font-bold text-xs flex items-center justify-center shrink-0 border border-[#C0D6C8]">
-                              {c.name.split(' ').map((n) => n[0]).join('').substring(0, 2)}
+                              {(c.name || 'Customer').split(' ').filter(Boolean).map((n) => (n ? n[0] : '')).join('').substring(0, 2).toUpperCase() || 'CU'}
                             </div>
                           )}
                           <div>
                             <div className="flex items-center gap-1.5">
                               <p className="font-semibold text-[#103b1d] group-hover:text-[#18542a] transition-colors">
-                                {c.name}
+                                {c.name || 'Customer'}
                               </p>
                               {c.authProvider && (
                                 <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md ${
@@ -473,12 +483,12 @@ export const CustomersPage: React.FC = () => {
         <Drawer
           isOpen={!!selectedCustomer}
           onClose={() => setSelectedCustomer(null)}
-          title={selectedCustomer.name}
-          subtitle={`Member since ${formatDate(selectedCustomer.joinedDate)}`}
+          title={selectedCustomer?.name || 'Customer Profile'}
+          subtitle={selectedCustomer?.joinedDate ? `Member since ${formatDate(selectedCustomer.joinedDate)}` : 'Verified Customer'}
           footer={
             <div className="flex items-center justify-between w-full">
               <span className="text-xs text-[#5a6e54]">
-                Tier: <strong className="text-[#18542a]">{selectedCustomer.status}</strong>
+                Tier: <strong className="text-[#18542a]">{selectedCustomer?.status || 'Active'}</strong>
               </span>
               <Button variant="secondary" size="sm" onClick={() => setSelectedCustomer(null)}>
                 Close
@@ -498,7 +508,7 @@ export const CustomersPage: React.FC = () => {
                   />
                 ) : (
                   <div className="w-12 h-12 rounded-2xl bg-[#18542a] text-white font-bold text-sm flex items-center justify-center shadow-xs">
-                    {selectedCustomer.name.split(' ').map((n) => n[0]).join('').substring(0, 2)}
+                    {(selectedCustomer?.name || 'Customer').split(' ').filter(Boolean).map((n) => (n ? n[0] : '')).join('').substring(0, 2).toUpperCase() || 'CU'}
                   </div>
                 )}
                 <div>
@@ -573,7 +583,7 @@ export const CustomersPage: React.FC = () => {
               <div className="p-3.5 rounded-xl border border-[#dfd5bf] bg-white">
                 <span className="text-[#5a6e54] block">Total Lifetime Spent</span>
                 <span className="text-base font-bold text-[#103b1d] mt-0.5 block tabular-nums">
-                  {formatINR(selectedCustomer.totalSpent || 0)}
+                  {formatINR(selectedCustomer?.totalSpent || 0)}
                 </span>
               </div>
               <div className="p-3.5 rounded-xl border border-[#dfd5bf] bg-white">
@@ -632,11 +642,11 @@ export const CustomersPage: React.FC = () => {
                             {ord.paymentStatus}
                           </Badge>
                         </div>
-                        <p className="text-[#5a6e54] mt-0.5">{formatDate(ord.date)} • {ord.items.length} items</p>
+                        <p className="text-[#5a6e54] mt-0.5">{formatDate(ord.date)} • {Array.isArray(ord.items) ? ord.items.length : 0} items</p>
                       </div>
                       <div className="text-right">
                         <span className="font-bold text-[#103b1d] block tabular-nums">
-                          {formatINR(ord.total)}
+                          {formatINR(ord?.total || 0)}
                         </span>
                         <Badge status={ord.orderStatus} size="sm" className="mt-0.5">
                           {ord.orderStatus}

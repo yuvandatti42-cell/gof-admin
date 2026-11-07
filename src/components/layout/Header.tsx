@@ -9,6 +9,7 @@ import {
   Sliders,
   LogOut,
   ChevronDown,
+  User,
 } from 'lucide-react';
 import { NotificationsPopover } from './NotificationsPopover';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -64,6 +65,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
         return { title: 'Store Visuals & Images', category: 'Media & Branding Manager' };
       case '/settings':
         return { title: 'Settings', category: 'Store Configuration' };
+      case '/profile':
+        return { title: 'Administrator Profile', category: 'Store Configuration' };
       default:
         return { title: 'Admin', category: 'Management' };
     }
@@ -159,6 +162,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                 </span>
               </div>
               <div className="p-1 text-xs text-[#103b1d]">
+                <button
+                  onClick={() => {
+                    navigate('/profile');
+                    setIsProfileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#faf5ea] transition-colors text-left cursor-pointer"
+                >
+                  <User className="w-4 h-4 text-[#5a6e54]" />
+                  Administrator Profile
+                </button>
                 <button
                   onClick={() => {
                     navigate('/settings');

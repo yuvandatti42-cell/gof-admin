@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
 import {
   LayoutDashboard,
@@ -33,6 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick, onClose, isMobileD
   } = useAdmin();
 
   const collapsed = isMobileDrawer ? false : isSidebarCollapsed;
+  const navigate = useNavigate();
 
   const pendingOrdersCount = orders.filter(
     (o) => o.orderStatus === 'Pending' || o.orderStatus === 'Processing'
@@ -222,7 +223,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavClick, onClose, isMobileD
 
         {/* Admin profile snippet */}
         <div
-          className={`flex items-center gap-3 p-2 rounded-xl hover:bg-[#f3e8cc]/60 transition-colors cursor-pointer ${
+          onClick={() => {
+            navigate('/profile');
+            if (onClose) onClose();
+          }}
+          title="Open Administrator Profile"
+          className={`flex items-center gap-3 p-2 rounded-xl hover:bg-[#f3e8cc]/80 transition-colors cursor-pointer border border-transparent hover:border-[#dfd5bf] ${
             collapsed ? 'justify-center' : ''
           }`}
         >
