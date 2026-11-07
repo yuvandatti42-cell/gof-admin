@@ -125,7 +125,19 @@ export const ProductsPage: React.FC = () => {
   // Quick Add Category Modal state
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategorySlug, setNewCategorySlug] = useState('');
   const [newCategoryDesc, setNewCategoryDesc] = useState('');
+
+  // Quick slug helper
+  const slugifyCategory = (text: string): string => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/&/g, 'and')
+      .replace(/[''""`]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
 
   // Category counts map
   const categoryCounts = useMemo(() => {
@@ -144,7 +156,7 @@ export const ProductsPage: React.FC = () => {
       showToast('Please enter a category name.', 'error');
       return;
     }
-    const slug = name.toLowerCase().replace(/\s+/g, '-');
+    const slug = newCategorySlug.trim() || slugifyCategory(name);
     const created = addCategory({
       name,
       slug,
@@ -155,6 +167,7 @@ export const ProductsPage: React.FC = () => {
     showToast(`Category "${created.name}" created!`, 'success');
     setCategoryFilter(created.id);
     setNewCategoryName('');
+    setNewCategorySlug('');
     setNewCategoryDesc('');
     setIsAddCategoryOpen(false);
   };
@@ -1623,10 +1636,40 @@ export const ProductsPage: React.FC = () => {
               type="text"
               required
               value={newCategoryName}
-              onChange={(e) => setNewCategoryName(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setNewCategoryName(val);
+                setNewCategorySlug(slugifyCategory(val));
+              }}
               placeholder="e.g. Natural Sweeteners, Wood-Pressed Oils"
               className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white font-semibold focus:ring-1 focus:ring-[#18542a]"
             />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold text-[#103b1d]">
+                URL Slug <span className="text-red-500">*</span>
+              </label>
+              <span className="text-[10px] font-bold text-[#18542a] bg-[#e8f0eb] px-2 py-0.5 rounded-full border border-[#c0d6c8]">
+                Auto-generated
+              </span>
+            </div>
+            <div className="flex items-center rounded-xl border border-[#dfd5bf] bg-white overflow-hidden">
+              <span className="text-xs text-[#5a6e54] px-3 bg-[#faf5ea] border-r border-[#dfd5bf] py-2 shrink-0 font-mono">
+                /collections/
+              </span>
+              <input
+                type="text"
+                value={newCategorySlug}
+                onChange={(e) => setNewCategorySlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                placeholder="auto-generated-slug"
+                className="w-full text-xs sm:text-sm px-3 py-2 font-mono bg-white focus:outline-none text-[#103b1d]"
+              />
+            </div>
+            <p className="text-[10px] text-[#5a6e54] mt-1">
+              Store Link: <span className="text-[#18542a] font-mono">godavariorganic.in/collections/{newCategorySlug || 'category-slug'}</span>
+            </p>
           </div>
 
           <div>

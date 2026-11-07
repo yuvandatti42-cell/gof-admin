@@ -18,6 +18,8 @@ import {
   Trash2,
   Package,
   UploadCloud,
+  Sparkles,
+  RefreshCw,
 } from 'lucide-react';
 
 
@@ -44,6 +46,18 @@ export const CategoriesPage: React.FC = () => {
   };
   const [formData, setFormData] = useState(initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSlugCustomized, setIsSlugCustomized] = useState(false);
+
+  // Helper function to create clean SEO-friendly URL slugs
+  const slugify = (text: string): string => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/&/g, 'and')
+      .replace(/[''""`]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
 
   // Derive dynamic product count for each category
   const productCountMap = useMemo(() => {
@@ -58,6 +72,7 @@ export const CategoriesPage: React.FC = () => {
   const handleOpenAdd = () => {
     setEditingCategory(null);
     setFormData(initialForm);
+    setIsSlugCustomized(false);
     setErrors({});
     setIsModalOpen(true);
   };
@@ -88,21 +103,46 @@ export const CategoriesPage: React.FC = () => {
       imageUrl: cat.imageUrl || '',
       visibility: cat.visibility,
     });
+    // Check if existing slug was derived from its name
+    const matchesAuto = cat.slug === slugify(cat.name);
+    setIsSlugCustomized(!matchesAuto);
     setErrors({});
     setIsModalOpen(true);
   };
 
-  // Auto-slug generator
+  // Auto-slug generator when category name is typed
   const handleNameChange = (name: string) => {
-    const generatedSlug = name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
+    const autoSlug = slugify(name);
     setFormData((prev) => ({
       ...prev,
       name,
-      slug: editingCategory ? prev.slug : generatedSlug,
+      // Automatically update slug if user hasn't explicitly customized it or if slug is currently empty
+      slug: !isSlugCustomized || !prev.slug.trim() ? autoSlug : prev.slug,
     }));
+    if (errors.name) {
+      setErrors((prev) => ({ ...prev, name: '' }));
+    }
+    if (errors.slug) {
+      setErrors((prev) => ({ ...prev, slug: '' }));
+    }
+  };
+
+  // Manual slug change handler
+  const handleSlugChange = (rawSlug: string) => {
+    setIsSlugCustomized(true);
+    const sanitized = rawSlug.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    setFormData((prev) => ({ ...prev, slug: sanitized }));
+    if (errors.slug) {
+      setErrors((prev) => ({ ...prev, slug: '' }));
+    }
+  };
+
+  // Reset/Regenerate slug from current name
+  const handleRegenerateSlug = () => {
+    const freshSlug = slugify(formData.name);
+    setFormData((prev) => ({ ...prev, slug: freshSlug }));
+    setIsSlugCustomized(false);
+    showToast('URL slug re-generated from category name.', 'info');
   };
 
   // Submit Category
@@ -437,21 +477,48 @@ export const CategoriesPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#103b1d] mb-1">
-              URL Slug <span className="text-red-500">*</span>
-            </label>
-            <div className="flex items-center rounded-xl border border-[#dfd5bf] bg-white overflow-hidden">
-              <span className="text-xs text-[#5a6e54] px-3 bg-[#faf5ea] border-r border-[#dfd5bf] py-2">
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold text-[#103b1d]">
+                URL Slug <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center gap-1.5">
+                {!isSlugCustomized ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#18542a] bg-[#e8f0eb] px-2 py-0.5 rounded-full border border-[#c0d6c8]">
+                    <Sparkles className="w-3 h-3 text-[#9abc05]" />
+                    Auto-generated
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleRegenerateSlug}
+                    className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#5a6e54] hover:text-[#18542a] bg-[#faf5ea] hover:bg-[#f3e8cc] px-2 py-0.5 rounded-full border border-[#dfd5bf] transition-colors cursor-pointer"
+                    title="Click to reset slug to match category name automatically"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    Sync with Name
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center rounded-xl border border-[#dfd5bf] bg-white overflow-hidden focus-within:ring-1 focus-within:ring-[#18542a] focus-within:border-[#18542a]">
+              <span className="text-xs text-[#5a6e54] px-3 bg-[#faf5ea] border-r border-[#dfd5bf] py-2 shrink-0 select-none font-mono">
                 /collections/
               </span>
               <input
                 type="text"
                 value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                className="w-full text-xs sm:text-sm px-3 py-2 font-mono bg-white focus:outline-none"
+                onChange={(e) => handleSlugChange(e.target.value)}
+                placeholder="e.g. cold-pressed-wood-oils"
+                className="w-full text-xs sm:text-sm px-3 py-2 font-mono bg-white focus:outline-none text-[#103b1d]"
               />
             </div>
-            {errors.slug && <p className="text-[11px] text-[#d52518] mt-0.5">{errors.slug}</p>}
+            {errors.slug ? (
+              <p className="text-[11px] text-[#d52518] mt-1">{errors.slug}</p>
+            ) : (
+              <p className="text-[10px] text-[#5a6e54] mt-1 truncate">
+                Live URL: <span className="text-[#18542a] font-mono font-medium">godavariorganic.in/collections/{formData.slug || 'category-slug'}</span>
+              </p>
+            )}
           </div>
 
           <div>
