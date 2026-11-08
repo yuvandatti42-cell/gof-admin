@@ -59,14 +59,28 @@ export const CategoriesPage: React.FC = () => {
       .replace(/^-+|-+$/g, '');
   };
 
-  // Derive dynamic product count for each category
+  // Derive dynamic product count for each category (robust matching)
   const productCountMap = useMemo(() => {
     const map: Record<string, number> = {};
-    products.forEach((p) => {
-      map[p.categoryId] = (map[p.categoryId] || 0) + 1;
+    categories.forEach((cat) => {
+      const catLower = cat.name.toLowerCase();
+      map[cat.id] = products.filter((p) => {
+        if (p.categoryId === cat.id || p.categoryId === cat.slug) return true;
+        const pCat = (p.categoryName || '').toLowerCase();
+        const pCatId = (p.categoryId || '').toLowerCase();
+        const pName = (p.name || '').toLowerCase();
+        if (pCat === catLower || pCatId === catLower) return true;
+        const keywords = ['rice', 'oil', 'millet', 'spice', 'ghee'];
+        for (const kw of keywords) {
+          if (catLower.includes(kw) && (pCat.includes(kw) || pCatId.includes(kw) || pName.includes(kw))) {
+            return true;
+          }
+        }
+        return pCat.includes(catLower) || catLower.includes(pCat);
+      }).length;
     });
     return map;
-  }, [products]);
+  }, [categories, products]);
 
   // Open Add Modal
   const handleOpenAdd = () => {
@@ -312,15 +326,13 @@ export const CategoriesPage: React.FC = () => {
                 padding="none"
                 className="overflow-hidden flex flex-col group hover:border-[#9abc05] transition-colors"
               >
-                {/* Image Header - full rectangular display matching customer website (not round) */}
-                <div className="relative h-44 w-full bg-gradient-to-b from-[#faf5ea] to-[#f4ede0]/50 p-3 flex items-center justify-center overflow-hidden border-b border-[#dfd5bf]/60">
-                  <div className="w-full h-full rounded-xl bg-white border border-[#dfd5bf] p-2 flex items-center justify-center shadow-2xs group-hover:shadow-xs transition-all overflow-hidden">
-                    <img
-                      src={cat.imageUrl}
-                      alt={cat.name}
-                      className="w-full h-full object-contain transform-gpu group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
+                {/* Image Header - full rectangular box display matching customer storefront */}
+                <div className="relative h-48 w-full bg-[#faf5ea] overflow-hidden border-b border-[#dfd5bf]/60">
+                  <img
+                    src={cat.imageUrl}
+                    alt={cat.name}
+                    className="w-full h-full object-cover transform-gpu group-hover:scale-105 transition-transform duration-300"
+                  />
                   <div className="absolute top-2.5 right-2.5">
                     <Badge variant={cat.visibility === 'Visible' ? 'success' : 'neutral'} size="sm">
                       {cat.visibility}
@@ -390,11 +402,11 @@ export const CategoriesPage: React.FC = () => {
                   return (
                     <tr key={cat.id} className="hover:bg-[#faf5ea]/70 transition-colors">
                       <td className="py-3 px-4">
-                        <div className="w-12 h-12 rounded-xl bg-white border border-[#dfd5bf] p-1.5 flex items-center justify-center shrink-0 shadow-2xs">
+                        <div className="w-14 h-14 rounded-xl bg-white border border-[#dfd5bf] overflow-hidden shrink-0 shadow-2xs">
                           <img
                             src={cat.imageUrl}
                             alt={cat.name}
-                            className="w-full h-full object-contain"
+                            className="w-full h-full object-cover"
                           />
                         </div>
                       </td>
@@ -538,13 +550,13 @@ export const CategoriesPage: React.FC = () => {
             <label className="block text-xs font-bold text-[#103b1d]">
               Category Cover Image
             </label>
-            <div className="flex items-center gap-3">
-              <div className="w-16 h-16 rounded-xl bg-white border border-[#dfd5bf] p-1 flex items-center justify-center shrink-0 overflow-hidden">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-white border border-[#dfd5bf] overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
                 {formData.imageUrl ? (
                   <img
                     src={formData.imageUrl}
                     alt="Category Preview"
-                    className="w-full h-full object-contain filter drop-shadow-xs"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   <span className="text-[10px] text-[#5a6e54]">No Image</span>

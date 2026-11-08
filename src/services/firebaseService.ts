@@ -66,12 +66,23 @@ export function subscribeToProducts(
       const list: Product[] = [];
       snapshot.forEach((docSnap) => {
         const data = docSnap.data() as Product;
+        const catName = data.categoryName || (data as any).category || 'General';
+        let catId = data.categoryId;
+        if (!catId) {
+          const lower = catName.toLowerCase();
+          if (lower.includes('rice')) catId = 'cat-rice';
+          else if (lower.includes('oil') || lower.includes('ghee')) catId = 'cat-oils';
+          else if (lower.includes('millet')) catId = 'cat-millets';
+          else if (lower.includes('spice')) catId = 'cat-spices';
+          else catId = `cat-${lower.replace(/\s+/g, '-')}`;
+        }
         // Normalize fields for storefront & admin mutual compatibility
         list.push({
           ...data,
           id: docSnap.id,
+          categoryId: catId,
+          categoryName: catName,
           imageUrl: data.imageUrl || (data as any).image || '/categories/oil.webp',
-          categoryName: data.categoryName || (data as any).category || 'General',
           compareAtPrice: data.compareAtPrice ?? (data as any).originalPrice ?? data.price,
         });
       });
@@ -248,6 +259,8 @@ export async function addProductToFirestore(product: Product): Promise<void> {
     title: product.name,
     image: product.imageUrl,
     category: product.categoryName,
+    categoryName: product.categoryName,
+    categoryId: product.categoryId,
     weight: product.unit,
     originalPrice: product.compareAtPrice ?? product.price,
     inStock: product.stock > 0 && product.status === 'Active',
@@ -264,7 +277,11 @@ export async function updateProductInFirestore(id: string, updates: Partial<Prod
   const docUpdates: any = { ...updates };
   if (updates.name) docUpdates.title = updates.name;
   if (updates.imageUrl) docUpdates.image = updates.imageUrl;
-  if (updates.categoryName) docUpdates.category = updates.categoryName;
+  if (updates.categoryName) {
+    docUpdates.category = updates.categoryName;
+    docUpdates.categoryName = updates.categoryName;
+  }
+  if (updates.categoryId) docUpdates.categoryId = updates.categoryId;
   if (updates.unit) docUpdates.weight = updates.unit;
   if (updates.compareAtPrice !== undefined) docUpdates.originalPrice = updates.compareAtPrice;
   if (updates.stock !== undefined || updates.status !== undefined) {

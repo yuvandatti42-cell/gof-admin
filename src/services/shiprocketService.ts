@@ -350,3 +350,4 @@ export async function generateShiprocketLabel(
 export function getShiprocketTrackingUrl(awbCode: string): string {
   return `https://shiprocket.co//tracking/${awbCode}`;
 }
+

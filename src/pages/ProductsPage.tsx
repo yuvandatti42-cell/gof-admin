@@ -139,14 +139,29 @@ export const ProductsPage: React.FC = () => {
       .replace(/^-+|-+$/g, '');
   };
 
-  // Category counts map
+  // Category counts map (Robust semantic & exact matching)
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    products.forEach((p) => {
-      counts[p.categoryId] = (counts[p.categoryId] || 0) + 1;
+    categories.forEach((cat) => {
+      const catLower = cat.name.toLowerCase();
+      const count = products.filter((p) => {
+        if (p.categoryId === cat.id || p.categoryId === cat.slug) return true;
+        const pCat = (p.categoryName || '').toLowerCase();
+        const pCatId = (p.categoryId || '').toLowerCase();
+        const pName = (p.name || '').toLowerCase();
+        if (pCat === catLower || pCatId === catLower) return true;
+        const keywords = ['rice', 'oil', 'millet', 'spice', 'ghee'];
+        for (const kw of keywords) {
+          if (catLower.includes(kw) && (pCat.includes(kw) || pCatId.includes(kw) || pName.includes(kw))) {
+            return true;
+          }
+        }
+        return pCat.includes(catLower) || catLower.includes(pCat);
+      }).length;
+      counts[cat.id] = count;
     });
     return counts;
-  }, [products]);
+  }, [categories, products]);
 
   // Create Category Handler
   const handleCreateCategory = (e: React.FormEvent) => {
@@ -421,9 +436,34 @@ export const ProductsPage: React.FC = () => {
           p.sku.toLowerCase().includes(q) ||
           p.categoryName.toLowerCase().includes(q);
 
-        // Category filter
+        // Category filter (Robust semantic matching)
+        const selectedCat = categories.find((c) => c.id === categoryFilter);
         const matchesCategory =
-          categoryFilter === 'all' || p.categoryId === categoryFilter;
+          categoryFilter === 'all' ||
+          p.categoryId === categoryFilter ||
+          (selectedCat && (
+            p.categoryId === selectedCat.slug ||
+            p.categoryName?.toLowerCase() === selectedCat.name.toLowerCase() ||
+            (selectedCat.name.toLowerCase().includes('rice') && (
+              p.categoryName?.toLowerCase().includes('rice') ||
+              p.categoryId?.toLowerCase().includes('rice') ||
+              p.name.toLowerCase().includes('rice')
+            )) ||
+            (selectedCat.name.toLowerCase().includes('oil') && (
+              p.categoryName?.toLowerCase().includes('oil') ||
+              p.categoryId?.toLowerCase().includes('oil')
+            )) ||
+            (selectedCat.name.toLowerCase().includes('millet') && (
+              p.categoryName?.toLowerCase().includes('millet') ||
+              p.categoryId?.toLowerCase().includes('millet')
+            )) ||
+            (selectedCat.name.toLowerCase().includes('spice') && (
+              p.categoryName?.toLowerCase().includes('spice') ||
+              p.categoryId?.toLowerCase().includes('spice')
+            )) ||
+            p.categoryName?.toLowerCase().includes(selectedCat.name.toLowerCase()) ||
+            selectedCat.name.toLowerCase().includes(p.categoryName?.toLowerCase())
+          ));
 
         // Stock filter
         const matchesStock =

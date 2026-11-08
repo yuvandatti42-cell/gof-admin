@@ -6,7 +6,7 @@ import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 import { Modal } from '../components/common/Modal';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
-import type { HeroSlide, TrustBadge, TestimonialItem } from '../types';
+import type { HeroSlide, TestimonialItem } from '../types';
 import {
   Image as ImageIcon,
   Plus,
@@ -16,7 +16,6 @@ import {
   ArrowDown,
   UploadCloud,
   CheckCircle2,
-  Award,
   MessageSquare,
   Monitor,
   Star,
@@ -29,13 +28,6 @@ const PRESET_BANNERS = [
   { name: 'Vedic A2 Ghee Banner', url: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=1200&q=80' },
   { name: 'Heritage Rice Banner', url: 'https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?auto=format&fit=crop&w=1200&q=80' },
   { name: 'Organic Spices Banner', url: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=1200&q=80' },
-];
-
-const PRESET_BADGE_SEALS = [
-  { name: 'FSSAI Organic Seal', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80' },
-  { name: 'USDA 100% Organic', url: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=300&q=80' },
-  { name: 'SGS Lab Tested Pure', url: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80' },
-  { name: 'APEDA India Organic', url: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=300&q=80' },
 ];
 
 const PRESET_AVATARS = [
@@ -57,8 +49,8 @@ export const StoreContentPage: React.FC = () => {
 
   const { showToast } = useToast();
 
-  // Active Main Tab: ONLY hero, badges, testimonials
-  const [activeTab, setActiveTab] = useState<'hero' | 'badges' | 'testimonials'>('hero');
+  // Active Main Tab: ONLY hero & testimonials
+  const [activeTab, setActiveTab] = useState<'hero' | 'testimonials'>('hero');
 
   // Hero Slide Form / Modal state
   const [isSlideModalOpen, setIsSlideModalOpen] = useState(false);
@@ -71,16 +63,6 @@ export const StoreContentPage: React.FC = () => {
     badgeText: '100% Organic',
     ctaText: 'Shop Now',
     ctaLink: '/collections/all-products',
-    active: true,
-  });
-
-  // Trust Badge Form / Modal state
-  const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
-  const [editingBadgeId, setEditingBadgeId] = useState<string | null>(null);
-  const [badgeFormData, setBadgeFormData] = useState<Omit<TrustBadge, 'id'>>({
-    name: '',
-    subtitle: '',
-    imageUrl: PRESET_BADGE_SEALS[0].url,
     active: true,
   });
 
@@ -193,61 +175,6 @@ export const StoreContentPage: React.FC = () => {
   };
 
   // -------------------------------------------------------------
-  // TRUST BADGE HANDLERS (ADD / EDIT / DELETE)
-  // -------------------------------------------------------------
-  const handleOpenAddBadge = () => {
-    setEditingBadgeId(null);
-    setBadgeFormData({
-      name: '',
-      subtitle: '',
-      imageUrl: PRESET_BADGE_SEALS[0].url,
-      active: true,
-    });
-    setIsBadgeModalOpen(true);
-  };
-
-  const handleOpenEditBadge = (badge: TrustBadge) => {
-    setEditingBadgeId(badge.id);
-    setBadgeFormData({
-      name: badge.name,
-      subtitle: badge.subtitle || '',
-      imageUrl: badge.imageUrl,
-      active: badge.active ?? true,
-    });
-    setIsBadgeModalOpen(true);
-  };
-
-  const handleSaveBadge = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!badgeFormData.name.trim()) {
-      showToast('Please enter a name for the trust badge / certification.', 'error');
-      return;
-    }
-    if (!badgeFormData.imageUrl.trim()) {
-      showToast('Please provide a seal image URL or upload an image.', 'error');
-      return;
-    }
-
-    const currentBadges = [...(storeContent.trustBadges || [])];
-
-    if (editingBadgeId) {
-      const updated = currentBadges.map((b) =>
-        b.id === editingBadgeId ? { ...b, ...badgeFormData } : b
-      );
-      updateStoreContent({ trustBadges: updated });
-      showToast(`Updated certification: ${badgeFormData.name}`, 'success');
-    } else {
-      const newBadge: TrustBadge = {
-        id: `badge-${Date.now()}`,
-        ...badgeFormData,
-      };
-      updateStoreContent({ trustBadges: [...currentBadges, newBadge] });
-      showToast(`Added new certification: ${badgeFormData.name}`, 'success');
-    }
-    setIsBadgeModalOpen(false);
-  };
-
-  // -------------------------------------------------------------
   // TESTIMONIAL HANDLERS (ADD / EDIT / DELETE)
   // -------------------------------------------------------------
   const handleOpenAddTestimonial = () => {
@@ -340,16 +267,15 @@ export const StoreContentPage: React.FC = () => {
             Store Visuals & Image Manager
           </h1>
           <p className="text-xs sm:text-sm text-[#5a6e54] mt-0.5">
-            Manage top hero carousel banners, verified quality certifications & trust seals, and real customer review photos.
+            Manage top hero carousel banners and real customer review photos.
           </p>
         </div>
       </div>
 
-      {/* Navigation Tabs (Only 3 tabs kept) */}
+      {/* Navigation Tabs (Hero Banners and Review Photos) */}
       <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 border-b border-[#dfd5bf]">
         {[
           { id: 'hero', label: 'Hero Banners', icon: Monitor, count: (storeContent.heroSlides || []).length },
-          { id: 'badges', label: 'Trust & Certifications', icon: Award, count: (storeContent.trustBadges || []).length },
           { id: 'testimonials', label: 'Review Photos', icon: MessageSquare, count: (storeContent.testimonials || []).length },
         ].map((tab) => {
           const Icon = tab.icon;
@@ -523,84 +449,7 @@ export const StoreContentPage: React.FC = () => {
       )}
 
       {/* ============================================================= */}
-      {/* TAB 2: TRUST & CERTIFICATIONS (WITH ADD OPTION) */}
-      {/* ============================================================= */}
-      {activeTab === 'badges' && (
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#faf5ea] p-4 rounded-2xl border border-[#dfd5bf]">
-            <div>
-              <h2 className="text-sm sm:text-base font-bold text-[#103b1d] flex items-center gap-2">
-                <Award className="w-4 h-4 text-[#18542a]" />
-                Certified Quality Standards & Trust Badges
-              </h2>
-              <p className="text-xs text-[#5a6e54] mt-0.5">
-                Official quality certification seals (FSSAI, USDA Organic, SGS Bio-Verified, APEDA) displayed under the hero slider on the customer storefront.
-              </p>
-            </div>
-
-            <Button
-              variant="primary"
-              onClick={handleOpenAddBadge}
-              icon={<Plus className="w-4 h-4" />}
-            >
-              Add Certification
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {(storeContent.trustBadges || []).map((badge) => (
-              <Card key={badge.id} padding="none" className="overflow-hidden flex flex-col border border-[#dfd5bf] bg-white hover:shadow-md transition-all">
-                <div className="h-32 bg-[#faf5ea] flex items-center justify-center p-3 border-b border-[#dfd5bf] relative group">
-                  <img
-                    src={badge.imageUrl}
-                    alt={badge.name}
-                    className="max-h-20 max-w-full object-contain filter drop-shadow-sm group-hover:scale-105 transition-transform"
-                  />
-                  <div className="absolute top-2.5 right-2.5 flex items-center gap-1">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#18542a]" title="Active" />
-                  </div>
-                </div>
-
-                <div className="p-4 flex flex-col flex-1 justify-between gap-3">
-                  <div>
-                    <h3 className="font-bold text-[#103b1d] text-sm leading-snug">{badge.name}</h3>
-                    <p className="text-xs text-[#5a6e54] mt-0.5 line-clamp-2">{badge.subtitle}</p>
-                  </div>
-
-                  <div className="flex items-center gap-2 pt-2 border-t border-[#dfd5bf]/60">
-                    <button
-                      onClick={() => handleOpenEditBadge(badge)}
-                      className="flex-1 py-1.5 rounded-xl bg-[#faf5ea] hover:bg-[#E8F0EB] text-[#18542a] text-xs font-bold border border-[#dfd5bf] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                      Edit
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        setDeleteDialog({
-                          isOpen: true,
-                          type: 'badge',
-                          id: badge.id,
-                          title: 'Remove Certification Badge?',
-                          message: `Are you sure you want to remove the "${badge.name}" certification seal from the website?`,
-                        })
-                      }
-                      className="p-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-colors cursor-pointer"
-                      title="Delete badge"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* TAB 3: CUSTOMER REVIEW PHOTOS (WITH ADD OPTION) */}
+      {/* TAB 2: CUSTOMER REVIEW PHOTOS (WITH ADD OPTION) */}
       {/* ============================================================= */}
       {activeTab === 'testimonials' && (
         <div className="space-y-6">
@@ -848,112 +697,7 @@ export const StoreContentPage: React.FC = () => {
       </Modal>
 
       {/* ============================================================= */}
-      {/* MODAL 2: ADD / EDIT TRUST BADGE */}
-      {/* ============================================================= */}
-      <Modal
-        isOpen={isBadgeModalOpen}
-        onClose={() => setIsBadgeModalOpen(false)}
-        title={editingBadgeId ? 'Edit Quality Certification' : 'Add New Certification / Trust Badge'}
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setIsBadgeModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleSaveBadge}>
-              {editingBadgeId ? 'Update Certification' : 'Add Certification'}
-            </Button>
-          </>
-        }
-      >
-        <form onSubmit={handleSaveBadge} className="space-y-4">
-          {/* Badge Seal Preview */}
-          <div className="h-32 rounded-2xl bg-[#faf5ea] border border-[#dfd5bf] flex items-center justify-center p-3 overflow-hidden">
-            <img
-              src={badgeFormData.imageUrl}
-              alt="Seal Preview"
-              className="max-h-24 max-w-full object-contain filter drop-shadow-sm"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[#103b1d] mb-1">
-              Certification / Badge Name
-            </label>
-            <input
-              type="text"
-              value={badgeFormData.name}
-              onChange={(e) => setBadgeFormData({ ...badgeFormData, name: e.target.value })}
-              placeholder="e.g. FSSAI Organic Certified or USDA 100% Organic"
-              className="w-full text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white font-medium"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[#103b1d] mb-1">
-              Subtitle / Verification Tagline
-            </label>
-            <input
-              type="text"
-              value={badgeFormData.subtitle}
-              onChange={(e) => setBadgeFormData({ ...badgeFormData, subtitle: e.target.value })}
-              placeholder="e.g. Govt. Reg #10123028000419 or Zero Pesticide Guarantee"
-              className="w-full text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-[#103b1d]">
-              Seal Image Source
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={badgeFormData.imageUrl}
-                onChange={(e) => setBadgeFormData({ ...badgeFormData, imageUrl: e.target.value })}
-                placeholder="https://... or upload transparent seal PNG/WEBP"
-                className="flex-1 text-xs px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
-              />
-              <label className="px-3 py-2 rounded-xl bg-[#18542a] text-white text-xs font-bold hover:bg-[#103b1d] cursor-pointer flex items-center gap-1.5 shrink-0 transition-colors">
-                <UploadCloud className="w-4 h-4" />
-                <span>Upload</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) =>
-                    handleFileUpload(e, (dataUrl) => setBadgeFormData({ ...badgeFormData, imageUrl: dataUrl }))
-                  }
-                  className="hidden"
-                />
-              </label>
-            </div>
-
-            <div>
-              <span className="text-[11px] font-semibold text-[#5a6e54] block mb-1">
-                Or pick a standard organic certification seal:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {PRESET_BADGE_SEALS.map((preset) => (
-                  <button
-                    type="button"
-                    key={preset.name}
-                    onClick={() => setBadgeFormData({ ...badgeFormData, imageUrl: preset.url, name: badgeFormData.name || preset.name })}
-                    className={`text-[10px] px-2 py-1 rounded-lg border font-medium transition-colors cursor-pointer ${
-                      badgeFormData.imageUrl === preset.url
-                        ? 'bg-[#18542a] text-white border-[#18542a]'
-                        : 'bg-[#faf5ea] text-[#5a6e54] border-[#dfd5bf] hover:border-[#18542a]'
-                    }`}
-                  >
-                    {preset.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </form>
-      </Modal>
-
-      {/* ============================================================= */}
-      {/* MODAL 3: ADD / EDIT TESTIMONIAL & REVIEW PHOTO */}
+      {/* MODAL 2: ADD / EDIT TESTIMONIAL & REVIEW PHOTO */}
       {/* ============================================================= */}
       <Modal
         isOpen={isTestimonialModalOpen}
