@@ -275,3 +275,12 @@ export interface NotificationItem {
   read: boolean;
   link?: string;
 }
+
+export interface CallbackRequest {
+  id: string;
+  phone: string;
+  timestamp: string;
+  status: 'Pending' | 'Contacted';
+  source?: string;
+  notes?: string;
+}

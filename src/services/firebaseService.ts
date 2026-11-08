@@ -20,6 +20,7 @@ import type {
   Promotion,
   StoreContent,
   StoreSettings,
+  CallbackRequest,
 } from '../types';
 
 export const COLLECTIONS = {
@@ -31,6 +32,7 @@ export const COLLECTIONS = {
   STORE_CONTENT: 'storeContent',
   SETTINGS: 'settings',
   NOTIFICATIONS: 'notifications',
+  CALLBACKS: 'callbackRequests',
 } as const;
 
 // Helper to sanitize undefined values before saving to Firestore
@@ -244,6 +246,47 @@ export function subscribeToNotifications(
       if (onError) onError(err);
     }
   );
+}
+
+export function subscribeToCallbacks(
+  callback: (callbacks: CallbackRequest[]) => void,
+  onError?: (err: Error) => void
+) {
+  const q = query(collection(db, COLLECTIONS.CALLBACKS));
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const list: CallbackRequest[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        list.push({
+          id: docSnap.id,
+          phone: data.phone || '',
+          timestamp: data.timestamp || new Date().toISOString(),
+          status: data.status || 'Pending',
+          source: data.source || 'Website Callback Box',
+          notes: data.notes || '',
+        });
+      });
+      list.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      callback(list);
+    },
+    (err) => {
+      console.error('Firestore callbacks subscription error:', err);
+      if (onError) onError(err);
+    }
+  );
+}
+
+export async function updateCallbackStatusInFirestore(
+  id: string,
+  status: 'Pending' | 'Contacted'
+): Promise<void> {
+  await updateDoc(doc(db, COLLECTIONS.CALLBACKS, id), { status });
+}
+
+export async function deleteCallbackFromFirestore(id: string): Promise<void> {
+  await deleteDoc(doc(db, COLLECTIONS.CALLBACKS, id));
 }
 
 // -------------------------------------------------------------

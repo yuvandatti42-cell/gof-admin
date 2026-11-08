@@ -20,6 +20,8 @@ import {
   Sprout,
   Trash2,
   RefreshCw,
+  PhoneCall,
+  Clock,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -50,6 +52,9 @@ export const DashboardPage: React.FC = () => {
     removeProductFromStorefront,
     toggleProductOnStorefront,
     syncToStorefront,
+    callbackRequests,
+    updateCallbackStatus,
+    deleteCallback,
   } = useAdmin();
   const { showToast } = useToast();
 
@@ -588,6 +593,126 @@ export const DashboardPage: React.FC = () => {
           </div>
         </Card>
       </div>
+
+      {/* Customer Callback Requests ("Have questions? We will call you right back") */}
+      <Card className="border-[#dfd5bf] shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#dfd5bf]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#18542a]/10 text-[#18542a] flex items-center justify-center shrink-0">
+              <PhoneCall className="w-5 h-5 stroke-[2.5]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-base sm:text-lg font-bold text-[#103b1d] font-heading">
+                  Callback Requests
+                </h3>
+                <span className="text-xs font-extrabold px-2 py-0.5 rounded-full bg-[#fef7da] text-[#7d5600] border border-[#f5df99]">
+                  "Have questions? We will call you right back"
+                </span>
+                {callbackRequests.filter((c) => c.status === 'Pending').length > 0 && (
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#fdeeed] text-[#d52518]">
+                    {callbackRequests.filter((c) => c.status === 'Pending').length} Pending
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-[#5a6e54] mt-0.5">
+                Real-time customer inquiries submitted from the website storefront quick callback box.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {callbackRequests.length === 0 ? (
+          <div className="py-8 text-center text-[#5a6e54]">
+            <PhoneCall className="w-8 h-8 text-[#5a6e54]/40 mx-auto mb-2" />
+            <p className="text-sm font-semibold">No callback requests yet</p>
+            <p className="text-xs text-[#5a6e54]/80 mt-1">
+              Customer phone numbers submitted in the website callback box will appear here live.
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-[#dfd5bf]/60 pt-1">
+            {callbackRequests.map((req) => (
+              <div
+                key={req.id}
+                className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#faf5ea]/50 px-2 rounded-lg transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                      req.status === 'Pending'
+                        ? 'bg-[#fef7da] text-[#7d5600]'
+                        : 'bg-[#e8f0eb] text-[#18542a]'
+                    }`}
+                  >
+                    <PhoneCall className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`tel:${req.phone}`}
+                        className="text-sm font-bold text-[#103b1d] hover:text-[#18542a] hover:underline flex items-center gap-1.5"
+                        title="Click to call customer"
+                      >
+                        {req.phone}
+                      </a>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          req.status === 'Pending'
+                            ? 'bg-[#fef7da] text-[#7d5600] border border-[#f5df99]'
+                            : 'bg-[#e8f0eb] text-[#18542a] border border-[#c0d6c8]'
+                        }`}
+                      >
+                        {req.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5 text-xs text-[#5a6e54]">
+                      <Clock className="w-3 h-3" />
+                      <span>{formatDate(req.timestamp, true)}</span>
+                      <span>•</span>
+                      <span>{req.source || 'Website Callback'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-end sm:self-center">
+                  <a
+                    href={`tel:${req.phone}`}
+                    className="px-3 py-1.5 rounded-lg bg-[#18542a] text-white text-xs font-bold hover:bg-[#103b1d] transition-colors flex items-center gap-1.5 shadow-2xs"
+                  >
+                    <PhoneCall className="w-3.5 h-3.5" />
+                    <span>Call Now</span>
+                  </a>
+                  <button
+                    onClick={() => {
+                      const next = req.status === 'Pending' ? 'Contacted' : 'Pending';
+                      updateCallbackStatus(req.id, next);
+                      showToast(`Callback marked as ${next}`, 'success');
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${
+                      req.status === 'Pending'
+                        ? 'bg-white border-[#c0d6c8] text-[#18542a] hover:bg-[#e8f0eb]'
+                        : 'bg-white border-[#dfd5bf] text-[#5a6e54] hover:bg-[#faf5ea]'
+                    }`}
+                  >
+                    {req.status === 'Pending' ? 'Mark Contacted' : 'Mark Pending'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      deleteCallback(req.id);
+                      showToast('Callback request deleted', 'info');
+                    }}
+                    className="p-1.5 rounded-lg text-[#5a6e54] hover:text-[#d52518] hover:bg-[#fdeeed] transition-colors cursor-pointer"
+                    title="Delete request"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
 
       {/* Admin Added Products & Storefront Merchandising Card (Displayed at bottom of dashboard) */}
       <Card className="border-[#c0d6c8] bg-gradient-to-b from-[#faf5ea] to-white shadow-xs">

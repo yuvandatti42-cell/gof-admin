@@ -13,6 +13,7 @@ import type {
   Promotion,
   StoreContent,
   StoreSettings,
+  CallbackRequest,
 } from '../types';
 import {
   INITIAL_CATEGORIES,
@@ -33,6 +34,9 @@ import {
   subscribeToStoreContent,
   subscribeToSettings,
   subscribeToNotifications,
+  subscribeToCallbacks,
+  updateCallbackStatusInFirestore,
+  deleteCallbackFromFirestore,
   addProductToFirestore,
   updateProductInFirestore,
   deleteProductFromFirestore,
@@ -135,6 +139,11 @@ interface AdminContextType {
   markNotificationAsRead: (id: string) => void;
   markAllNotificationsAsRead: () => void;
 
+  // Callback Requests ("Have questions? We will call you right back")
+  callbackRequests: CallbackRequest[];
+  updateCallbackStatus: (id: string, status: 'Pending' | 'Contacted') => void;
+  deleteCallback: (id: string) => void;
+
   // System
   resetToDemoData: () => void;
 }
@@ -209,6 +218,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [notifications, setNotifications] = useState<NotificationItem[]>(() =>
     safeGetStorage(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS)
   );
+  const [callbackRequests, setCallbackRequests] = useState<CallbackRequest[]>([]);
 
   // Firebase connection and sync states
   const [firebaseConnected, setFirebaseConnected] = useState<boolean>(false);
@@ -350,6 +360,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           }
         });
 
+        const unsubCallbacks = subscribeToCallbacks((liveCallbacks) => {
+          setCallbackRequests(liveCallbacks);
+        });
+
         unsubs = [
           unsubProducts,
           unsubCategories,
@@ -359,6 +373,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           unsubStoreContent,
           unsubSettings,
           unsubNotifications,
+          unsubCallbacks,
         ];
       } catch (err) {
         console.error('Firebase initialization error in AdminProvider:', err);
@@ -953,6 +968,22 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   }, []);
 
+  const updateCallbackStatus = useCallback((id: string, status: 'Pending' | 'Contacted') => {
+    setCallbackRequests((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, status } : c))
+    );
+    updateCallbackStatusInFirestore(id, status).catch((err) =>
+      console.error('Failed to update callback status in Firestore:', err)
+    );
+  }, []);
+
+  const deleteCallback = useCallback((id: string) => {
+    setCallbackRequests((prev) => prev.filter((c) => c.id !== id));
+    deleteCallbackFromFirestore(id).catch((err) =>
+      console.error('Failed to delete callback from Firestore:', err)
+    );
+  }, []);
+
   // Reset demo data
   const resetToDemoData = useCallback(() => {
     setProducts(INITIAL_PRODUCTS);
@@ -1039,6 +1070,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateSettings,
         markNotificationAsRead,
         markAllNotificationsAsRead,
+        callbackRequests,
+        updateCallbackStatus,
+        deleteCallback,
         resetToDemoData,
       }}
     >
