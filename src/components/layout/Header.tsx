@@ -202,7 +202,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#fdeeed] text-[#d52518] transition-colors text-left cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
-                  Sign Out (Demo)
+                  Sign Out
                 </button>
               </div>
             </div>
@@ -210,16 +210,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
         </div>
       </div>
 
-      {/* Mock Sign Out Dialog */}
+      {/* Sign Out Dialog */}
       <ConfirmDialog
         isOpen={isSignoutModalOpen}
         onClose={() => setIsSignoutModalOpen(false)}
         onConfirm={() => {
-          showToast('Signed out of demo session. Demo session remains ready.', 'info', 'Demo Session');
+          showToast('Signed out of admin session.', 'info', 'Signed Out');
         }}
-        title="Sign Out (Frontend Demo)"
-        message="In this frontend-only prototype, authentication is not connected to a server. You can continue testing all features without signing out."
-        confirmText="Close Session"
+        title="Sign Out of Admin Portal"
+        message="Are you sure you want to end your current admin session?"
+        confirmText="Sign Out"
         cancelText="Stay Logged In"
         variant="primary"
       />

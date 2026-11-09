@@ -373,10 +373,8 @@ export const ProductsPage: React.FC = () => {
       });
       if (formData.featured) {
         addProductToStorefront(createdProd.id);
-        showToast(`"${formData.name}" added to catalog and published to storefront.`, 'success', 'Product Created');
-      } else {
-        showToast(`"${formData.name}" added to catalog. Click "Add to Store" to publish to customer website.`, 'success', 'Product Created');
       }
+      showToast(`"${formData.name}" added to catalog and published to customer storefront.`, 'success', 'Product Created');
     }
 
     setIsFormModalOpen(false);

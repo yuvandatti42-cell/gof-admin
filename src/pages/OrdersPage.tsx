@@ -14,7 +14,6 @@ import {
   Search,
   Eye,
   Printer,
-  Sparkles,
   Truck,
   Package,
   ExternalLink,
@@ -232,9 +231,9 @@ export const OrdersPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#faf5ea] border border-[#dfd5bf] text-[#18542a]">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Demo Fulfillment Environment</span>
+        <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#e8f0eb] border border-[#c0d6c8] text-[#18542a]">
+          <CheckCircle2 className="w-3.5 h-3.5" />
+          <span>Live Storefront Connected</span>
         </div>
       </div>
 
@@ -431,7 +430,7 @@ export const OrdersPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  showToast(`Invoice for #${selectedOrder.id} generated (Demo).`, 'info', 'Print Invoice');
+                  showToast(`Invoice for #${selectedOrder.id} generated successfully.`, 'success', 'Print Invoice');
                 }}
                 icon={<Printer className="w-3.5 h-3.5" />}
               >

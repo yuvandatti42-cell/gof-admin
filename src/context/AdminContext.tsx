@@ -180,12 +180,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [categories, setCategories] = useState<Category[]>(() =>
     safeGetStorage(STORAGE_KEYS.CATEGORIES, INITIAL_CATEGORIES)
   );
-  const [orders, setOrders] = useState<Order[]>(() =>
-    safeGetStorage(STORAGE_KEYS.ORDERS, INITIAL_ORDERS)
-  );
-  const [customers, setCustomers] = useState<Customer[]>(() =>
-    safeGetStorage(STORAGE_KEYS.CUSTOMERS, INITIAL_CUSTOMERS)
-  );
+  const [orders, setOrders] = useState<Order[]>(() => {
+    const cached = safeGetStorage<Order[]>(STORAGE_KEYS.ORDERS, []);
+    return cached.filter((o) => !o.id.startsWith('GOF-94'));
+  });
+  const [customers, setCustomers] = useState<Customer[]>(() => {
+    const cached = safeGetStorage<Customer[]>(STORAGE_KEYS.CUSTOMERS, []);
+    return cached.filter((c) => !c.id.startsWith('cust-'));
+  });
   const [promotions, setPromotions] = useState<Promotion[]>(() =>
     safeGetStorage(STORAGE_KEYS.PROMOTIONS, INITIAL_PROMOTIONS)
   );
@@ -304,38 +306,20 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         });
 
         const unsubOrders = subscribeToOrders((liveOrders) => {
-          if (liveOrders.length > 0) {
-            // Check for brand new orders placed from storefront
-            liveOrders.forEach((order) => {
-              if (!knownOrderIdsRef.current.has(order.id)) {
-                knownOrderIdsRef.current.add(order.id);
-                // Create an alert notification for the admin
-                const newNotification: NotificationItem = {
-                  id: `notif-${Date.now()}-${order.id}`,
-                  title: `New Order: #${order.id}`,
-                  message: `${order.customerName} placed an order for ₹${order.total.toLocaleString('en-IN')}`,
-                  timestamp: new Date().toISOString(),
-                  type: 'order',
-                  read: false,
-                  link: '/orders',
-                };
-                setNotifications((prev) => [newNotification, ...prev]);
-              }
-            });
-            setOrders(liveOrders);
-          }
+          liveOrders.forEach((order) => {
+            if (!knownOrderIdsRef.current.has(order.id)) {
+              knownOrderIdsRef.current.add(order.id);
+            }
+          });
+          setOrders(liveOrders);
         });
 
         const unsubCustomers = subscribeToCustomers((liveCustomers) => {
-          if (liveCustomers.length > 0) {
-            setCustomers(liveCustomers);
-          }
+          setCustomers(liveCustomers);
         });
 
         const unsubPromotions = subscribeToPromotions((livePromos) => {
-          if (livePromos.length > 0) {
-            setPromotions(livePromos);
-          }
+          setPromotions(livePromos);
         });
 
         const unsubStoreContent = subscribeToStoreContent((liveContent) => {
@@ -984,33 +968,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
   }, []);
 
-  // Reset demo data
+  // Clear local caches and re-sync with Firestore
   const resetToDemoData = useCallback(() => {
-    setProducts(INITIAL_PRODUCTS);
-    setCategories(INITIAL_CATEGORIES);
-    setOrders(INITIAL_ORDERS);
-    setCustomers(INITIAL_CUSTOMERS);
-    setPromotions(INITIAL_PROMOTIONS);
-    setStoreContent(INITIAL_STORE_CONTENT);
-    setSettings(INITIAL_SETTINGS);
-    setNotifications(INITIAL_NOTIFICATIONS);
-
     Object.values(STORAGE_KEYS).forEach((key) => {
       localStorage.removeItem(key);
     });
-
-    // Re-seed Firestore
-    checkAndSeedFirestoreIfEmpty({
-      products: INITIAL_PRODUCTS,
-      categories: INITIAL_CATEGORIES,
-      orders: INITIAL_ORDERS,
-      customers: INITIAL_CUSTOMERS,
-      promotions: INITIAL_PROMOTIONS,
-      storeContent: INITIAL_STORE_CONTENT,
-      settings: INITIAL_SETTINGS,
-      notifications: INITIAL_NOTIFICATIONS,
-    });
-  }, []);
+    // Trigger fresh sync
+    syncWithFirebase();
+  }, [syncWithFirebase]);
 
   return (
     <AdminContext.Provider

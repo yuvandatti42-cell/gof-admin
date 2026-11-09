@@ -295,7 +295,7 @@ export async function deleteCallbackFromFirestore(id: string): Promise<void> {
 
 // Products
 export async function addProductToFirestore(product: Product): Promise<void> {
-  const isFeatured = product.featured ?? false;
+  const isLive = product.status === 'Active';
   const sanitized = sanitizeForFirestore({
     ...product,
     // Add dual fields so customer website and user dashboard also understand directly
@@ -306,12 +306,12 @@ export async function addProductToFirestore(product: Product): Promise<void> {
     categoryId: product.categoryId,
     weight: product.unit,
     originalPrice: product.compareAtPrice ?? product.price,
-    inStock: product.stock > 0 && product.status === 'Active',
-    featured: isFeatured,
-    onStore: isFeatured,
-    isLiveOnStore: isFeatured,
-    rating: 4.8,
-    reviewsCount: 15,
+    inStock: product.stock > 0 && isLive,
+    featured: product.featured ?? false,
+    onStore: isLive,
+    isLiveOnStore: isLive,
+    rating: (product as any).rating ?? 4.8,
+    reviewsCount: (product as any).reviewsCount ?? 15,
   });
   await setDoc(doc(db, COLLECTIONS.PRODUCTS, product.id), sanitized);
 }
@@ -328,12 +328,14 @@ export async function updateProductInFirestore(id: string, updates: Partial<Prod
   if (updates.unit) docUpdates.weight = updates.unit;
   if (updates.compareAtPrice !== undefined) docUpdates.originalPrice = updates.compareAtPrice;
   if (updates.stock !== undefined || updates.status !== undefined) {
-    if (updates.stock !== undefined) docUpdates.inStock = updates.stock > 0;
+    const status = updates.status ?? 'Active';
+    const isLive = status === 'Active';
+    docUpdates.inStock = (updates.stock ?? 1) > 0 && isLive;
+    docUpdates.onStore = isLive;
+    docUpdates.isLiveOnStore = isLive;
   }
   if (updates.featured !== undefined) {
     docUpdates.featured = updates.featured;
-    docUpdates.onStore = updates.featured;
-    docUpdates.isLiveOnStore = updates.featured;
   }
   const sanitized = sanitizeForFirestore(docUpdates);
   await updateDoc(doc(db, COLLECTIONS.PRODUCTS, id), sanitized);
@@ -528,18 +530,6 @@ export async function checkAndSeedFirestoreIfEmpty(defaults: {
       batch.set(docRef, sanitizeForFirestore(c));
     });
 
-    // Orders
-    defaults.orders.forEach((o) => {
-      const docRef = doc(db, COLLECTIONS.ORDERS, o.id);
-      batch.set(docRef, sanitizeForFirestore(o));
-    });
-
-    // Customers
-    defaults.customers.forEach((cust) => {
-      const docRef = doc(db, COLLECTIONS.CUSTOMERS, cust.id);
-      batch.set(docRef, sanitizeForFirestore(cust));
-    });
-
     // Promotions
     defaults.promotions.forEach((pr) => {
       const docRef = doc(db, COLLECTIONS.PROMOTIONS, pr.id);
@@ -557,12 +547,6 @@ export async function checkAndSeedFirestoreIfEmpty(defaults: {
       doc(db, COLLECTIONS.SETTINGS, 'general'),
       sanitizeForFirestore(defaults.settings)
     );
-
-    // Notifications
-    defaults.notifications.forEach((n) => {
-      const docRef = doc(db, COLLECTIONS.NOTIFICATIONS, n.id);
-      batch.set(docRef, sanitizeForFirestore(n));
-    });
 
     await batch.commit();
     console.log('Successfully seeded Firestore with Godavari Organics catalog & store content!');

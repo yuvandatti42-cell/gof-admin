@@ -14,7 +14,6 @@ import {
   IndianRupee,
   Plus,
   ChevronRight,
-  Sparkles,
   CheckCircle2,
   Eye,
   Sprout,
@@ -96,39 +95,50 @@ export const DashboardPage: React.FC = () => {
     return products.filter((p) => p.status === 'Active').length;
   }, [products]);
 
-  // Dynamic Sales Analytics Mock Series based on chosen date range
+  // Real Sales Analytics Series computed from actual customer orders
   const salesChartData = useMemo(() => {
-    if (dateRange === '7d') {
-      return [
-        { label: '16 Oct', revenue: 4200, orders: 3 },
-        { label: '17 Oct', revenue: 7800, orders: 5 },
-        { label: '18 Oct', revenue: 5900, orders: 4 },
-        { label: '19 Oct', revenue: 9400, orders: 7 },
-        { label: '20 Oct', revenue: 11200, orders: 8 },
-        { label: '21 Oct', revenue: 8600, orders: 6 },
-        { label: '22 Oct', revenue: 14500, orders: 11 },
-      ];
-    } else if (dateRange === '30d') {
-      return [
-        { label: '25 Sep', revenue: 18400, orders: 14 },
-        { label: '30 Sep', revenue: 26200, orders: 21 },
-        { label: '05 Oct', revenue: 31000, orders: 24 },
-        { label: '10 Oct', revenue: 29500, orders: 22 },
-        { label: '15 Oct', revenue: 42800, orders: 33 },
-        { label: '20 Oct', revenue: 48900, orders: 38 },
-        { label: '22 Oct', revenue: 56400, orders: 44 },
-      ];
-    } else {
-      return [
-        { label: 'Aug W1', revenue: 64000, orders: 52 },
-        { label: 'Aug W3', revenue: 82000, orders: 67 },
-        { label: 'Sep W1', revenue: 94500, orders: 78 },
-        { label: 'Sep W3', revenue: 112000, orders: 91 },
-        { label: 'Oct W1', revenue: 135000, orders: 104 },
-        { label: 'Oct W3', revenue: 168000, orders: 128 },
-      ];
+    const now = new Date();
+    const daysCount = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90;
+    
+    const dateMap = new Map<string, { label: string; revenue: number; orders: number }>();
+
+    for (let i = daysCount - 1; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const key = d.toISOString().split('T')[0];
+      const label = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+      dateMap.set(key, { label, revenue: 0, orders: 0 });
     }
-  }, [dateRange]);
+
+    orders.forEach((o) => {
+      if (!o.date) return;
+      const orderDateKey = new Date(o.date).toISOString().split('T')[0];
+      if (dateMap.has(orderDateKey)) {
+        const bucket = dateMap.get(orderDateKey)!;
+        bucket.orders += 1;
+        if (o.paymentStatus === 'Paid') {
+          bucket.revenue += o.total || 0;
+        }
+      }
+    });
+
+    const allBuckets = Array.from(dateMap.values());
+    if (daysCount === 90) {
+      const weeklyBuckets: { label: string; revenue: number; orders: number }[] = [];
+      for (let i = 0; i < allBuckets.length; i += 7) {
+        const slice = allBuckets.slice(i, i + 7);
+        const revenue = slice.reduce((acc, c) => acc + c.revenue, 0);
+        const ordersCount = slice.reduce((acc, c) => acc + c.orders, 0);
+        weeklyBuckets.push({
+          label: slice[0].label,
+          revenue,
+          orders: ordersCount,
+        });
+      }
+      return weeklyBuckets;
+    }
+
+    return allBuckets;
+  }, [orders, dateRange]);
 
   // Dynamic order status breakdown with authentic Godavari Organic palette
   const orderStatusData = useMemo(() => {
@@ -149,12 +159,30 @@ export const DashboardPage: React.FC = () => {
     ].filter((item) => item.value > 0);
   }, [orders]);
 
-  // Best selling products
+  // Real sales count derived from actual customer orders
+  const productRealSalesMap = useMemo(() => {
+    const map = new Map<string, number>();
+    orders.forEach((o) => {
+      if (o.paymentStatus === 'Paid' || o.orderStatus !== 'Cancelled') {
+        (o.items || []).forEach((item) => {
+          const current = map.get(item.productId) || 0;
+          map.set(item.productId, current + (item.quantity || 1));
+        });
+      }
+    });
+    return map;
+  }, [orders]);
+
+  // Best selling products based on actual orders
   const bestSellingProducts = useMemo(() => {
     return [...products]
-      .sort((a, b) => b.salesCount - a.salesCount)
+      .map((p) => ({
+        ...p,
+        realSold: productRealSalesMap.get(p.id) || 0,
+      }))
+      .sort((a, b) => b.realSold - a.realSold)
       .slice(0, 5);
-  }, [products]);
+  }, [products, productRealSalesMap]);
 
   // Recent orders
   const recentOrders = useMemo(() => {
@@ -170,8 +198,8 @@ export const DashboardPage: React.FC = () => {
             <h2 className="text-xl sm:text-2xl font-extrabold text-[#103b1d] font-heading">
               Good morning, Store Admin
             </h2>
-            <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#f3e8cc] text-[#18542a] border border-[#dfd5bf]">
-              <Sparkles className="w-3 h-3 text-[#f96015]" /> Demo data
+            <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#e8f0eb] text-[#18542a] border border-[#c0d6c8]">
+              <CheckCircle2 className="w-3 h-3 text-[#18542a]" /> Live Store Connected
             </span>
           </div>
           <p className="text-sm text-[#5a6e54]">
@@ -316,7 +344,7 @@ export const DashboardPage: React.FC = () => {
         <Card className="lg:col-span-2">
           <CardHeader
             title="Sales & Revenue Analytics"
-            subtitle={`Gross merchandise value over the past ${dateRange.toUpperCase()} (Demo)`}
+            subtitle={`Gross merchandise value over the past ${dateRange.toUpperCase()}`}
             action={
               <div className="flex items-center gap-2 text-xs text-[#5a6e54] font-semibold">
                 <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#18542a]" />
@@ -541,7 +569,7 @@ export const DashboardPage: React.FC = () => {
                   <div className="flex items-center gap-2 mt-0.5 text-[11px] text-[#5a6e54]">
                     <span>{p.categoryName}</span>
                     <span>•</span>
-                    <span className="text-[#18542a] font-bold">{p.salesCount} sold</span>
+                    <span className="text-[#18542a] font-bold">{p.realSold} sold</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -998,7 +1026,7 @@ export const DashboardPage: React.FC = () => {
             {/* Internal Note */}
             <div>
               <h4 className="text-xs font-bold text-[#5a6e54] uppercase tracking-wider mb-2">
-                Internal Demo Note
+                Internal Staff Note
               </h4>
               <textarea
                 value={tempNote}
