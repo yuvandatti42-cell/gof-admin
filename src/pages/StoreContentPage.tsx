@@ -23,18 +23,19 @@ import {
 
 // Preset sample banner images for instant 1-click testing
 const PRESET_BANNERS = [
-  { name: 'Millet Power Banner', url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=1200&q=80' },
-  { name: 'Cold-Pressed Oils Banner', url: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=1200&q=80' },
-  { name: 'Vedic A2 Ghee Banner', url: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=1200&q=80' },
-  { name: 'Heritage Rice Banner', url: 'https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?auto=format&fit=crop&w=1200&q=80' },
-  { name: 'Organic Spices Banner', url: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=1200&q=80' },
+  { name: 'Cold-Pressed Oils Banner', url: '/banners/banner_oil.webp' },
+  { name: 'Vedic A2 Ghee Banner', url: '/banners/banner_ghee.webp' },
+  { name: 'Millet Power Banner', url: '/banners/hero_millets_editorial.webp' },
+  { name: 'Heritage Rice Banner', url: '/banners/banner_rice.webp' },
+  { name: 'Organic Spices Banner', url: '/banners/banner_spices.webp' },
+  { name: 'Spices & Millets Combo', url: '/banners/banner_spices_millets.webp' },
 ];
 
 const PRESET_AVATARS = [
-  { name: 'Dr. Ramana', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' },
-  { name: 'Srinivas V.', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80' },
-  { name: 'Ananya S.', url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80' },
-  { name: 'Kiran Rao', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80' },
+  { name: 'Ananya S.', url: '/customers/ananya.webp' },
+  { name: 'Srinivas V.', url: '/customers/srinivas.webp' },
+  { name: 'Vikram R.', url: '/customers/vikram.webp' },
+  { name: 'Arma Seal', url: '/logo-circle.webp' },
 ];
 
 export const StoreContentPage: React.FC = () => {
@@ -345,6 +346,9 @@ export const StoreContentPage: React.FC = () => {
                       src={slide.imageUrl}
                       alt={slide.title || 'Banner'}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = '/banners/banner_oil.webp';
+                      }}
                     />
                     <div className="absolute top-2 left-2">
                       <span className="px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold">
@@ -483,6 +487,9 @@ export const StoreContentPage: React.FC = () => {
                         src={t.avatarUrl}
                         alt={t.name}
                         className="w-12 h-12 rounded-full object-cover border-2 border-[#18542a]/30 shrink-0 shadow-xs"
+                        onError={(e) => {
+                          e.currentTarget.src = '/customers/ananya.webp';
+                        }}
                       />
                       <div>
                         <h4 className="font-bold text-[#103b1d] text-sm flex items-center gap-1">
@@ -564,6 +571,9 @@ export const StoreContentPage: React.FC = () => {
                 src={slideFormData.imageUrl}
                 alt="Banner Preview"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = '/banners/banner_oil.webp';
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-3 left-3 text-white">
@@ -721,6 +731,9 @@ export const StoreContentPage: React.FC = () => {
               src={testimonialFormData.avatarUrl}
               alt="Avatar Preview"
               className="w-14 h-14 rounded-full object-cover border-2 border-[#18542a]/30 shrink-0 shadow-xs"
+              onError={(e) => {
+                e.currentTarget.src = '/customers/ananya.webp';
+              }}
             />
             <div>
               <p className="font-bold text-sm text-[#103b1d]">

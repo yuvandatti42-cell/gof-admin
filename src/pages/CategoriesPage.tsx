@@ -332,6 +332,9 @@ export const CategoriesPage: React.FC = () => {
                     src={cat.imageUrl}
                     alt={cat.name}
                     className="w-full h-full object-cover transform-gpu group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      e.currentTarget.src = '/categories/oil.webp';
+                    }}
                   />
                   <div className="absolute top-2.5 right-2.5">
                     <Badge variant={cat.visibility === 'Visible' ? 'success' : 'neutral'} size="sm">
@@ -407,6 +410,9 @@ export const CategoriesPage: React.FC = () => {
                             src={cat.imageUrl}
                             alt={cat.name}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/categories/oil.webp';
+                            }}
                           />
                         </div>
                       </td>
@@ -557,6 +563,9 @@ export const CategoriesPage: React.FC = () => {
                     src={formData.imageUrl}
                     alt="Category Preview"
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = '/categories/oil.webp';
+                    }}
                   />
                 ) : (
                   <span className="text-[10px] text-[#5a6e54]">No Image</span>

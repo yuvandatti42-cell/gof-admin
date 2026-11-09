@@ -969,6 +969,9 @@ export const ProductsPage: React.FC = () => {
                             src={p.imageUrl}
                             alt={p.name}
                             className="w-10 h-10 rounded-xl object-cover border border-[#dfd5bf] shrink-0"
+                            onError={(e) => {
+                              e.currentTarget.src = '/logo.webp';
+                            }}
                           />
                         </td>
                         <td className="py-3 px-4">
@@ -1127,6 +1130,9 @@ export const ProductsPage: React.FC = () => {
                         alt={p.name}
                         onClick={() => setViewingProduct(p)}
                         className="w-16 h-16 rounded-xl object-cover border border-[#dfd5bf] shrink-0 cursor-pointer"
+                        onError={(e) => {
+                          e.currentTarget.src = '/logo.webp';
+                        }}
                       />
 
                       <div className="flex-1 min-w-0">
@@ -1422,6 +1428,9 @@ export const ProductsPage: React.FC = () => {
                   src={formData.imageUrl}
                   alt="Primary Preview"
                   className="w-14 h-14 rounded-xl object-contain bg-white border border-[#dfd5bf] shrink-0 p-1"
+                  onError={(e) => {
+                    e.currentTarget.src = '/logo.webp';
+                  }}
                 />
                 <div className="flex-1 space-y-1">
                   <input
@@ -1457,6 +1466,9 @@ export const ProductsPage: React.FC = () => {
                       src={formData.secondaryImageUrl}
                       alt="Secondary Preview"
                       className="w-full h-full object-contain"
+                      onError={(e) => {
+                        e.currentTarget.src = '/logo.webp';
+                      }}
                     />
                   ) : (
                     <span className="text-[10px] text-[#5a6e54] text-center font-medium">No Image</span>
@@ -1561,6 +1573,9 @@ export const ProductsPage: React.FC = () => {
                 src={viewingProduct.imageUrl}
                 alt={viewingProduct.name}
                 className="w-full h-56 object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = '/logo.webp';
+                }}
               />
             </div>
 
@@ -1631,7 +1646,7 @@ export const ProductsPage: React.FC = () => {
         onClose={() => setDeleteTargetId(null)}
         onConfirm={handleConfirmDelete}
         title="Delete Product?"
-        message="Are you sure you want to remove this product from the mock catalog? This client-side change will update your dashboard metrics."
+        message="Are you sure you want to delete this product from your store catalog? This action will remove it from the storefront and admin panel."
         confirmText="Delete Product"
         variant="danger"
       />
@@ -1642,7 +1657,7 @@ export const ProductsPage: React.FC = () => {
         onClose={() => setIsBulkDeleteModalOpen(false)}
         onConfirm={handleConfirmBulkDelete}
         title="Delete Selected Products?"
-        message={`Are you sure you want to delete ${selectedIds.length} products? This action will remove them from the mock list.`}
+        message={`Are you sure you want to delete ${selectedIds.length} products? This action will remove them from your store catalog.`}
         confirmText={`Delete ${selectedIds.length} Products`}
         variant="danger"
       />

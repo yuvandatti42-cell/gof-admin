@@ -561,6 +561,9 @@ export const DashboardPage: React.FC = () => {
                   src={p.imageUrl}
                   alt={p.name}
                   className="w-11 h-11 rounded-xl object-contain bg-[#faf5ea] p-1 border border-[#dfd5bf] shrink-0"
+                  onError={(e) => {
+                    e.currentTarget.src = '/logo.webp';
+                  }}
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-[#103b1d] truncate group-hover:text-[#18542a]">
@@ -831,6 +834,9 @@ export const DashboardPage: React.FC = () => {
                       src={p.imageUrl}
                       alt={p.name}
                       className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-sm"
+                      onError={(e) => {
+                        e.currentTarget.src = '/logo.webp';
+                      }}
                     />
                     <span className="absolute top-1.5 left-1.5 text-[9px] font-black px-1.5 py-0.5 rounded bg-[#18542a] text-white shadow-2xs">
                       Live on Store
@@ -967,6 +973,9 @@ export const DashboardPage: React.FC = () => {
                           src={item.imageUrl}
                           alt={item.productName}
                           className="w-10 h-10 rounded-lg object-contain bg-[#faf5ea] p-1 border border-[#dfd5bf]"
+                          onError={(e) => {
+                            e.currentTarget.src = '/logo.webp';
+                          }}
                         />
                       )}
                       <div>
