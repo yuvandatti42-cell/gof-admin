@@ -499,7 +499,7 @@ export const INITIAL_STORE_CONTENT: StoreContent = {
     },
     {
       id: 'slide-3',
-      imageUrl: '/banners/hero_millets_editorial.webp',
+      imageUrl: '/hero.webp',
       title: 'Wholesome Millet Power',
       subtitle: 'Good Food Better Health Naturally • Diabetic Friendly & 100% Natural',
       badgeText: 'Arma Organic Millets',

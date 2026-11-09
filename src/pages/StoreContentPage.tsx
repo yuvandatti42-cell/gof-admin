@@ -25,7 +25,7 @@ import {
 const PRESET_BANNERS = [
   { name: 'Cold-Pressed Oils Banner', url: '/banners/banner_oil.webp' },
   { name: 'Vedic A2 Ghee Banner', url: '/banners/banner_ghee.webp' },
-  { name: 'Millet Power Banner', url: '/banners/hero_millets_editorial.webp' },
+  { name: 'Millet Power Banner', url: '/hero.webp' },
   { name: 'Heritage Rice Banner', url: '/banners/banner_rice.webp' },
   { name: 'Organic Spices Banner', url: '/banners/banner_spices.webp' },
   { name: 'Spices & Millets Combo', url: '/banners/banner_spices_millets.webp' },
