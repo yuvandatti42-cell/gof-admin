@@ -25,7 +25,7 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react';
-import { testShiprocketConnection } from '../services/shiprocketService';
+import { testShiprocketConnection, clearShiprocketTokenCache } from '../services/shiprocketService';
 
 interface SettingsPageProps {
   defaultTab?: 'store' | 'shipping' | 'notifications' | 'admin';
@@ -130,6 +130,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
   };
 
   const handleSaveShiprocket = () => {
+    clearShiprocketTokenCache();
     updateSettings({
       shiprocket: {
         enabled: shiprocketEnabled,
@@ -578,21 +579,48 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
             {/* Test Result Message */}
             {testResult && (
               <div
-                className={`p-3.5 rounded-xl text-xs flex items-start gap-2.5 border ${
+                className={`p-4 rounded-xl text-xs flex items-start gap-3 border ${
                   testResult.success
                     ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
                     : 'bg-rose-50 text-rose-900 border-rose-200'
                 }`}
               >
                 {testResult.success ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                 ) : (
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
                 )}
-                <div className="space-y-1">
-                  <p className="font-semibold">{testResult.message}</p>
+                <div className="space-y-2 flex-1">
+                  <p className="font-semibold text-sm">{testResult.message}</p>
+                  
+                  {!testResult.success && testResult.message.toLowerCase().includes('user blocked') && (
+                    <div className="p-3 bg-white/90 rounded-lg border border-rose-200 text-rose-950 space-y-1.5 shadow-xs">
+                      <p className="font-bold text-xs flex items-center gap-1.5 text-rose-800">
+                        <span>How to unblock or create a new API User in Shiprocket:</span>
+                      </p>
+                      <ol className="list-decimal list-inside space-y-1 text-[11.5px] leading-relaxed text-[#3b1212]">
+                        <li>
+                          Open your Shiprocket dashboard at{' '}
+                          <a
+                            href="https://app.shiprocket.in"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-bold underline text-[#18542a] inline-flex items-center gap-0.5"
+                          >
+                            app.shiprocket.in <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </li>
+                        <li>In the left sidebar, click <strong>Settings</strong> ➔ <strong>API</strong> ➔ <strong>Configure</strong></li>
+                        <li>Under <strong>API Users</strong>, delete <code>api@armafarms.com</code> if listed</li>
+                        <li>Click the green <strong>&ldquo;Create An API User&rdquo;</strong> button</li>
+                        <li>Enter an active email and password, click <strong>Generate Credential</strong> / <strong>Save</strong></li>
+                        <li>Paste those new credentials in the fields above and click <strong>Test Connection</strong></li>
+                      </ol>
+                    </div>
+                  )}
+
                   {testResult.locations && testResult.locations.length > 0 && (
-                    <p className="text-[11px] text-emerald-700">
+                    <p className="text-[11.5px] text-emerald-700">
                       Available Pickup Locations on your account: <strong>{testResult.locations.join(', ')}</strong>
                     </p>
                   )}

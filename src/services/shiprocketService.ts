@@ -94,6 +94,15 @@ export function formatShiprocketDate(dateStr?: string): string {
 let lastAuthFailureTime = 0;
 let lastAuthFailureError = '';
 
+export function clearShiprocketTokenCache(): void {
+  lastAuthFailureTime = 0;
+  lastAuthFailureError = '';
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(SHIPROCKET_CONFIG.TOKEN_STORAGE_KEY);
+    localStorage.removeItem(SHIPROCKET_CONFIG.TOKEN_EXPIRY_KEY);
+  }
+}
+
 /**
  * Retrieve active JWT token from memory/localStorage, or authenticate with Shiprocket
  */
