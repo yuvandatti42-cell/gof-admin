@@ -94,6 +94,30 @@ export function formatShiprocketDate(dateStr?: string): string {
 let lastAuthFailureTime = 0;
 let lastAuthFailureError = '';
 
+/**
+ * Universal Shiprocket Fetcher:
+ * Automatically routes through Vite Proxy or Vercel Serverless Proxy in browser environments
+ * to eliminate browser CORS "Failed to fetch" errors. Falls back to direct API if proxy is unavailable.
+ */
+async function shiprocketFetch(endpoint: string, options: RequestInit = {}): Promise<Response> {
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  if (typeof window !== 'undefined') {
+    try {
+      const proxyUrl = `/api/shiprocket${cleanEndpoint}`;
+      const proxyRes = await fetch(proxyUrl, options);
+      if (proxyRes.status !== 404) {
+        return proxyRes;
+      }
+    } catch (e) {
+      console.warn('[Shiprocket Proxy notice, attempting direct API]', e);
+    }
+  }
+
+  const directUrl = `${SHIPROCKET_CONFIG.BASE_URL}${cleanEndpoint}`;
+  return fetch(directUrl, options);
+}
+
 export function clearShiprocketTokenCache(): void {
   lastAuthFailureTime = 0;
   lastAuthFailureError = '';
@@ -129,7 +153,7 @@ export async function getShiprocketToken(creds?: ShiprocketCredentials, forceRef
   }
 
   // Request new token from Shiprocket
-  const res = await fetch(`${SHIPROCKET_CONFIG.BASE_URL}/auth/login`, {
+  const res = await shiprocketFetch('/auth/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -172,7 +196,7 @@ export async function testShiprocketConnection(creds?: ShiprocketCredentials): P
 }> {
   const token = await getShiprocketToken(creds, true);
 
-  const res = await fetch(`${SHIPROCKET_CONFIG.BASE_URL}/settings/company/pickup`, {
+  const res = await shiprocketFetch('/settings/company/pickup', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -281,7 +305,7 @@ export async function createShiprocketOrder(
     weight,
   };
 
-  const res = await fetch(`${SHIPROCKET_CONFIG.BASE_URL}/orders/create/adhoc`, {
+  const res = await shiprocketFetch('/orders/create/adhoc', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -320,7 +344,7 @@ export async function assignShiprocketAWB(
     body.courier_id = courierId;
   }
 
-  const res = await fetch(`${SHIPROCKET_CONFIG.BASE_URL}/courier/assign/awb`, {
+  const res = await shiprocketFetch('/courier/assign/awb', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -354,7 +378,7 @@ export async function generateShiprocketLabel(
 ): Promise<string> {
   const token = await getShiprocketToken(creds);
 
-  const res = await fetch(`${SHIPROCKET_CONFIG.BASE_URL}/generate/label`, {
+  const res = await shiprocketFetch('/generate/label', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
