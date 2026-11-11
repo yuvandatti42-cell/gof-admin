@@ -91,6 +91,9 @@ export function formatShiprocketDate(dateStr?: string): string {
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
+let lastAuthFailureTime = 0;
+let lastAuthFailureError = '';
+
 /**
  * Retrieve active JWT token from memory/localStorage, or authenticate with Shiprocket
  */
@@ -99,6 +102,11 @@ export async function getShiprocketToken(creds?: ShiprocketCredentials, forceRef
   const password = creds?.password || SHIPROCKET_CONFIG.DEFAULT_PASSWORD;
 
   if (!forceRefresh) {
+    // If recently failed with 403 or lockout, cooldown for 2 minutes to prevent repeated hammering that causes Shiprocket blocks
+    if (Date.now() - lastAuthFailureTime < 2 * 60 * 1000) {
+      throw new Error(`Shiprocket API authentication cooling down: ${lastAuthFailureError}`);
+    }
+
     const cachedToken = localStorage.getItem(SHIPROCKET_CONFIG.TOKEN_STORAGE_KEY);
     const cachedExpiry = localStorage.getItem(SHIPROCKET_CONFIG.TOKEN_EXPIRY_KEY);
     const now = Date.now();
@@ -106,6 +114,9 @@ export async function getShiprocketToken(creds?: ShiprocketCredentials, forceRef
     if (cachedToken && cachedExpiry && now < Number(cachedExpiry)) {
       return cachedToken;
     }
+  } else {
+    lastAuthFailureTime = 0;
+    lastAuthFailureError = '';
   }
 
   // Request new token from Shiprocket
@@ -119,8 +130,14 @@ export async function getShiprocketToken(creds?: ShiprocketCredentials, forceRef
 
   if (!res.ok) {
     const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.message || `Shiprocket login failed with HTTP ${res.status}`);
+    const message = errData.message || `Shiprocket login failed with HTTP ${res.status}`;
+    lastAuthFailureTime = Date.now();
+    lastAuthFailureError = message;
+    throw new Error(message);
   }
+
+  lastAuthFailureTime = 0;
+  lastAuthFailureError = '';
 
   const data: ShiprocketAuthResponse = await res.json();
   if (!data.token) {
