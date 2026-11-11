@@ -725,6 +725,12 @@ export const INITIAL_SETTINGS: StoreSettings = {
     razorpayEnabled: true,
     merchantName: 'Godavari Organic Foods',
   },
+  shiprocket: {
+    enabled: true,
+    email: '',
+    password: '',
+    pickupLocation: 'Primary',
+  },
 };
 
 export const INITIAL_NOTIFICATIONS: NotificationItem[] = [];

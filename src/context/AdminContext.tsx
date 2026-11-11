@@ -909,6 +909,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           razorpayEnabled: updates.payment?.razorpayEnabled ?? prev.payment?.razorpayEnabled ?? true,
           merchantName: updates.payment?.merchantName ?? prev.payment?.merchantName ?? 'Godavari Organic Foods',
         },
+        shiprocket: {
+          enabled: updates.shiprocket?.enabled ?? prev.shiprocket?.enabled ?? true,
+          email: updates.shiprocket?.email ?? prev.shiprocket?.email ?? '',
+          password: updates.shiprocket?.password ?? prev.shiprocket?.password ?? '',
+          pickupLocation: updates.shiprocket?.pickupLocation ?? prev.shiprocket?.pickupLocation ?? 'Primary',
+        },
       };
       saveSettingsToFirestore(updated).catch((err) =>
         console.error('Failed to save settings to Firestore:', err)

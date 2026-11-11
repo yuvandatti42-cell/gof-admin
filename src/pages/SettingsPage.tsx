@@ -12,7 +12,15 @@ import {
   Save,
   Info,
   CheckCircle2,
+  Package,
+  ExternalLink,
+  Key,
+  RefreshCw,
+  AlertCircle,
+  MapPin,
+  ShieldCheck,
 } from 'lucide-react';
+import { testShiprocketConnection } from '../services/shiprocketService';
 
 interface SettingsPageProps {
   defaultTab?: 'store' | 'shipping' | 'notifications' | 'admin';
@@ -76,6 +84,60 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
     setTimeout(() => setIsShippingSaved(false), 4000);
   };
 
+  // Local draft state - Shiprocket Logistics Integration
+  const [shiprocketEnabled, setShiprocketEnabled] = useState(settings.shiprocket?.enabled ?? true);
+  const [shiprocketEmail, setShiprocketEmail] = useState(settings.shiprocket?.email || '');
+  const [shiprocketPassword, setShiprocketPassword] = useState(settings.shiprocket?.password || '');
+  const [shiprocketPickupLocation, setShiprocketPickupLocation] = useState(settings.shiprocket?.pickupLocation || 'Primary');
+  const [isTestingShiprocket, setIsTestingShiprocket] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string; locations?: string[] } | null>(null);
+  const [isShiprocketSaved, setIsShiprocketSaved] = useState(false);
+
+  const handleTestShiprocket = async () => {
+    if (!shiprocketEmail || !shiprocketPassword) {
+      showToast('Please enter both Shiprocket API user email and password first.', 'error', 'Missing Credentials');
+      return;
+    }
+    setIsTestingShiprocket(true);
+    setTestResult(null);
+    try {
+      const res = await testShiprocketConnection({
+        email: shiprocketEmail.trim(),
+        password: shiprocketPassword.trim(),
+        pickupLocation: shiprocketPickupLocation.trim(),
+      });
+      const locationNames = (res.pickupLocations || []).map((l) => l.pickup_location || l.city || 'Primary');
+      setTestResult({
+        success: true,
+        message: `Connected successfully to ${res.companyName}! Found ${locationNames.length} registered pickup address${locationNames.length === 1 ? '' : 'es'}.`,
+        locations: locationNames,
+      });
+      showToast('Shiprocket API credentials verified successfully!', 'success', 'Connection Verified');
+    } catch (err: any) {
+      setTestResult({
+        success: false,
+        message: err.message || 'Authentication failed. Please verify your API User Email and Password in Shiprocket.',
+      });
+      showToast(err.message || 'Shiprocket authentication failed', 'error', 'Connection Error');
+    } finally {
+      setIsTestingShiprocket(false);
+    }
+  };
+
+  const handleSaveShiprocket = () => {
+    updateSettings({
+      shiprocket: {
+        enabled: shiprocketEnabled,
+        email: shiprocketEmail.trim(),
+        password: shiprocketPassword.trim(),
+        pickupLocation: shiprocketPickupLocation.trim() || 'Primary',
+      },
+    });
+    setIsShiprocketSaved(true);
+    showToast('Shiprocket credentials saved and active for order fulfillment!', 'success', 'Shiprocket Saved');
+    setTimeout(() => setIsShiprocketSaved(false), 4000);
+  };
+
   // Local draft state - Notifications
   const [orderAlerts, setOrderAlerts] = useState(settings.notifications?.orderAlerts ?? true);
   const [lowStockAlerts, setLowStockAlerts] = useState(settings.notifications?.lowStockAlerts ?? true);
@@ -125,6 +187,12 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
         email: adminEmail,
         phone: adminPhone,
         role: adminRole,
+      },
+      shiprocket: {
+        enabled: shiprocketEnabled,
+        email: shiprocketEmail.trim(),
+        password: shiprocketPassword.trim(),
+        pickupLocation: shiprocketPickupLocation.trim() || 'Primary',
       },
     });
 
@@ -262,6 +330,179 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
                 </div>
               </div>
             </div>
+          </Card>
+
+          {/* Shiprocket Automated Logistics Card */}
+          <Card className="space-y-5">
+            <div className="border-b border-[#dfd5bf] pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-semibold text-[#103b1d] flex items-center gap-2">
+                  <Package className="w-5 h-5 text-[#18542a]" />
+                  Shiprocket Logistics & Automated Fulfillment
+                </h3>
+                <p className="text-xs text-[#5a6e54] mt-0.5">
+                  Link your Shiprocket seller account to dispatch customer orders, assign courier partners (Delhivery, Blue Dart, DTDC), generate AWB tracking numbers, and print packing slips in 1-click.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 self-start sm:self-center">
+                <span className="text-xs font-semibold text-[#103b1d]">
+                  {shiprocketEnabled ? 'Fulfillment Active' : 'Disabled'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShiprocketEnabled(!shiprocketEnabled)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer ${
+                    shiprocketEnabled ? 'bg-[#18542a]' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      shiprocketEnabled ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
+            {/* Step-by-Step Guide Accordion / Box */}
+            <div className="bg-[#FAF5EA] p-4 rounded-xl border border-[#dfd5bf] text-xs space-y-2 text-[#344835]">
+              <div className="flex items-center gap-2 font-bold text-[#103b1d]">
+                <Info className="w-4 h-4 text-[#18542a] shrink-0" />
+                <span>How to link your Shiprocket account:</span>
+              </div>
+              <ol className="list-decimal list-inside space-y-1.5 pl-1 text-[11.5px] leading-relaxed text-[#4a5f45]">
+                <li>
+                  Open your <strong>Shiprocket Dashboard</strong> (<a href="https://app.shiprocket.in" target="_blank" rel="noopener noreferrer" className="text-[#18542a] underline font-bold inline-flex items-center gap-0.5">app.shiprocket.in <ExternalLink className="w-3 h-3" /></a>).
+                </li>
+                <li>
+                  In the left sidebar, click <strong>Settings</strong> (the 🛠️ tool/wrench icon) &rarr; under <strong>Integrations</strong>, click <strong>API</strong>.
+                </li>
+                <li>
+                  Click <strong>&ldquo;Add New User&rdquo;</strong> (or Create an API User). Enter an email & set a password, then click Save.
+                </li>
+                <li>
+                  Copy that <strong>API User Email</strong> & <strong>Password</strong> and paste them into the fields below.
+                </li>
+                <li>
+                  Verify your <strong>Pickup Address</strong> in Shiprocket (Settings &rarr; Pickup Addresses). Its nickname is usually <code>Primary</code>.
+                </li>
+              </ol>
+            </div>
+
+            {/* Credentials Form */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <label className="block font-semibold text-[#103b1d] mb-1 flex items-center gap-1.5">
+                  <Key className="w-3.5 h-3.5 text-[#18542a]" />
+                  Shiprocket API User Email
+                </label>
+                <input
+                  type="email"
+                  value={shiprocketEmail}
+                  onChange={(e) => {
+                    setShiprocketEmail(e.target.value);
+                    setIsShiprocketSaved(false);
+                  }}
+                  placeholder="e.g. api@godavariorganic.in or your shiprocket email"
+                  className="w-full px-3 py-2.5 rounded-xl border border-[#dfd5bf] bg-white text-xs font-mono text-[#103b1d] focus:outline-none focus:ring-2 focus:ring-[#18542a]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[#103b1d] mb-1 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#18542a]" />
+                  Shiprocket API User Password
+                </label>
+                <input
+                  type="password"
+                  value={shiprocketPassword}
+                  onChange={(e) => {
+                    setShiprocketPassword(e.target.value);
+                    setIsShiprocketSaved(false);
+                  }}
+                  placeholder="Enter API User password"
+                  className="w-full px-3 py-2.5 rounded-xl border border-[#dfd5bf] bg-white text-xs font-mono text-[#103b1d] focus:outline-none focus:ring-2 focus:ring-[#18542a]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[#103b1d] mb-1 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-[#18542a]" />
+                  Pickup Location Nickname
+                </label>
+                <input
+                  type="text"
+                  value={shiprocketPickupLocation}
+                  onChange={(e) => {
+                    setShiprocketPickupLocation(e.target.value);
+                    setIsShiprocketSaved(false);
+                  }}
+                  placeholder="e.g. Primary, Warehouse, Farm"
+                  className="w-full px-3 py-2.5 rounded-xl border border-[#dfd5bf] bg-white text-xs font-medium text-[#103b1d] focus:outline-none focus:ring-2 focus:ring-[#18542a]"
+                />
+                <p className="text-[10.5px] text-[#5a6e54] mt-1">
+                  Must match the Pickup Location nickname configured in Shiprocket. Default is &quot;Primary&quot;.
+                </p>
+              </div>
+
+              <div className="flex flex-col justify-end">
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleTestShiprocket}
+                    disabled={isTestingShiprocket}
+                    icon={<RefreshCw className={`w-3.5 h-3.5 ${isTestingShiprocket ? 'animate-spin' : ''}`} />}
+                    className="py-2.5 px-4 text-xs font-bold cursor-pointer"
+                  >
+                    {isTestingShiprocket ? 'Testing...' : 'Test Connection'}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="primary"
+                    onClick={handleSaveShiprocket}
+                    icon={<Save className="w-3.5 h-3.5" />}
+                    className="py-2.5 px-4 text-xs font-bold cursor-pointer"
+                  >
+                    Save Shiprocket Settings
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Test Result Message */}
+            {testResult && (
+              <div
+                className={`p-3.5 rounded-xl text-xs flex items-start gap-2.5 border ${
+                  testResult.success
+                    ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+                    : 'bg-rose-50 text-rose-900 border-rose-200'
+                }`}
+              >
+                {testResult.success ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                )}
+                <div className="space-y-1">
+                  <p className="font-semibold">{testResult.message}</p>
+                  {testResult.locations && testResult.locations.length > 0 && (
+                    <p className="text-[11px] text-emerald-700">
+                      Available Pickup Locations on your account: <strong>{testResult.locations.join(', ')}</strong>
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {isShiprocketSaved && (
+              <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                Shiprocket settings saved and ready for live order fulfillment!
+              </div>
+            )}
           </Card>
         </div>
       )}

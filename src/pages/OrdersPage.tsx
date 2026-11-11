@@ -32,7 +32,7 @@ import {
 
 
 export const OrdersPage: React.FC = () => {
-  const { orders, updateOrderStatus, updatePaymentStatus, updateOrderInternalNote, updateOrder } = useAdmin();
+  const { orders, updateOrderStatus, updatePaymentStatus, updateOrderInternalNote, updateOrder, settings } = useAdmin();
   const { showToast } = useToast();
 
   // Search & filter
@@ -54,8 +54,17 @@ export const OrdersPage: React.FC = () => {
   const handleShipWithShiprocket = async (order: Order) => {
     setIsShippingWithShiprocket(true);
     try {
+      const shiprocketCreds = settings?.shiprocket?.email ? {
+        email: settings.shiprocket.email,
+        password: settings.shiprocket.password,
+        pickupLocation: settings.shiprocket.pickupLocation || 'Primary',
+      } : undefined;
+
       // 1. Create adhoc order on Shiprocket
-      const created = await createShiprocketOrder(order);
+      const created = await createShiprocketOrder(order, {
+        creds: shiprocketCreds,
+        pickupLocation: settings?.shiprocket?.pickupLocation || 'Primary',
+      });
       const shipmentId = created.shipment_id;
       const shiprocketOrderId = created.order_id;
 
@@ -65,7 +74,7 @@ export const OrdersPage: React.FC = () => {
 
       if (!awbCode && shipmentId) {
         try {
-          const awbRes = await assignShiprocketAWB(shipmentId);
+          const awbRes = await assignShiprocketAWB(shipmentId, undefined, shiprocketCreds);
           awbCode = awbRes.awbCode;
           courierName = awbRes.courierName;
         } catch (awbErr: any) {
@@ -125,7 +134,12 @@ export const OrdersPage: React.FC = () => {
     }
     setIsGeneratingLabel(true);
     try {
-      const labelUrl = await generateShiprocketLabel(shipmentId);
+      const shiprocketCreds = settings?.shiprocket?.email ? {
+        email: settings.shiprocket.email,
+        password: settings.shiprocket.password,
+        pickupLocation: settings.shiprocket.pickupLocation || 'Primary',
+      } : undefined;
+      const labelUrl = await generateShiprocketLabel(shipmentId, shiprocketCreds);
       window.open(labelUrl, '_blank');
       showToast('Shiprocket shipping label opened in new tab.', 'success');
     } catch (err: any) {
