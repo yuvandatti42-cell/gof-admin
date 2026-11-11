@@ -8,8 +8,8 @@ import { updateOrderInFirestore } from './firebaseService';
 
 export const SHIPROCKET_CONFIG = {
   BASE_URL: 'https://apiv2.shiprocket.in/v1/external',
-  DEFAULT_EMAIL: 'api@armafarms.com',
-  DEFAULT_PASSWORD: '7FyvlanWBRvoQRGltSU3@9yk$NSPSj28',
+  DEFAULT_EMAIL: 'nasnaidu01@gmail.com',
+  DEFAULT_PASSWORD: 'vGQJtM%5*sam1YT31o94iB9*qXJd9mf9',
   DEFAULT_PICKUP_LOCATION: 'Primary',
   TOKEN_STORAGE_KEY: 'gof_shiprocket_token',
   TOKEN_EXPIRY_KEY: 'gof_shiprocket_token_expiry',
