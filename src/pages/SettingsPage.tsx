@@ -20,6 +20,10 @@ import {
   AlertCircle,
   MapPin,
   ShieldCheck,
+  Mail,
+  Send,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { testShiprocketConnection } from '../services/shiprocketService';
 
@@ -133,6 +137,11 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
         password: shiprocketPassword.trim(),
         pickupLocation: shiprocketPickupLocation.trim() || 'Primary',
       },
+      emailConfig: {
+        enabled: emailConfigEnabled,
+        gmailUser: gmailUser.trim(),
+        gmailAppPassword: gmailAppPassword.trim(),
+      },
     });
     setIsShiprocketSaved(true);
     showToast('Shiprocket credentials saved and active for order fulfillment!', 'success', 'Shiprocket Saved');
@@ -147,6 +156,83 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
   const [lowStockThreshold, setLowStockThreshold] = useState(
     (settings.notifications?.lowStockThreshold ?? 15).toString()
   );
+
+  // Local draft state - Automated Order Email (Gmail SMTP)
+  const [emailConfigEnabled, setEmailConfigEnabled] = useState(settings.emailConfig?.enabled ?? true);
+  const [gmailUser, setGmailUser] = useState(settings.emailConfig?.gmailUser || 'godhavariorganicfoods@gmail.com');
+  const [gmailAppPassword, setGmailAppPassword] = useState(settings.emailConfig?.gmailAppPassword || '');
+  const [testEmailRecipient, setTestEmailRecipient] = useState(settings.emailConfig?.gmailUser || 'godhavariorganicfoods@gmail.com');
+  const [isTestingEmail, setIsTestingEmail] = useState(false);
+  const [emailTestResult, setEmailTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [showAppPassword, setShowAppPassword] = useState(false);
+  const [isEmailSaved, setIsEmailSaved] = useState(false);
+
+  useEffect(() => {
+    if (settings.emailConfig) {
+      if (settings.emailConfig.enabled !== undefined) setEmailConfigEnabled(settings.emailConfig.enabled);
+      if (settings.emailConfig.gmailUser) {
+        setGmailUser(settings.emailConfig.gmailUser);
+        setTestEmailRecipient(settings.emailConfig.gmailUser);
+      }
+      if (settings.emailConfig.gmailAppPassword) setGmailAppPassword(settings.emailConfig.gmailAppPassword);
+    }
+  }, [settings.emailConfig]);
+
+  const handleTestEmail = async () => {
+    if (!gmailAppPassword.trim()) {
+      showToast('Please enter your 16-character Google App Password first.', 'error', 'Missing App Password');
+      return;
+    }
+    setIsTestingEmail(true);
+    setEmailTestResult(null);
+    try {
+      const res = await fetch('https://www.armafarms.com/api/send-order-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          test: true,
+          recipient: testEmailRecipient.trim() || gmailUser.trim(),
+          gmailUser: gmailUser.trim(),
+          gmailAppPassword: gmailAppPassword.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEmailTestResult({
+          success: true,
+          message: `Test email sent successfully to ${testEmailRecipient.trim() || gmailUser}! Check your inbox.`,
+        });
+        showToast('Test email sent! Connection is active & verified.', 'success', 'Email Verified');
+      } else {
+        setEmailTestResult({
+          success: false,
+          message: data.error || 'Failed to authenticate with Gmail SMTP. Check your 16-character App Password.',
+        });
+        showToast(data.error || 'Authentication failed', 'error', 'Email Test Failed');
+      }
+    } catch (err: any) {
+      setEmailTestResult({
+        success: false,
+        message: err.message || 'Network error reaching email service.',
+      });
+      showToast(err.message || 'Connection failed', 'error', 'Email Service Error');
+    } finally {
+      setIsTestingEmail(false);
+    }
+  };
+
+  const handleSaveEmailOnly = () => {
+    updateSettings({
+      emailConfig: {
+        enabled: emailConfigEnabled,
+        gmailUser: gmailUser.trim(),
+        gmailAppPassword: gmailAppPassword.trim(),
+      },
+    });
+    setIsEmailSaved(true);
+    showToast('Gmail SMTP credentials saved! Order confirmation emails are active.', 'success', 'Email Settings Saved');
+    setTimeout(() => setIsEmailSaved(false), 4000);
+  };
 
   const { adminProfile: authAdminProfile, resetPassword } = useAuth();
 
@@ -205,6 +291,11 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
         email: shiprocketEmail.trim(),
         password: shiprocketPassword.trim(),
         pickupLocation: shiprocketPickupLocation.trim() || 'Primary',
+      },
+      emailConfig: {
+        enabled: emailConfigEnabled,
+        gmailUser: gmailUser.trim(),
+        gmailAppPassword: gmailAppPassword.trim(),
       },
     });
 
@@ -640,82 +731,264 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
 
       {/* Tab: Alerts & Notifications */}
       {activeTab === 'notifications' && (
-        <Card className="space-y-5">
-          <div className="border-b border-[#dfd5bf] pb-3">
-            <h3 className="text-base font-semibold text-[#103b1d]">
-              Inventory & Order Notification Rules
-            </h3>
-            <p className="text-xs text-[#5a6e54]">
-              Select which operational events trigger alerts in your notification center.
-            </p>
-          </div>
-
-          <div className="space-y-3 text-xs">
-            <div className="flex items-center justify-between p-3 rounded-xl border border-[#dfd5bf] bg-white">
-              <div>
-                <span className="font-semibold text-[#103b1d] block">New Customer Order Alerts</span>
-                <span className="text-[#5a6e54]">Real-time bell notification for every incoming order.</span>
+        <div className="space-y-6">
+          {/* Card: Customer Order Confirmation Emails (Gmail SMTP) */}
+          <Card className="space-y-5 border-2 border-[#18542a]/30">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#dfd5bf] pb-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2.5 rounded-xl bg-[#18542a]/10 text-[#18542a] shrink-0 mt-0.5">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-semibold text-[#103b1d]">
+                      Automated Customer Order Emails (Gmail SMTP)
+                    </h3>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        emailConfigEnabled && gmailAppPassword
+                          ? 'bg-[#E8F0EB] text-[#18542a] border border-[#C0D6C8]'
+                          : 'bg-amber-100 text-amber-800 border border-amber-300'
+                      }`}
+                    >
+                      {emailConfigEnabled && gmailAppPassword ? 'Active & Live' : 'Setup Required'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#5a6e54] mt-0.5">
+                    Send instant branded order invoices and live package tracking links directly to customers upon checkout via your Gmail account.
+                  </p>
+                </div>
               </div>
-              <input
-                type="checkbox"
-                checked={orderAlerts}
-                onChange={(e) => setOrderAlerts(e.target.checked)}
-                className="rounded border-[#dfd5bf] text-[#18542a] focus:ring-[#18542a] w-4 h-4 cursor-pointer"
-              />
-            </div>
 
-            <div className="flex items-center justify-between p-3 rounded-xl border border-[#dfd5bf] bg-white">
-              <div>
-                <span className="font-semibold text-[#103b1d] block">Low Stock Threshold Warnings</span>
-                <span className="text-[#5a6e54]">Warn when any product inventory drops to critical level.</span>
-              </div>
-              <input
-                type="checkbox"
-                checked={lowStockAlerts}
-                onChange={(e) => setLowStockAlerts(e.target.checked)}
-                className="rounded border-[#dfd5bf] text-[#18542a] focus:ring-[#18542a] w-4 h-4 cursor-pointer"
-              />
-            </div>
-
-            {lowStockAlerts && (
-              <div className="p-3 rounded-xl border border-[#dfd5bf] bg-[#FAF5EA] space-y-1">
-                <label className="block font-semibold text-[#103b1d]">Low Stock Alert Threshold (Units)</label>
+              <div className="flex items-center gap-2 self-start sm:self-center">
+                <span className="text-xs font-semibold text-[#103b1d]">
+                  {emailConfigEnabled ? 'Enabled' : 'Disabled'}
+                </span>
                 <input
-                  type="number"
-                  value={lowStockThreshold}
-                  onChange={(e) => setLowStockThreshold(e.target.value)}
-                  className="w-32 px-3 py-1.5 rounded-xl border border-[#dfd5bf] bg-white font-medium"
+                  type="checkbox"
+                  checked={emailConfigEnabled}
+                  onChange={(e) => setEmailConfigEnabled(e.target.checked)}
+                  className="rounded border-[#dfd5bf] text-[#18542a] focus:ring-[#18542a] w-5 h-5 cursor-pointer"
                 />
               </div>
-            )}
-
-            <div className="flex items-center justify-between p-3 rounded-xl border border-[#dfd5bf] bg-white">
-              <div>
-                <span className="font-semibold text-[#103b1d] block">Customer Support Inquiries</span>
-                <span className="text-[#5a6e54]">Alert for product queries and contact form entries.</span>
-              </div>
-              <input
-                type="checkbox"
-                checked={customerInquiries}
-                onChange={(e) => setCustomerInquiries(e.target.checked)}
-                className="rounded border-[#dfd5bf] text-[#18542a] focus:ring-[#18542a] w-4 h-4 cursor-pointer"
-              />
             </div>
 
-            <div className="flex items-center justify-between p-3 rounded-xl border border-[#dfd5bf] bg-white">
-              <div>
-                <span className="font-semibold text-[#103b1d] block">Daily Morning Digest</span>
-                <span className="text-[#5a6e54]">Prepare day summary of revenue and pending deliveries.</span>
+            {/* Email Credentials Form */}
+            <div className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-semibold text-[#103b1d] mb-1">
+                    Store Sender Gmail Address
+                  </label>
+                  <input
+                    type="email"
+                    value={gmailUser}
+                    onChange={(e) => setGmailUser(e.target.value)}
+                    placeholder="godhavariorganicfoods@gmail.com"
+                    className="w-full px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white font-medium"
+                  />
+                  <p className="text-[11px] text-[#5a6e54] mt-1">
+                    This email appears as the official sender and reply-to address.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-[#103b1d] mb-1">
+                    16-Character Google App Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showAppPassword ? 'text' : 'password'}
+                      value={gmailAppPassword}
+                      onChange={(e) => setGmailAppPassword(e.target.value)}
+                      placeholder="abcd efgh ijkl mnop"
+                      className="w-full px-3 py-2 pr-10 rounded-xl border border-[#dfd5bf] bg-white font-mono text-sm tracking-wide"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowAppPassword(!showAppPassword)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showAppPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-[#5a6e54] mt-1">
+                    Generated from your Google Account security settings (spaces are stripped automatically).
+                  </p>
+                </div>
               </div>
-              <input
-                type="checkbox"
-                checked={dailyDigest}
-                onChange={(e) => setDailyDigest(e.target.checked)}
-                className="rounded border-[#dfd5bf] text-[#18542a] focus:ring-[#18542a] w-4 h-4 cursor-pointer"
-              />
+
+              {/* 3 Step Instruction Guide */}
+              <div className="p-3.5 rounded-xl bg-[#FAF5EA] border border-[#dfd5bf] space-y-2">
+                <div className="flex items-center gap-1.5 font-bold text-[#18542a] text-xs">
+                  <Key className="w-4 h-4" />
+                  <span>How to generate your 16-Character Google App Password (Takes 60 seconds):</span>
+                </div>
+                <ol className="list-decimal list-inside space-y-1 text-[11.5px] text-[#1d271c] leading-relaxed pl-1">
+                  <li>
+                    Ensure <strong>2-Step Verification</strong> is ON on your Google Account (
+                    <a
+                      href="https://myaccount.google.com/security"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#18542a] underline font-semibold inline-flex items-center gap-0.5"
+                    >
+                      Google Security <ExternalLink className="w-3 h-3 inline" />
+                    </a>
+                    ).
+                  </li>
+                  <li>
+                    Open{' '}
+                    <a
+                      href="https://myaccount.google.com/apppasswords"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#18542a] underline font-bold inline-flex items-center gap-0.5"
+                    >
+                      myaccount.google.com/apppasswords <ExternalLink className="w-3 h-3 inline" />
+                    </a>
+                    .
+                  </li>
+                  <li>
+                    Type <strong>Godavari Store</strong> under App name, click <strong>Create</strong>, then copy the 16-letter code and paste it above.
+                  </li>
+                </ol>
+              </div>
+
+              {/* Test Connection Banner */}
+              {emailTestResult && (
+                <div
+                  className={`p-3 rounded-xl border flex items-start gap-2.5 text-xs ${
+                    emailTestResult.success
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                      : 'bg-red-50 border-red-300 text-red-900'
+                  }`}
+                >
+                  {emailTestResult.success ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  )}
+                  <div>
+                    <span className="font-semibold block">
+                      {emailTestResult.success ? 'Verification Succeeded' : 'Verification Notice'}
+                    </span>
+                    <span>{emailTestResult.message}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Actions Footer */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-[#dfd5bf]">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="email"
+                    value={testEmailRecipient}
+                    onChange={(e) => setTestEmailRecipient(e.target.value)}
+                    placeholder="Recipient email for test"
+                    className="w-56 px-3 py-1.5 rounded-xl border border-[#dfd5bf] bg-white text-xs"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleTestEmail}
+                    disabled={isTestingEmail}
+                    icon={isTestingEmail ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                  >
+                    {isTestingEmail ? 'Sending...' : 'Send Test Email'}
+                  </Button>
+                </div>
+
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleSaveEmailOnly}
+                  icon={<Save className="w-3.5 h-3.5" />}
+                >
+                  {isEmailSaved ? 'Saved to Live Store!' : 'Save Email Settings'}
+                </Button>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+
+          {/* Card: Inventory & Order Notification Rules */}
+          <Card className="space-y-5">
+            <div className="border-b border-[#dfd5bf] pb-3">
+              <h3 className="text-base font-semibold text-[#103b1d]">
+                Inventory & Order Notification Rules
+              </h3>
+              <p className="text-xs text-[#5a6e54]">
+                Select which operational events trigger alerts in your notification center.
+              </p>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="flex items-center justify-between p-3 rounded-xl border border-[#dfd5bf] bg-white">
+                <div>
+                  <span className="font-semibold text-[#103b1d] block">New Customer Order Alerts</span>
+                  <span className="text-[#5a6e54]">Real-time bell notification for every incoming order.</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={orderAlerts}
+                  onChange={(e) => setOrderAlerts(e.target.checked)}
+                  className="rounded border-[#dfd5bf] text-[#18542a] focus:ring-[#18542a] w-4 h-4 cursor-pointer"
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl border border-[#dfd5bf] bg-white">
+                <div>
+                  <span className="font-semibold text-[#103b1d] block">Low Stock Threshold Warnings</span>
+                  <span className="text-[#5a6e54]">Warn when any product inventory drops to critical level.</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={lowStockAlerts}
+                  onChange={(e) => setLowStockAlerts(e.target.checked)}
+                  className="rounded border-[#dfd5bf] text-[#18542a] focus:ring-[#18542a] w-4 h-4 cursor-pointer"
+                />
+              </div>
+
+              {lowStockAlerts && (
+                <div className="p-3 rounded-xl border border-[#dfd5bf] bg-[#FAF5EA] space-y-1">
+                  <label className="block font-semibold text-[#103b1d]">Low Stock Alert Threshold (Units)</label>
+                  <input
+                    type="number"
+                    value={lowStockThreshold}
+                    onChange={(e) => setLowStockThreshold(e.target.value)}
+                    className="w-32 px-3 py-1.5 rounded-xl border border-[#dfd5bf] bg-white font-medium"
+                  />
+                </div>
+              )}
+
+              <div className="flex items-center justify-between p-3 rounded-xl border border-[#dfd5bf] bg-white">
+                <div>
+                  <span className="font-semibold text-[#103b1d] block">Customer Support Inquiries</span>
+                  <span className="text-[#5a6e54]">Alert for product queries and contact form entries.</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={customerInquiries}
+                  onChange={(e) => setCustomerInquiries(e.target.checked)}
+                  className="rounded border-[#dfd5bf] text-[#18542a] focus:ring-[#18542a] w-4 h-4 cursor-pointer"
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl border border-[#dfd5bf] bg-white">
+                <div>
+                  <span className="font-semibold text-[#103b1d] block">Daily Morning Digest</span>
+                  <span className="text-[#5a6e54]">Prepare day summary of revenue and pending deliveries.</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={dailyDigest}
+                  onChange={(e) => setDailyDigest(e.target.checked)}
+                  className="rounded border-[#dfd5bf] text-[#18542a] focus:ring-[#18542a] w-4 h-4 cursor-pointer"
+                />
+              </div>
+            </div>
+          </Card>
+        </div>
       )}
 
       {/* Tab: Admin Profile & Security */}

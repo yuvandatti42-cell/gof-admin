@@ -264,6 +264,11 @@ export interface StoreSettings {
     password?: string;
     pickupLocation?: string;
   };
+  emailConfig?: {
+    enabled?: boolean;
+    gmailUser?: string;
+    gmailAppPassword?: string;
+  };
 }
 
 export interface NotificationItem {
