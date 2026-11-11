@@ -1,10 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import { AdminProvider } from './context/AdminContext';
 import { ToastProvider } from './context/ToastContext';
 import { AdminShell } from './components/layout/AdminShell';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 // Pages
+import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProductsPage } from './pages/ProductsPage';
 import { CategoriesPage } from './pages/CategoriesPage';
@@ -18,25 +21,33 @@ export function App() {
   return (
     <ErrorBoundary>
       <ToastProvider>
-        <AdminProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route element={<AdminShell />}>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/products" element={<ProductsPage />} />
-                <Route path="/categories" element={<CategoriesPage />} />
-                <Route path="/orders" element={<OrdersPage />} />
-                <Route path="/customers" element={<CustomersPage />} />
-                <Route path="/promotions" element={<PromotionsPage />} />
-                <Route path="/store-content" element={<StoreContentPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/profile" element={<SettingsPage defaultTab="admin" />} />
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
-              </Route>
-            </Routes>
-          </BrowserRouter>
-        </AdminProvider>
+        <AuthProvider>
+          <AdminProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Public Authentication Route */}
+                <Route path="/login" element={<LoginPage />} />
+
+                {/* Secure Protected Routes for Authorized Administrators */}
+                <Route element={<ProtectedRoute />}>
+                  <Route element={<AdminShell />}>
+                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/products" element={<ProductsPage />} />
+                    <Route path="/categories" element={<CategoriesPage />} />
+                    <Route path="/orders" element={<OrdersPage />} />
+                    <Route path="/customers" element={<CustomersPage />} />
+                    <Route path="/promotions" element={<PromotionsPage />} />
+                    <Route path="/store-content" element={<StoreContentPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/profile" element={<SettingsPage defaultTab="admin" />} />
+                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                  </Route>
+                </Route>
+              </Routes>
+            </BrowserRouter>
+          </AdminProvider>
+        </AuthProvider>
       </ToastProvider>
     </ErrorBoundary>
   );

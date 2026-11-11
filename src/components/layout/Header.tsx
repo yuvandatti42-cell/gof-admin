@@ -14,6 +14,7 @@ import {
 import { NotificationsPopover } from './NotificationsPopover';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface HeaderProps {
   onOpenSearch: () => void;
@@ -27,6 +28,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
     notifications,
   } = useAdmin();
   const { showToast } = useToast();
+  const { logout, adminProfile } = useAuth();
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -147,7 +149,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               SA
             </div>
             <span className="hidden md:inline-block text-xs font-bold text-[#103b1d]">
-              Store Admin
+              {adminProfile?.name || 'Yuvan Datti'}
             </span>
             <ChevronDown className="w-3.5 h-3.5 text-[#5a6e54] hidden sm:block" />
           </button>
@@ -155,10 +157,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           {isProfileMenuOpen && (
             <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-[#dfd5bf] shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
               <div className="p-3.5 border-b border-[#dfd5bf] bg-[#faf5ea]">
-                <p className="text-xs font-extrabold text-[#103b1d]">Srinivas Rao Vaddi</p>
-                <p className="text-[11px] text-[#5a6e54]">admin@godavariorganic.in</p>
+                <p className="text-xs font-extrabold text-[#103b1d]">{adminProfile?.name || 'Yuvan Datti'}</p>
+                <p className="text-[11px] text-[#5a6e54] truncate">{adminProfile?.email || 'admin@armafarms.com'}</p>
                 <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-[#e8f0eb] text-[#18542a] border border-[#c0d6c8]">
-                  Store Operations
+                  {adminProfile?.role || 'Super Admin'}
                 </span>
               </div>
               <div className="p-1 text-xs text-[#103b1d]">
@@ -214,8 +216,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
       <ConfirmDialog
         isOpen={isSignoutModalOpen}
         onClose={() => setIsSignoutModalOpen(false)}
-        onConfirm={() => {
+        onConfirm={async () => {
+          setIsSignoutModalOpen(false);
+          await logout();
           showToast('Signed out of admin session.', 'info', 'Signed Out');
+          navigate('/login', { replace: true });
         }}
         title="Sign Out of Admin Portal"
         message="Are you sure you want to end your current admin session?"
