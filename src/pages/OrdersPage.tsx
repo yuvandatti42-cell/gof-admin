@@ -15,7 +15,6 @@ import {
   Eye,
   Printer,
   Truck,
-  Package,
   ExternalLink,
   FileText,
   CheckCircle2,
@@ -24,15 +23,22 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import {
-  createShiprocketOrder,
-  assignShiprocketAWB,
   generateShiprocketLabel,
   getShiprocketTrackingUrl,
 } from '../services/shiprocketService';
 
 
 export const OrdersPage: React.FC = () => {
-  const { orders, updateOrderStatus, updatePaymentStatus, updateOrderInternalNote, updateOrder, settings } = useAdmin();
+  const {
+    orders,
+    updateOrderStatus,
+    updatePaymentStatus,
+    updateOrderInternalNote,
+    settings,
+    dispatchOrderToShiprocket,
+    syncAllPendingToShiprocket,
+    isSyncingShiprocket,
+  } = useAdmin();
   const { showToast } = useToast();
 
   // Search & filter
@@ -50,77 +56,23 @@ export const OrdersPage: React.FC = () => {
   const [isGeneratingLabel, setIsGeneratingLabel] = useState(false);
   const [copiedAwb, setCopiedAwb] = useState(false);
 
+  const pendingShiprocketCount = useMemo(
+    () => orders.filter((o) => !o.shiprocketOrderId && o.orderStatus !== 'Cancelled').length,
+    [orders]
+  );
+
   // Ship order via Shiprocket
   const handleShipWithShiprocket = async (order: Order) => {
     setIsShippingWithShiprocket(true);
     try {
-      const shiprocketCreds = settings?.shiprocket?.email ? {
-        email: settings.shiprocket.email,
-        password: settings.shiprocket.password,
-        pickupLocation: settings.shiprocket.pickupLocation || 'Primary',
-      } : undefined;
-
-      // 1. Create adhoc order on Shiprocket
-      const created = await createShiprocketOrder(order, {
-        creds: shiprocketCreds,
-        pickupLocation: settings?.shiprocket?.pickupLocation || 'Primary',
-      });
-      const shipmentId = created.shipment_id;
-      const shiprocketOrderId = created.order_id;
-
-      // 2. Assign courier & generate AWB
-      let awbCode = created.awb_code || '';
-      let courierName = created.courier_name || 'Shiprocket Delivery';
-
-      if (!awbCode && shipmentId) {
-        try {
-          const awbRes = await assignShiprocketAWB(shipmentId, undefined, shiprocketCreds);
-          awbCode = awbRes.awbCode;
-          courierName = awbRes.courierName;
-        } catch (awbErr: any) {
-          console.warn('Shiprocket AWB assignment deferred:', awbErr);
-        }
+      const res = await dispatchOrderToShiprocket(order);
+      if (res.success) {
+        showToast(`Order #${order.id} dispatched directly to Shiprocket!`, 'success', 'Shipment Created');
+      } else {
+        showToast(res.error || 'Failed to dispatch order to Shiprocket.', 'error', 'Shipment Error');
       }
-
-      const newTimeline = [
-        ...order.timeline,
-        {
-          status: 'Dispatched via Shiprocket',
-          timestamp: new Date().toISOString(),
-          note: awbCode
-            ? `Dispatched with ${courierName}. AWB Tracking #${awbCode}`
-            : `Shiprocket order #${shiprocketOrderId} created. AWB generation in progress.`,
-        },
-      ];
-
-      const updates: Partial<Order> = {
-        orderStatus: 'Shipped',
-        shiprocketOrderId,
-        shiprocketShipmentId: shipmentId,
-        shiprocketAwb: awbCode,
-        shiprocketCourierName: courierName,
-        timeline: newTimeline,
-      };
-
-      updateOrder(order.id, updates);
-      if (selectedOrder && selectedOrder.id === order.id) {
-        setSelectedOrder((prev) => (prev ? { ...prev, ...updates } : null));
-      }
-
-      showToast(
-        awbCode
-          ? `Order #${order.id} shipped via ${courierName}! AWB: ${awbCode}`
-          : `Order #${order.id} sent to Shiprocket (#${shiprocketOrderId}).`,
-        'success',
-        'Shiprocket Dispatched'
-      );
     } catch (err: any) {
-      console.error('Shiprocket shipment error:', err);
-      showToast(
-        err.message || 'Failed to dispatch shipment via Shiprocket. Check connection.',
-        'error',
-        'Shiprocket Error'
-      );
+      showToast(err.message || 'Shiprocket dispatch error', 'error');
     } finally {
       setIsShippingWithShiprocket(false);
     }
@@ -245,9 +197,32 @@ export const OrdersPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#e8f0eb] border border-[#c0d6c8] text-[#18542a]">
-          <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>Live Storefront Connected</span>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {pendingShiprocketCount > 0 && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={async () => {
+                showToast(`Auto-syncing ${pendingShiprocketCount} pending orders to Shiprocket...`, 'info');
+                const res = await syncAllPendingToShiprocket();
+                if (res.synced > 0) {
+                  showToast(`Dispatched ${res.synced} orders directly to Shiprocket!`, 'success');
+                } else if (res.failed > 0) {
+                  showToast(`Could not reach Shiprocket for ${res.failed} orders. Please verify API User credentials in Settings.`, 'error');
+                }
+              }}
+              disabled={isSyncingShiprocket}
+              icon={<Truck className="w-3.5 h-3.5 text-[#18542a]" />}
+              className="text-xs font-bold"
+            >
+              {isSyncingShiprocket ? 'Dispatching...' : `Dispatch ${pendingShiprocketCount} to Shiprocket`}
+            </Button>
+          )}
+
+          <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#e8f0eb] border border-[#c0d6c8] text-[#18542a]">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Live Storefront Connected</span>
+          </div>
         </div>
       </div>
 
@@ -612,30 +587,33 @@ export const OrdersPage: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="bg-white p-3.5 rounded-xl border border-[#dfd5bf] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="space-y-0.5">
-                    <p className="font-semibold text-[#103b1d]">Dispatch from Warehouse (NR Peta, Eluru)</p>
-                    <p className="text-[11px] text-[#5a6e54]">
-                      Transfers recipient address ({selectedOrder.shippingAddress.city} - {selectedOrder.shippingAddress.pincode}) and order items to Shiprocket.
+                <div className="bg-[#faf5ea] p-4 rounded-xl border border-[#dfd5bf] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-1">
+                    <p className="font-bold text-xs text-[#18542a] flex items-center gap-1.5">
+                      <Truck className="w-4 h-4 text-[#18542a]" />
+                      Automated Direct Fulfillment Active
+                    </p>
+                    <p className="text-[11px] text-[#5a6e54] leading-relaxed">
+                      Orders placed on your storefront are automatically pushed directly to Shiprocket without manual clicking.
                     </p>
                   </div>
 
                   {selectedOrder.orderStatus !== 'Cancelled' ? (
                     <Button
                       size="sm"
-                      variant="primary"
+                      variant="secondary"
                       onClick={() => handleShipWithShiprocket(selectedOrder)}
                       disabled={isShippingWithShiprocket}
                       icon={
                         isShippingWithShiprocket ? (
                           <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                         ) : (
-                          <Package className="w-3.5 h-3.5" />
+                          <RefreshCw className="w-3.5 h-3.5" />
                         )
                       }
-                      className="whitespace-nowrap font-bold text-xs px-4 py-2 self-start sm:self-auto shadow-xs"
+                      className="whitespace-nowrap font-bold text-xs px-3.5 py-2 self-start sm:self-auto shadow-xs"
                     >
-                      {isShippingWithShiprocket ? 'Creating Shipment...' : 'Ship via Shiprocket'}
+                      {isShippingWithShiprocket ? 'Dispatching...' : 'Force Re-sync to Shiprocket'}
                     </Button>
                   ) : (
                     <span className="text-[11px] text-red-600 font-semibold">

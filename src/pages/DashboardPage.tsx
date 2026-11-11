@@ -21,6 +21,8 @@ import {
   RefreshCw,
   PhoneCall,
   Clock,
+  Truck,
+  ArrowUpRight,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -54,6 +56,8 @@ export const DashboardPage: React.FC = () => {
     callbackRequests,
     updateCallbackStatus,
     deleteCallback,
+    isSyncingShiprocket,
+    syncAllPendingToShiprocket,
   } = useAdmin();
   const { showToast } = useToast();
 
@@ -61,6 +65,14 @@ export const DashboardPage: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [tempNote, setTempNote] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
+
+  // Shiprocket metrics derived from real orders
+  const syncedOrdersCount = useMemo(() => orders.filter((o) => o.shiprocketOrderId).length, [orders]);
+  const awbOrdersCount = useMemo(() => orders.filter((o) => o.shiprocketAwb).length, [orders]);
+  const pendingShiprocketOrders = useMemo(
+    () => orders.filter((o) => !o.shiprocketOrderId && o.orderStatus !== 'Cancelled'),
+    [orders]
+  );
 
   // Storefront active products
   const storefrontProducts = useMemo(() => {
@@ -338,6 +350,67 @@ export const DashboardPage: React.FC = () => {
         </Card>
       </div>
 
+      {/* Shiprocket Automated Fulfillment Banner */}
+      <div className="bg-gradient-to-r from-[#18542a] via-[#1b5e2f] to-[#103b1d] rounded-2xl p-4 sm:p-5 text-white shadow-md border border-[#9abc05]/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start gap-3.5">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/15 flex items-center justify-center shrink-0 border border-white/20 text-[#ffc926] shadow-xs">
+            <Truck className="w-5 h-5 stroke-[2.5]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-urbanist font-black text-base sm:text-lg text-white">
+                Shiprocket Automated Logistics
+              </h3>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#9abc05] text-[#103b1d] tracking-wider uppercase">
+                Direct Dispatch Active
+              </span>
+            </div>
+            <p className="text-xs text-[#f3e8cc] mt-0.5 leading-relaxed max-w-xl">
+              Customer orders are automatically pushed to Shiprocket with courier assignment (Delhivery, Blue Dart, DTDC) and real-time AWB tracking.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+          <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-xl border border-white/15 text-xs">
+            <span className="text-[#f3e8cc]">Synced:</span>
+            <span className="font-bold text-[#ffc926] font-mono">{syncedOrdersCount} / {orders.length}</span>
+            <span className="text-white/40">|</span>
+            <span className="text-[#f3e8cc]">AWBs:</span>
+            <span className="font-bold text-white font-mono">{awbOrdersCount}</span>
+          </div>
+
+          {pendingShiprocketOrders.length > 0 && (
+            <button
+              onClick={async () => {
+                showToast(`Auto-syncing ${pendingShiprocketOrders.length} pending orders to Shiprocket...`, 'info');
+                const res = await syncAllPendingToShiprocket();
+                if (res.synced > 0) {
+                  showToast(`Successfully dispatched ${res.synced} orders directly to Shiprocket!`, 'success');
+                } else if (res.failed > 0) {
+                  showToast(`Could not reach Shiprocket for ${res.failed} orders. Please check API credentials in Settings.`, 'error');
+                }
+              }}
+              disabled={isSyncingShiprocket}
+              className="px-3.5 py-2 bg-[#ffc926] hover:bg-[#e0b020] text-[#103b1d] text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncingShiprocket ? 'animate-spin' : ''}`} />
+              <span>{isSyncingShiprocket ? 'Dispatching...' : `Dispatch ${pendingShiprocketOrders.length} to Shiprocket`}</span>
+            </button>
+          )}
+
+          <a
+            href="https://app.shiprocket.in/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white text-xs font-bold rounded-xl border border-white/20 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+          >
+            <span>Shiprocket Portal</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </a>
+        </div>
+      </div>
+
       {/* Analytics Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Revenue Over Time Area Chart */}
@@ -476,6 +549,7 @@ export const DashboardPage: React.FC = () => {
                   <th className="py-3 px-4">Total</th>
                   <th className="py-3 px-4">Payment</th>
                   <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Shiprocket Shipping</th>
                   <th className="py-3 px-4 text-right">Action</th>
                 </tr>
               </thead>
@@ -512,6 +586,30 @@ export const DashboardPage: React.FC = () => {
                       <Badge status={order.orderStatus} size="sm">
                         {order.orderStatus}
                       </Badge>
+                    </td>
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      {order.shiprocketOrderId ? (
+                        <div className="flex flex-col gap-0.5">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#e8f5ec] text-[#18542a] border border-[#c2e4cc]">
+                            <Truck className="w-3 h-3" />
+                            <span>Shiprocket #{order.shiprocketOrderId}</span>
+                          </span>
+                          {order.shiprocketAwb ? (
+                            <span className="font-mono text-[10px] font-bold text-[#18542a] pl-1">
+                              AWB: {order.shiprocketAwb}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-[#5a6e54] pl-1">
+                              {order.shiprocketCourierName || 'Pickup Ready'}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#faf5ea] text-[#5a6e54] border border-[#dfd5bf]">
+                          <RefreshCw className="w-3 h-3 animate-spin text-[#9abc05]" />
+                          <span>Direct Syncing...</span>
+                        </span>
+                      )}
                     </td>
                     <td className="py-3.5 px-4 text-right whitespace-nowrap">
                       <button

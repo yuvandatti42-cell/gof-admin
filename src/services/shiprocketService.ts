@@ -4,6 +4,7 @@
  */
 
 import type { Order } from '../types';
+import { updateOrderInFirestore } from './firebaseService';
 
 export const SHIPROCKET_CONFIG = {
   BASE_URL: 'https://apiv2.shiprocket.in/v1/external',
@@ -349,5 +350,56 @@ export async function generateShiprocketLabel(
  */
 export function getShiprocketTrackingUrl(awbCode: string): string {
   return `https://shiprocket.co//tracking/${awbCode}`;
+}
+
+/**
+ * 100% Automated direct dispatch of an order to Shiprocket
+ * Automatically creates custom order, assigns courier AWB, updates order status,
+ * and saves tracking codes into Firestore without requiring manual admin clicking.
+ */
+export async function syncOrderDirectlyToShiprocket(
+  order: Order,
+  creds?: ShiprocketCredentials
+): Promise<{ success: boolean; data?: CreateShiprocketOrderResponse; error?: string }> {
+  try {
+    const created = await createShiprocketOrder(order, { creds });
+    let awbCode = '';
+    let courierName = '';
+
+    // Automatically attempt to assign express courier AWB
+    if (created.shipment_id) {
+      try {
+        const awbRes = await assignShiprocketAWB(created.shipment_id, undefined, creds);
+        awbCode = awbRes.awbCode || '';
+        courierName = awbRes.courierName || '';
+      } catch (awbErr) {
+        console.warn('[Shiprocket Auto-Dispatch] AWB auto-assignment notice:', awbErr);
+      }
+    }
+
+    const updates: Partial<Order> = {
+      shiprocketOrderId: created.order_id,
+      shiprocketShipmentId: created.shipment_id,
+      shiprocketStatus: created.status || 'NEW',
+      ...(awbCode ? { shiprocketAwb: awbCode } : {}),
+      ...(courierName ? { shiprocketCourierName: courierName } : {}),
+      orderStatus: order.orderStatus === 'Pending' ? 'Processing' : order.orderStatus,
+      timeline: [
+        ...(order.timeline || []),
+        {
+          status: 'Synced to Shiprocket',
+          timestamp: new Date().toISOString(),
+          note: `Automatically dispatched to Shiprocket (Order #${created.order_id}, Shipment #${created.shipment_id}${awbCode ? `, AWB: ${awbCode}` : ''})`
+        }
+      ]
+    };
+
+    await updateOrderInFirestore(order.id, updates);
+    return { success: true, data: created };
+  } catch (err: any) {
+    const errorMsg = err.message || 'Failed to dispatch order to Shiprocket';
+    console.warn('[Shiprocket Auto-Dispatch Warning]', errorMsg);
+    return { success: false, error: errorMsg };
+  }
 }
 

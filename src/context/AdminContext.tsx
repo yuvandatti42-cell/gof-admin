@@ -56,6 +56,7 @@ import {
   markAllNotificationsReadInFirestore,
   checkAndSeedFirestoreIfEmpty,
 } from '../services/firebaseService';
+import { syncOrderDirectlyToShiprocket } from '../services/shiprocketService';
 
 interface AdminContextType {
   // Data
@@ -144,6 +145,11 @@ interface AdminContextType {
   updateCallbackStatus: (id: string, status: 'Pending' | 'Contacted') => void;
   deleteCallback: (id: string) => void;
 
+  // Shiprocket automated logistics
+  isSyncingShiprocket: boolean;
+  dispatchOrderToShiprocket: (order: Order) => Promise<{ success: boolean; error?: string }>;
+  syncAllPendingToShiprocket: () => Promise<{ synced: number; failed: number }>;
+
   // System
   resetToDemoData: () => void;
 }
@@ -226,6 +232,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [firebaseConnected, setFirebaseConnected] = useState<boolean>(false);
   const [isFirebaseSyncing, setIsFirebaseSyncing] = useState<boolean>(false);
   const knownOrderIdsRef = useRef<Set<string>>(new Set(orders.map((o) => o.id)));
+
+  // Shiprocket automated dispatch state
+  const [isSyncingShiprocket, setIsSyncingShiprocket] = useState<boolean>(false);
+  const dispatchingOrderIdsRef = useRef<Set<string>>(new Set());
+  const settingsRef = useRef(settings);
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
 
   // Shell UI state
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -312,6 +326,22 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             }
           });
           setOrders(liveOrders);
+
+          // Automated direct dispatch: directly push any new un-synced orders to Shiprocket
+          if (settingsRef.current?.shiprocket?.enabled !== false) {
+            const pending = liveOrders.filter(
+              (o) =>
+                !o.shiprocketOrderId &&
+                o.orderStatus !== 'Cancelled' &&
+                !dispatchingOrderIdsRef.current.has(o.id)
+            );
+            pending.forEach((order) => {
+              dispatchingOrderIdsRef.current.add(order.id);
+              syncOrderDirectlyToShiprocket(order, settingsRef.current?.shiprocket)
+                .catch((e) => console.warn('[Shiprocket Auto-Dispatch Notice]', e))
+                .finally(() => dispatchingOrderIdsRef.current.delete(order.id));
+            });
+          }
         });
 
         const unsubCustomers = subscribeToCustomers((liveCustomers) => {
@@ -746,6 +776,45 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
   }, []);
 
+  // Shiprocket automated direct dispatch
+  const dispatchOrderToShiprocket = useCallback(
+    async (order: Order): Promise<{ success: boolean; error?: string }> => {
+      if (dispatchingOrderIdsRef.current.has(order.id)) {
+        return { success: false, error: 'Order is already being processed by Shiprocket.' };
+      }
+      dispatchingOrderIdsRef.current.add(order.id);
+      try {
+        const res = await syncOrderDirectlyToShiprocket(order, settingsRef.current.shiprocket);
+        return res;
+      } finally {
+        dispatchingOrderIdsRef.current.delete(order.id);
+      }
+    },
+    []
+  );
+
+  const syncAllPendingToShiprocket = useCallback(async (): Promise<{ synced: number; failed: number }> => {
+    setIsSyncingShiprocket(true);
+    let synced = 0;
+    let failed = 0;
+    try {
+      const pendingOrders = orders.filter(
+        (o) => !o.shiprocketOrderId && o.orderStatus !== 'Cancelled'
+      );
+      for (const order of pendingOrders) {
+        const res = await dispatchOrderToShiprocket(order);
+        if (res.success) {
+          synced++;
+        } else {
+          failed++;
+        }
+      }
+      return { synced, failed };
+    } finally {
+      setIsSyncingShiprocket(false);
+    }
+  }, [orders, dispatchOrderToShiprocket]);
+
   // Customer Actions
   const updateCustomerStatus = useCallback((id: string, status: CustomerStatus) => {
     setCustomers((prev) =>
@@ -1044,6 +1113,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         callbackRequests,
         updateCallbackStatus,
         deleteCallback,
+        isSyncingShiprocket,
+        dispatchOrderToShiprocket,
+        syncAllPendingToShiprocket,
         resetToDemoData,
       }}
     >
