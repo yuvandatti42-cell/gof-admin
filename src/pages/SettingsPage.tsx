@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import {
@@ -147,11 +148,22 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
     (settings.notifications?.lowStockThreshold ?? 15).toString()
   );
 
+  const { adminProfile: authAdminProfile, resetPassword } = useAuth();
+
   // Local draft state - Admin Profile
-  const [adminName, setAdminName] = useState(settings.adminProfile?.name || 'Srinivas Rao Vaddi');
-  const [adminEmail, setAdminEmail] = useState(settings.adminProfile?.email || 'srinivas.rao@godavariorganic.in');
-  const [adminPhone, setAdminPhone] = useState(settings.adminProfile?.phone || '+91 94401 22849');
-  const [adminRole, setAdminRole] = useState(settings.adminProfile?.role || 'Store Operations Director');
+  const [adminName, setAdminName] = useState(
+    settings.adminProfile?.name || authAdminProfile?.name || 'Yuvan Datti'
+  );
+  const [adminEmail, setAdminEmail] = useState(
+    settings.adminProfile?.email || authAdminProfile?.email || 'admin@armafarms.com'
+  );
+  const [adminPhone, setAdminPhone] = useState(
+    settings.adminProfile?.phone || authAdminProfile?.phone || '+91 90100 88063'
+  );
+  const [adminRole, setAdminRole] = useState(
+    settings.adminProfile?.role || authAdminProfile?.role || 'Store Administrator'
+  );
+  const [isSendingResetEmail, setIsSendingResetEmail] = useState(false);
 
   // Save changes
   const handleSaveSettings = () => {
@@ -706,60 +718,111 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
         </Card>
       )}
 
-      {/* Tab: Admin Profile */}
+      {/* Tab: Admin Profile & Security */}
       {activeTab === 'admin' && (
-        <Card className="space-y-5">
-          <div className="border-b border-[#dfd5bf] pb-3">
-            <h3 className="text-base font-semibold text-[#103b1d]">
-              Store Administrator Profile
-            </h3>
-            <p className="text-xs text-[#5a6e54]">
-              Identity of the active store operations supervisor.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            <div>
-              <label className="block font-semibold text-[#103b1d] mb-1">Full Name</label>
-              <input
-                type="text"
-                value={adminName}
-                onChange={(e) => setAdminName(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white font-medium"
-              />
+        <div className="space-y-6">
+          <Card className="space-y-5">
+            <div className="border-b border-[#dfd5bf] pb-3">
+              <h3 className="text-base font-semibold text-[#103b1d]">
+                Store Administrator Profile
+              </h3>
+              <p className="text-xs text-[#5a6e54]">
+                Identity of the active store operations supervisor.
+              </p>
             </div>
 
-            <div>
-              <label className="block font-semibold text-[#103b1d] mb-1">Email Address</label>
-              <input
-                type="email"
-                value={adminEmail}
-                onChange={(e) => setAdminEmail(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <label className="block font-semibold text-[#103b1d] mb-1">Full Name</label>
+                <input
+                  type="text"
+                  value={adminName}
+                  onChange={(e) => setAdminName(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[#103b1d] mb-1">Email Address (Login ID)</label>
+                <input
+                  type="email"
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[#103b1d] mb-1">Phone Number</label>
+                <input
+                  type="text"
+                  value={adminPhone}
+                  onChange={(e) => setAdminPhone(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[#103b1d] mb-1">Role / Designation</label>
+                <input
+                  type="text"
+                  value={adminRole}
+                  onChange={(e) => setAdminRole(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
+                />
+              </div>
+            </div>
+          </Card>
+
+          <Card className="space-y-4">
+            <div className="border-b border-[#dfd5bf] pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 className="text-base font-semibold text-[#103b1d] flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-[#18542a]" />
+                  Admin Security & Credentials
+                </h3>
+                <p className="text-xs text-[#5a6e54] mt-0.5">
+                  Managed via Google Cloud Identity Toolkit & Firebase Auth with zero public credentials.
+                </p>
+              </div>
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#e8f0eb] text-[#18542a] border border-[#c0d6c8] flex items-center gap-1.5 self-start sm:self-auto">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Active Protection
+              </span>
             </div>
 
-            <div>
-              <label className="block font-semibold text-[#103b1d] mb-1">Phone Number</label>
-              <input
-                type="text"
-                value={adminPhone}
-                onChange={(e) => setAdminPhone(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
-              />
+            <div className="p-4 bg-[#faf5ea] border border-[#dfd5bf] rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold text-[#103b1d]">Reset Admin Password</p>
+                <p className="text-xs text-[#5a6e54] mt-0.5">
+                  Send a secure password reset link to <span className="font-mono font-semibold text-[#18542a]">{adminEmail}</span>.
+                </p>
+              </div>
+              <button
+                type="button"
+                disabled={isSendingResetEmail}
+                onClick={async () => {
+                  setIsSendingResetEmail(true);
+                  try {
+                    const res = await resetPassword(adminEmail);
+                    if (res.success) {
+                      showToast(res.message || 'Password reset link sent to your email.', 'success', 'Email Sent');
+                    } else {
+                      showToast(res.error || 'Failed to send reset email.', 'error');
+                    }
+                  } catch (err: any) {
+                    showToast(err.message || 'Failed to send reset link.', 'error');
+                  } finally {
+                    setIsSendingResetEmail(false);
+                  }
+                }}
+                className="px-4 py-2 rounded-xl bg-[#18542a] hover:bg-[#103b1d] text-white text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer disabled:opacity-60"
+              >
+                {isSendingResetEmail ? 'Sending Link...' : 'Send Password Reset Email'}
+              </button>
             </div>
-
-            <div>
-              <label className="block font-semibold text-[#103b1d] mb-1">Role / Designation</label>
-              <input
-                type="text"
-                value={adminRole}
-                onChange={(e) => setAdminRole(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-[#dfd5bf] bg-white"
-              />
-            </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
       )}
     </div>
   );
