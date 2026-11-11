@@ -727,8 +727,8 @@ export const INITIAL_SETTINGS: StoreSettings = {
   },
   shiprocket: {
     enabled: true,
-    email: '',
-    password: '',
+    email: 'api@armafarms.com',
+    password: '7FyvlanWBRvoQRGltSU3@9yk$NSPSj28',
     pickupLocation: 'Primary',
   },
 };

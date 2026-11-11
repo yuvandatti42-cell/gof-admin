@@ -86,8 +86,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ defaultTab }) => {
 
   // Local draft state - Shiprocket Logistics Integration
   const [shiprocketEnabled, setShiprocketEnabled] = useState(settings.shiprocket?.enabled ?? true);
-  const [shiprocketEmail, setShiprocketEmail] = useState(settings.shiprocket?.email || '');
-  const [shiprocketPassword, setShiprocketPassword] = useState(settings.shiprocket?.password || '');
+  const [shiprocketEmail, setShiprocketEmail] = useState(settings.shiprocket?.email || 'api@armafarms.com');
+  const [shiprocketPassword, setShiprocketPassword] = useState(settings.shiprocket?.password || '7FyvlanWBRvoQRGltSU3@9yk$NSPSj28');
   const [shiprocketPickupLocation, setShiprocketPickupLocation] = useState(settings.shiprocket?.pickupLocation || 'Primary');
   const [isTestingShiprocket, setIsTestingShiprocket] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string; locations?: string[] } | null>(null);
